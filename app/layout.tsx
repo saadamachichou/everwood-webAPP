@@ -66,7 +66,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${playfair.variable} ${garamond.variable} ${grotesk.variable} ${cormorant.variable} ${lora.variable} ${dmMono.variable} ${caveat.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen">
+      <body className="min-h-screen" style={{ position: "relative" }}>
         <ScrollToTop />
         <CustomCursor />
         <ScrollProgress />

@@ -272,30 +272,23 @@ export default function AntiquesPage() {
       </AnimatePresence>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          HERO  —  full-viewport, bottom-anchored, atmospheric
-          Navigation floats above this independently via its fixed position.
+          HERO  —  full-viewport, gallery-style centered text block
       ══════════════════════════════════════════════════════════════════════ */}
       <section
-        className="relative flex flex-col justify-between overflow-hidden"
+        className="relative overflow-hidden"
         style={{
           position: "relative",
           minHeight: "100svh",
-          paddingTop:    "clamp(7rem, 14vw, 12rem)",
-          paddingBottom: "clamp(4rem, 7vw,  6rem)",
-          paddingLeft: "60px",
-          paddingRight: "60px",
           background: "linear-gradient(155deg, #050302 0%, #0C0602 38%, #140A03 66%, #060302 100%)",
         }}
       >
         {/* ── Atmospheric depth layers ── */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          {/* Amber glow — upper-right quadrant, away from headline */}
           <div style={{
             position: "absolute", top: "8%", right: "12%",
             width: "50vw", height: "50vw", borderRadius: "50%",
             background: "radial-gradient(circle, rgba(201,169,110,0.04) 0%, transparent 62%)",
           }} />
-          {/* Ember glow — lower-left, behind stats area */}
           <div style={{
             position: "absolute", bottom: "10%", left: "-5%",
             width: "45vw", height: "40vw", borderRadius: "50%",
@@ -303,119 +296,141 @@ export default function AntiquesPage() {
           }} />
         </div>
 
-        {/* ── Animated golden compass — dominates the right half of the hero ── */}
+        {/* ── Animated golden compass ── */}
         <div
           className="absolute pointer-events-none hidden lg:block"
-          style={{
-            top: "4%", right: "2%",
-            width: "min(44vw, 580px)", height: "min(44vw, 580px)",
-            opacity: 0.52,
-          }}
+          style={{ top: "4%", right: "2%", width: "min(44vw, 580px)", height: "min(44vw, 580px)", opacity: 0.52 }}
         >
           <GoldenCompass />
         </div>
 
-        {/* ── Parallax content (y-drift + opacity-fade on scroll) ── */}
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 flex flex-col justify-end flex-1">
-
+        {/* ── Text block — absolute centered, gallery pattern ── */}
+        <motion.div
+          style={{
+            position: "absolute", inset: 0, margin: 0,
+            display: "flex", flexDirection: "column",
+            justifyContent: "center",
+            paddingTop: "172px",
+            paddingLeft: "clamp(2rem, 7vw, 7rem)",
+            paddingRight: "clamp(2rem, 7vw, 7rem)",
+            y: heroY, opacity: heroOpacity,
+            zIndex: 10,
+          }}
+        >
           {/* Eyebrow */}
           <motion.div
-            className="flex items-center gap-5 mb-12"
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}
           >
-            <div style={{ width: 32, height: 1, background: "#C9A96E", opacity: 0.4, flexShrink: 0 }} />
-            <p style={{
-              fontFamily: "var(--font-grotesk)",
-              fontSize: "0.6rem",
-              letterSpacing: "0.32em",
-              textTransform: "uppercase",
-              color: "#C9A96E",
-            }}>
-              Everwood · The Curiosity Cabinet
-            </p>
+            <div style={{ width: 32, height: 1, background: "rgba(201,169,110,0.5)" }} />
+            <span style={{
+              fontFamily: "var(--font-grotesk)", fontSize: "0.55rem",
+              letterSpacing: "0.32em", textTransform: "uppercase",
+              color: "rgba(201,169,110,0.65)",
+            }}>The Curiosity Cabinet · Casablanca · Est. 1923</span>
           </motion.div>
 
-          {/* Headline */}
-          <div style={{ maxWidth: "clamp(280px, 52vw, 820px)", marginBottom: "3rem" }}>
-            <HeroTitle
-              text="Objects That Outlived Empires."
-              delay={0.42}
-              className="font-[family-name:var(--font-playfair)]"
-              style={{
-                fontSize: "clamp(2.4rem, 5vw, 6rem)",
-                lineHeight: 0.9,
-                letterSpacing: "-0.02em",
-              } as React.CSSProperties}
-            />
-          </div>
+          {/* Main title */}
+          <HeroTitle
+            text="Objects That Outlived Empires."
+            delay={0.2}
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: "clamp(3rem, 6.5vw, 8rem)",
+              fontWeight: 400, lineHeight: 0.92,
+              color: "#F4F1E8", margin: 0,
+            }}
+          />
 
-          {/* Subtitle + stats row */}
-          <div className="flex flex-col lg:flex-row lg:items-end gap-10 lg:gap-0 mb-16">
-            <RevealOnScroll delay={0.82} y={20}>
-              <p style={{
-                fontFamily: "var(--font-garamond)",
-                fontStyle: "italic",
-                fontSize: "clamp(1.05rem, 1.5vw, 1.25rem)",
-                color: "#9E8E7A",
-                lineHeight: 1.95,
-                maxWidth: "44ch",
-              }}>
-                Twelve centuries of craft from forty countries.<br className="hidden sm:block" />
-                Each piece a custodianship waiting to be accepted.
-              </p>
-            </RevealOnScroll>
+          <div style={{ height: "0.65rem" }} />
 
-            <RevealOnScroll delay={0.98} y={16} className="lg:ml-auto">
-              <div className="flex items-end gap-14 pb-0.5">
-                {[
-                  { value: "12th–20th", label: "Century" },
-                  { value: "40+",       label: "Countries" },
-                  { value: String(antiques.length), label: "Objects" },
-                ].map(({ value, label }) => (
-                  <div key={label} className="text-right">
-                    <p style={{
-                      fontFamily: "var(--font-playfair)",
-                      fontSize: "clamp(1.5rem, 2.4vw, 2.2rem)",
-                      color: "#C9A96E",
-                      lineHeight: 1,
-                      marginBottom: "0.55rem",
-                    }}>{value}</p>
-                    <p style={{
-                      fontFamily: "var(--font-grotesk)",
-                      fontSize: "0.55rem",
-                      letterSpacing: "0.22em",
-                      textTransform: "uppercase",
-                      color: "#5A4A3A",
-                    }}>{label}</p>
-                  </div>
-                ))}
+          {/* Secondary italic subtitle — Lora italic, warm amber */}
+          <HeroTitle
+            as="h2"
+            text="Twelve Centuries of Craft"
+            delay={0.5}
+            style={{
+              fontFamily: "var(--font-lora)",
+              fontSize: "clamp(1.2rem, 2.5vw, 2.8rem)",
+              fontWeight: 400, fontStyle: "italic",
+              color: "#C9A96E", margin: 0,
+            }}
+          />
+
+          {/* Description */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontFamily: "var(--font-garamond)", fontStyle: "italic",
+              fontSize: "clamp(0.9rem, 1.5vw, 1.15rem)",
+              color: "rgba(244,241,232,0.45)", lineHeight: 1.75,
+              maxWidth: "46ch", marginTop: "1.8rem",
+            }}
+          >
+            From Andalusian tilework to Saharan lock-boxes — each piece
+            a custodianship waiting to be accepted, a memory kept alive
+            across generations.
+          </motion.p>
+
+          {/* Meta strip */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.4, duration: 0.8 }}
+            style={{
+              display: "flex", gap: "3rem", marginTop: "3.5rem",
+              borderLeft: "1px solid rgba(201,169,110,0.2)",
+              paddingLeft: "2rem",
+            }}
+          >
+            {[
+              { label: "Objects",    value: String(antiques.length) },
+              { label: "Provenance", value: "12 Centuries" },
+              { label: "Origins",    value: "40+ Countries" },
+            ].map(({ label, value }) => (
+              <div key={label} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <span style={{
+                  fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
+                  letterSpacing: "0.28em", textTransform: "uppercase",
+                  color: "rgba(201,169,110,0.45)",
+                }}>{label}</span>
+                <span style={{
+                  fontFamily: "var(--font-grotesk)", fontSize: "0.72rem",
+                  letterSpacing: "0.1em", color: "rgba(244,241,232,0.7)",
+                }}>{value}</span>
               </div>
-            </RevealOnScroll>
-          </div>
+            ))}
+          </motion.div>
+        </motion.div>
 
-          {/* Scroll cue */}
-          <RevealOnScroll delay={1.1} y={8}>
-            <div className="flex items-center gap-3">
-              <div style={{ width: 22, height: 1, background: "rgba(201,169,110,0.28)" }} />
-              <motion.div
-                animate={{ y: [0, 5, 0] }}
-                transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
-              >
-                <ChevronDown size={14} style={{ color: "rgba(201,169,110,0.38)" }} />
-              </motion.div>
-              <p style={{
-                fontFamily: "var(--font-grotesk)",
-                fontSize: "0.54rem",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                color: "rgba(201,169,110,0.32)",
-              }}>
-                Explore the Collection
-              </p>
-            </div>
-          </RevealOnScroll>
+        {/* Scroll cue — pinned to bottom-left */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.8, duration: 0.8 }}
+          style={{
+            position: "absolute", bottom: "3rem",
+            left: "clamp(2rem, 7vw, 7rem)",
+            zIndex: 10,
+            display: "flex", alignItems: "center", gap: "0.75rem",
+          }}
+        >
+          <div style={{ width: 22, height: 1, background: "rgba(201,169,110,0.28)" }} />
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+          >
+            <ChevronDown size={14} style={{ color: "rgba(201,169,110,0.38)" }} />
+          </motion.div>
+          <p style={{
+            fontFamily: "var(--font-grotesk)", fontSize: "0.54rem",
+            letterSpacing: "0.22em", textTransform: "uppercase",
+            color: "rgba(201,169,110,0.32)",
+          }}>Explore the Collection</p>
         </motion.div>
 
         {/* Bottom edge rule */}

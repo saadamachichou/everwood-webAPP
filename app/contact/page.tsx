@@ -112,6 +112,7 @@ export default function ContactPage() {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        paddingTop: "172px",
         overflow: "hidden",
         textAlign: "center",
       }}>

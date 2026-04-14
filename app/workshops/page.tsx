@@ -451,6 +451,8 @@ export default function WorkshopsPage() {
           <motion.div style={{
             position: "absolute", inset: 0, margin: 0,
             display: "flex", flexDirection: "column", justifyContent: "center",
+            paddingTop: "172px",
+            paddingBottom: "6rem",
             paddingLeft: "clamp(2rem,7vw,7rem)",
             paddingRight: "clamp(2rem,7vw,7rem)",
             y: heroY, opacity: heroOpacity,
@@ -520,31 +522,33 @@ export default function WorkshopsPage() {
                 <motion.a
                   href="#workshops"
                   style={{
-                    fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem",
-                    letterSpacing: "0.2em", textTransform: "uppercase",
-                    padding: "0.9rem 1.8rem",
-                    background: "#D4820A", color: "#131008",
+                    fontFamily: "var(--font-dm-mono)", fontSize: "0.7rem",
+                    letterSpacing: "0.18em", textTransform: "uppercase",
+                    padding: "1rem 2.2rem",
+                    background: "#E8960A", color: "#0A0700",
                     textDecoration: "none", display: "inline-flex",
-                    alignItems: "center", gap: "0.5rem",
+                    alignItems: "center", gap: "0.55rem",
+                    fontWeight: 500,
                   }}
-                  whileHover={{ background: "#E8A030" }}
+                  whileHover={{ background: "#F5A820" }}
                   whileTap={{ scale: 0.97 }}
                 >
-                  Browse Workshops <ArrowRight size={13} />
+                  Browse Workshops <ArrowRight size={14} />
                 </motion.a>
                 <motion.a
                   href="#private"
                   style={{
-                    fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem",
-                    letterSpacing: "0.2em", textTransform: "uppercase",
-                    padding: "0.9rem 1.8rem",
-                    border: "1px solid rgba(212,130,10,0.35)",
-                    color: "#D4820A", textDecoration: "none",
-                    display: "inline-flex", alignItems: "center", gap: "0.5rem",
+                    fontFamily: "var(--font-dm-mono)", fontSize: "0.7rem",
+                    letterSpacing: "0.18em", textTransform: "uppercase",
+                    padding: "1rem 2.2rem",
+                    border: "1px solid rgba(212,130,10,0.75)",
+                    color: "#E8A840", textDecoration: "none",
+                    display: "inline-flex", alignItems: "center", gap: "0.55rem",
+                    fontWeight: 500,
                   }}
-                  whileHover={{ borderColor: "#D4820A", background: "rgba(212,130,10,0.06)" }}
+                  whileHover={{ borderColor: "#E8960A", color: "#F5C060", background: "rgba(212,130,10,0.08)" }}
                 >
-                  Book a Private Event <ArrowRight size={13} />
+                  Book a Private Event <ArrowRight size={14} />
                 </motion.a>
               </motion.div>
             </div>

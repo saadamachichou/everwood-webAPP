@@ -426,11 +426,12 @@ export default function MenuPage() {
         background: "linear-gradient(to bottom, var(--room-parchment) 60%, transparent)",
         margin: 0,
       }}>
-        <Link href="/" style={{
-          fontFamily: "var(--font-fraunces)", fontSize: "1.1rem", fontWeight: 600,
-          color: "var(--room-espresso)", textDecoration: "none", letterSpacing: "0.05em",
-        }}>
-          Ever<span style={{ color: "var(--room-amber)" }}>wood</span>
+        <Link href="/" aria-label="Everwood — home" style={{ textDecoration: "none", display: "block" }}>
+          <img
+            src="/images/nav/logo.png"
+            alt="Everwood"
+            style={{ height: 140, width: "auto", display: "block", opacity: 0.92 }}
+          />
         </Link>
         <span style={{
           fontFamily: "var(--font-fraunces)", fontStyle: "italic",

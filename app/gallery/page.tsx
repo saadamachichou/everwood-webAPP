@@ -277,6 +277,7 @@ export default function GalleryPage() {
             position: "absolute", inset: 0, margin: 0,
             display: "flex", flexDirection: "column",
             justifyContent: "center",
+            paddingTop: "172px",
             paddingLeft: "clamp(2rem, 8vw, 8rem)",
             paddingRight: "clamp(2rem, 8vw, 8rem)",
             y: heroTextY,

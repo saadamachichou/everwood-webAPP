@@ -46,6 +46,17 @@ const bentoItems = [
   { label: "The Salon", sub: "", area: "", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 60% 40%, #1a1228, #0d0d1a)" },
 ];
 
+function ManifestoWord({ scrollYProgress, word, index, total }: {
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  word: string;
+  index: number;
+  total: number;
+}) {
+  const wordProgress = useTransform(scrollYProgress, [index / total, (index + 3) / total], [0, 1]);
+  const color = useTransform(wordProgress, [0, 1], ["var(--color-mist)", "var(--color-ivory)"]);
+  return <motion.span style={{ color }} className="inline">{word} </motion.span>;
+}
+
 function ManifestoSection() {
   const ref = useRef<HTMLParagraphElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 70%", "end 30%"] });
@@ -67,13 +78,9 @@ function ManifestoSection() {
       <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-10">Philosophy</p>
       <div style={{ width: 28, height: 1, background: "rgba(201,169,110,0.3)", margin: "0 auto 2.5rem" }} />
       <p ref={ref} className="font-[family-name:var(--font-cormorant)] italic text-[clamp(1.4rem,2.5vw,2.1rem)] leading-relaxed" style={{ maxWidth: "52ch" }} aria-label="Philosophy quote">
-        {words.map((word, i) => {
-          const wordProgress = useTransform(scrollYProgress, [i / words.length, (i + 3) / words.length], [0, 1]);
-          const color = useTransform(wordProgress, [0, 1], ["var(--color-mist)", "var(--color-ivory)"]);
-          return (
-            <motion.span key={i} style={{ color }} className="inline">{word} </motion.span>
-          );
-        })}
+        {words.map((word, i) => (
+          <ManifestoWord key={i} scrollYProgress={scrollYProgress} word={word} index={i} total={words.length} />
+        ))}
       </p>
     </section>
   );

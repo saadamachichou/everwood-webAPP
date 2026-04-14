@@ -458,18 +458,20 @@ function Room0Threshold({ tod, sectionRef }: { tod: typeof TOD[TimeOfDay]; secti
             zIndex: 1,
           }}
         />
-        {/* Video — drop hero.mp4 into /public/videos/ */}
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          onCanPlay={() => setVideoReady(true)}
-          style={{ position: "absolute", inset: 0, margin: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
-        >
-          <source src="/videos/hero.mp4" type="video/mp4" />
-        </video>
+        {/* Video — place hero.mp4 in /public/videos/ and set HERO_VIDEO_ENABLED=true to enable */}
+        {(process.env.NEXT_PUBLIC_HERO_VIDEO === "true") && (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            onCanPlay={() => setVideoReady(true)}
+            style={{ position: "absolute", inset: 0, margin: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+          >
+            <source src="/videos/hero.mp4" type="video/mp4" />
+          </video>
+        )}
       </motion.div>
 
       {/* ── Cinematic overlay stack ───────────────────────────────── */}
@@ -484,7 +486,7 @@ function Room0Threshold({ tod, sectionRef }: { tod: typeof TOD[TimeOfDay]; secti
 
       {/* ── Content ────────────────────────────────────────────────── */}
       <motion.div
-        style={{ position: "relative", zIndex: 10, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 clamp(2.5rem, 8vw, 7rem)", paddingTop: "5rem", y: headlineY }}
+        style={{ position: "relative", zIndex: 10, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 clamp(2.5rem, 8vw, 7rem)", paddingTop: "172px", y: headlineY }}
       >
         {/* Eyebrow */}
         <motion.div
