@@ -1,26 +1,561 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@plugin "@tailwindcss/typography";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ── Legacy project aliases (keep for backwards compat) ─────── */
+  --color-void: #03030A;
+  --color-obsidian: #0A0A14;
+  --color-carbon: #111120;
+  --color-iron: #1C1C30;
+  --color-ash: #3A3A52;
+  --color-mist: #8884A8;
+  --color-ivory: #F4F1E8;
+  --color-gold: #C9A96E;
+  --color-ember: #E85D26;
+  --color-signal: #2AFFA8;
+  --color-ev-bg: #0F1115;
+  --color-ev-surface: #1A1820;
+  --color-ev-surface2: #211F2A;
+  --color-ev-burgundy: #6B1E2F;
+  --color-ev-burgundy-light: #8B2E3F;
+  --color-ev-amber: #D4943A;
+  --color-ev-gold: #E6C49A;
+  --color-ev-cream: #F2E8D8;
+  --color-ev-muted: #8A7E72;
+
+  /* ── Font families ───────────────────────────────────────────── */
+  --font-playfair:  'Playfair Display',  serif;
+  --font-garamond:  'EB Garamond',       serif;
+  --font-cormorant: 'Cormorant Garamond',serif;
+  --font-grotesk:   'Space Grotesk',     sans-serif;
+  --font-lora:      'Lora',              serif;
+  --font-dm-mono:   'DM Mono',           monospace;
+  --font-caveat:    'Caveat',            cursive;
+  --font-fraunces:  'Fraunces',          serif;
+  /* DS semantic font aliases */
+  --font-display: var(--font-cormorant);
+  --font-body:    var(--font-lora);
+  --font-accent:  var(--font-caveat);
+  --font-mono:    var(--font-dm-mono);
+
+  /* ── Easing ──────────────────────────────────────────────────── */
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Atelier design tokens ───────────────────────────────────── */
+  --atelier-ground:  #131008;
+  --atelier-surface: #1C1810;
+  --atelier-table:   #252018;
+  --atelier-border:  #322C1E;
+  --atelier-ash:     #5A5040;
+  --atelier-linen:   #EDE8DA;
+  --atelier-cream:   #F7F2E5;
+  --atelier-amber:   #D4820A;
+  --atelier-ember:   #C4501A;
+  --atelier-sage:    #4A6741;
+  --atelier-dusk:    #6B4C8A;
+  --atelier-copper:  #B06E3A;
+  --atelier-glow:    #B8F066;
+
+  /* ── Coffee Room tokens ──────────────────────────────────────── */
+  --room-parchment: #F7F0E3;
+  --room-vellum:    #EDE3D0;
+  --room-linen:     #E2D6BF;
+  --room-sand:      #C8B99A;
+  --room-umber:     #7A5C3A;
+  --room-espresso:  #2C1A0E;
+  --room-ink:       #1A120A;
+  --room-amber:     #C8780A;
+  --room-honey:     #D4943A;
+  --room-caramel:   #B5621E;
+  --room-sage:      #5C6B4A;
+  --room-rose:      #8B4A52;
+  --room-chalk:     #F5EDD8;
+  --room-steam:     rgba(200,185,154,0.55);
+
+  /* ═══════════════════════════════════════════════════════════════
+     EW DESIGN SYSTEM v1 — Primitive Color Scales
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Forest (Moroccan botanical green) ───────────────────────── */
+  --ew-forest-50:  #EEF5EC;
+  --ew-forest-100: #D5E8CF;
+  --ew-forest-200: #A8D09F;
+  --ew-forest-300: #74B46B;
+  --ew-forest-400: #51984A;
+  --ew-forest-500: #4A7842;
+  --ew-forest-600: #3C6235;
+  --ew-forest-700: #2E4B3A;
+  --ew-forest-800: #1E3228;
+  --ew-forest-900: #121E18;
+
+  /* ── Wood (warm earth brown) ─────────────────────────────────── */
+  --ew-wood-50:  #FAF5EE;
+  --ew-wood-100: #F2E8D8;
+  --ew-wood-200: #E8D4B8;
+  --ew-wood-300: #D4B88A;
+  --ew-wood-400: #BA9660;
+  --ew-wood-500: #9A7245;
+  --ew-wood-600: #7A5C38;
+  --ew-wood-700: #5C4228;
+  --ew-wood-800: #3A2A18;
+  --ew-wood-900: #2C1A0E;
+
+  /* ── Terra (terracotta / spice) ──────────────────────────────── */
+  --ew-terra-50:  #FEF3EC;
+  --ew-terra-100: #FDE2CC;
+  --ew-terra-200: #FAC498;
+  --ew-terra-300: #F49E65;
+  --ew-terra-400: #EC7A40;
+  --ew-terra-500: #E06025;
+  --ew-terra-600: #C4501A;
+  --ew-terra-700: #A03E14;
+  --ew-terra-800: #7A2E0C;
+  --ew-terra-900: #521E08;
+
+  /* ── Gold (amber / champagne) ────────────────────────────────── */
+  --ew-gold-50:  #FEFAEE;
+  --ew-gold-100: #FDF0CC;
+  --ew-gold-200: #FAE098;
+  --ew-gold-300: #F5CA62;
+  --ew-gold-400: #E8AA3A;
+  --ew-gold-500: #D4943A;
+  --ew-gold-600: #B87830;
+  --ew-gold-700: #9A5C24;
+  --ew-gold-800: #7A4018;
+  --ew-gold-900: #5A2C10;
+
+  /* ── Beige (parchment / warm neutral) ───────────────────────── */
+  --ew-beige-50:  #FEFCF8;
+  --ew-beige-100: #FAF5EC;
+  --ew-beige-200: #F2E8D4;
+  --ew-beige-300: #E8D8BA;
+  --ew-beige-400: #DCC49A;
+  --ew-beige-500: #CCA878;
+  --ew-beige-600: #B88C5C;
+  --ew-beige-700: #987045;
+  --ew-beige-800: #785430;
+  --ew-beige-900: #583C20;
+
+  /* ── Burg (burgundy / wine) ──────────────────────────────────── */
+  --ew-burg-50:  #FEF0F2;
+  --ew-burg-100: #FDDDE2;
+  --ew-burg-200: #FAB8C4;
+  --ew-burg-300: #F68EA0;
+  --ew-burg-400: #ED6480;
+  --ew-burg-500: #D43E60;
+  --ew-burg-600: #8B2E3F;
+  --ew-burg-700: #6B1E2F;
+  --ew-burg-800: #4E1020;
+  --ew-burg-900: #340A14;
+
+  /* ── Blue (midnight / navy) ──────────────────────────────────── */
+  --ew-blue-50:  #EEF2F8;
+  --ew-blue-100: #D4DEED;
+  --ew-blue-200: #A8BCDC;
+  --ew-blue-300: #7898C8;
+  --ew-blue-400: #4A72B4;
+  --ew-blue-500: #2A5098;
+  --ew-blue-600: #1E3C80;
+  --ew-blue-700: #162C64;
+  --ew-blue-800: #0E1E48;
+  --ew-blue-900: #081230;
+
+  /* ═══════════════════════════════════════════════════════════════
+     EW DESIGN SYSTEM v1 — Type Scale (Major Third, 1.25×)
+     ═══════════════════════════════════════════════════════════════ */
+  --fs-2xs:  0.625rem;   /*  10px */
+  --fs-xs:   0.75rem;    /*  12px */
+  --fs-sm:   0.875rem;   /*  14px */
+  --fs-base: 1rem;       /*  16px */
+  --fs-md:   1.125rem;   /*  18px */
+  --fs-lg:   1.25rem;    /*  20px */
+  --fs-xl:   1.5rem;     /*  24px */
+  --fs-2xl:  1.875rem;   /*  30px */
+  --fs-3xl:  2.25rem;    /*  36px */
+  --fs-4xl:  3rem;       /*  48px */
+  --fs-5xl:  3.75rem;    /*  60px */
+  --fs-6xl:  4.75rem;    /*  76px */
+  --fs-7xl:  6rem;       /*  96px */
+  --fs-8xl:  7.5rem;     /* 120px */
+  --fs-9xl:  9.5rem;     /* 152px */
+
+  /* ── Fluid type (viewport-aware) ─────────────────────────────── */
+  --fs-body:           clamp(1rem, 1.1vw, 1.125rem);
+  --fs-section-header: clamp(2rem, 4vw, 3.5rem);
+  --fs-hero:           clamp(3.5rem, 8vw, 8rem);
+
+  /* ═══════════════════════════════════════════════════════════════
+     EW DESIGN SYSTEM v1 — Spacing Scale (4pt base)
+     ═══════════════════════════════════════════════════════════════ */
+  --space-1:  0.25rem;   /*  4px */
+  --space-2:  0.5rem;    /*  8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+  --space-32: 8rem;      /* 128px */
+  --space-40: 10rem;     /* 160px */
+  --space-48: 12rem;     /* 192px */
+  --space-64: 16rem;     /* 256px */
+
+  /* ── Fluid spacing ───────────────────────────────────────────── */
+  --section-gap:    clamp(5rem, 10vw, 10rem);
+  --hero-padding-y: clamp(6rem, 12vw, 12rem);
+
+  /* ── Container ───────────────────────────────────────────────── */
+  --container-padding: clamp(1.5rem, 5vw, 3rem);
+  --grid-gap:          clamp(1.5rem, 3vw, 2.5rem);
+  --bp-max:            1440px;
+
+  /* ═══════════════════════════════════════════════════════════════
+     EW DESIGN SYSTEM v1 — Typography Rhythm
+     ═══════════════════════════════════════════════════════════════ */
+  --lh-display: 0.92;
+  --lh-heading: 1.15;
+  --lh-body:    1.72;
+  --lh-ui:      1.40;
+  --lh-mono:    1.60;
+
+  --ls-display:    -0.02em;
+  --ls-heading:    -0.01em;
+  --ls-body:        0em;
+  --ls-ui:          0.01em;
+  --ls-label:       0.08em;
+  --ls-label-wide:  0.35em;
+  --ls-caps:        0.15em;
+  --ls-caps-wide:   0.22em;
+
+  /* ═══════════════════════════════════════════════════════════════
+     EW DESIGN SYSTEM v1 — Shadow System (warm brown, not grey)
+     ═══════════════════════════════════════════════════════════════ */
+  --shadow-sm:  0 1px 3px rgba(44,31,15,0.12), 0 1px 2px rgba(44,31,15,0.08);
+  --shadow-md:  0 4px 12px rgba(44,31,15,0.15), 0 2px 4px rgba(44,31,15,0.10);
+  --shadow-lg:  0 8px 24px rgba(44,31,15,0.18), 0 4px 8px rgba(44,31,15,0.12);
+  --shadow-xl:  0 16px 48px rgba(44,31,15,0.22), 0 8px 16px rgba(44,31,15,0.14);
+  --shadow-2xl: 0 24px 64px rgba(44,31,15,0.28), 0 12px 24px rgba(44,31,15,0.16);
+
+  /* ── Dark-mode shadows (darker base) ─────────────────────────── */
+  --shadow-dark-sm:  0 1px 3px rgba(0,0,0,0.30);
+  --shadow-dark-md:  0 4px 12px rgba(0,0,0,0.45);
+  --shadow-dark-lg:  0 8px 32px rgba(0,0,0,0.55);
+  --shadow-dark-xl:  0 16px 56px rgba(0,0,0,0.65);
+  --shadow-dark-2xl: 0 24px 80px rgba(0,0,0,0.75);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ═══════════════════════════════════════════════════════════════════
+   EW DESIGN SYSTEM v1 — Semantic Tokens (dark mode / default)
+   Overridden per-page via [data-page="..."]
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Surface ─────────────────────────────────────────────────── */
+  --surface-page:      #0A0A14;
+  --surface-raised:    #111120;
+  --surface-overlay:   rgba(0, 0, 0, 0.72);
+  --surface-sunken:    #03030A;
+  --surface-inverse:   #F2E8D8;
+  --surface-emphasis:  rgba(201, 169, 110, 0.08);
+  --surface-card:      rgba(17, 17, 32, 0.85);
+  --surface-card-hover:rgba(28, 28, 48, 0.90);
+
+  /* ── Border ──────────────────────────────────────────────────── */
+  --border-subtle:  rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong:  rgba(255, 255, 255, 0.18);
+  --border-accent:  rgba(201, 169, 110, 0.35);
+  --border-inverse: rgba(0, 0, 0, 0.12);
+
+  /* ── Text ────────────────────────────────────────────────────── */
+  --text-primary:   #F4F1E8;
+  --text-secondary: #8884A8;
+  --text-tertiary:  rgba(136, 132, 168, 0.60);
+  --text-disabled:  rgba(136, 132, 168, 0.35);
+  --text-accent:    #C9A96E;
+  --text-inverse:   #1A120A;
+  --text-link:      #D4943A;
+  --text-on-gold:   #1A120A;
+
+  /* ── Interactive ─────────────────────────────────────────────── */
+  --interactive-primary-bg:      #C9A96E;
+  --interactive-primary-text:    #1A120A;
+  --interactive-primary-hover:   #E8C870;
+  --interactive-secondary-bg:    rgba(201, 169, 110, 0.08);
+  --interactive-secondary-text:  #C9A96E;
+  --interactive-secondary-border:rgba(201, 169, 110, 0.30);
+  --interactive-gold-bg:         #D4943A;
+  --interactive-gold-text:       #1A120A;
+  --interactive-gold-hover:      #E8B050;
+  --interactive-focus:           #D4943A;
+  --interactive-disabled-bg:     rgba(255, 255, 255, 0.06);
+  --interactive-disabled-text:   rgba(136, 132, 168, 0.40);
+
+  /* ── Status ──────────────────────────────────────────────────── */
+  --status-success-bg:   rgba(74, 120, 66, 0.15);
+  --status-success-text: #78B46A;
+  --status-warning-bg:   rgba(232, 170, 58, 0.15);
+  --status-warning-text: #E8AA3A;
+  --status-error-bg:     rgba(228, 96, 37, 0.15);
+  --status-error-text:   #E85D26;
+  --status-info-bg:      rgba(42, 80, 152, 0.15);
+  --status-info-text:    #7898C8;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   EW DESIGN SYSTEM v1 — Page Token Overrides
+   Set data-page="menu" (etc.) on <body> or page wrapper
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── The Coffee Room: warm light inversion ───────────────────────── */
+[data-page="menu"] {
+  --surface-page:       #F7F0E3;
+  --surface-raised:     #EDE3D0;
+  --surface-sunken:     #E2D6BF;
+  --surface-overlay:    rgba(44, 26, 14, 0.60);
+  --surface-emphasis:   rgba(200, 120, 10, 0.08);
+  --surface-card:       rgba(255, 252, 245, 0.92);
+  --surface-card-hover: rgba(255, 255, 250, 0.98);
+  --border-subtle:  rgba(44, 26, 14, 0.06);
+  --border-default: rgba(44, 26, 14, 0.12);
+  --border-strong:  rgba(44, 26, 14, 0.24);
+  --border-accent:  rgba(200, 120, 10, 0.40);
+  --text-primary:   #1A120A;
+  --text-secondary: #5A4030;
+  --text-tertiary:  rgba(90, 64, 48, 0.65);
+  --text-disabled:  rgba(90, 64, 48, 0.38);
+  --text-accent:    #C8780A;
+  --text-inverse:   #F7F0E3;
+  --text-link:      #C8780A;
+  --interactive-primary-bg:   #C8780A;
+  --interactive-primary-text: #F7F0E3;
+  --interactive-focus:        #C8780A;
+  --status-success-text: #3A6232;
+  --status-warning-text: #9A6010;
+  --status-error-text:   #8A2010;
+}
+
+/* ── The Stage: concert dark ─────────────────────────────────────── */
+[data-page="events"] {
+  --surface-page:    #03030A;
+  --surface-raised:  #08080F;
+  --surface-sunken:  #000000;
+  --surface-card:    rgba(10, 8, 16, 0.88);
+  --text-secondary:  #7A7A9A;
+}
+
+/* ── The Cabinet: museum antiques ────────────────────────────────── */
+[data-page="antiques"] {
+  --surface-page:   #060610;
+  --surface-raised: #0D0D1C;
+  --surface-sunken: #020208;
+  --text-accent:    #D4943A;
+  --border-accent:  rgba(212, 148, 58, 0.30);
+}
+
+/* ── The Archive: gallery ────────────────────────────────────────── */
+[data-page="gallery"] {
+  --surface-page:   #060608;
+  --surface-raised: #0C0C12;
+  --surface-sunken: #02020A;
+  --border-subtle:  rgba(255, 255, 255, 0.03);
+  --border-default: rgba(255, 255, 255, 0.06);
+}
+
+/* ── The Atelier: workshops ──────────────────────────────────────── */
+[data-page="workshops"] {
+  --surface-page:    #131008;
+  --surface-raised:  #1C1810;
+  --surface-sunken:  #0C0A04;
+  --surface-emphasis:rgba(180, 110, 58, 0.10);
+  --text-primary:    #EDE8DA;
+  --text-secondary:  #8A8070;
+  --text-accent:     #D4820A;
+  --border-accent:   rgba(212, 130, 10, 0.35);
+  --interactive-focus: #D4820A;
+}
+
+/* ── The Archaeology: about ──────────────────────────────────────── */
+[data-page="about"] {
+  --surface-page:    #080C0A;
+  --surface-raised:  #0F1610;
+  --surface-sunken:  #040806;
+  --surface-emphasis:rgba(74, 103, 65, 0.10);
+  --text-accent:     #78B46A;
+  --border-accent:   rgba(78, 156, 66, 0.30);
+  --interactive-focus: #78B46A;
+}
+
+/* ── The Transmission: contact ───────────────────────────────────── */
+[data-page="contact"] {
+  --surface-page:   #04040C;
+  --surface-raised: #0A0A18;
+  --surface-sunken: #020208;
+  --text-secondary: #6A6888;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Global Reset & Base Styles
+   ═══════════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 3px;
+  padding: 3px;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface-page, var(--color-void));
+  color: var(--text-primary, var(--color-ivory));
+  font-family: var(--font-body, var(--font-grotesk));
+  overflow-x: hidden;
+  line-height: var(--lh-body, 1.6);
 }
+
+img, video {
+  max-width: 100%;
+  display: block;
+}
+
+/* ── Focus ring — gold glow, 3px (WCAG 2.1 AA) ──────────────────── */
+:focus-visible {
+  outline: 3px solid var(--interactive-focus, rgba(212, 148, 58, 0.8));
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Touch optimization ───────────────────────────────────────────── */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* ── Screen-reader only ──────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-sunken, var(--color-void)); }
+::-webkit-scrollbar-thumb { background: var(--color-ash); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--interactive-focus, var(--color-gold)); }
+
+/* ── Selection ───────────────────────────────────────────────────── */
+::selection {
+  background: rgba(201, 169, 110, 0.2);
+  color: var(--text-primary, var(--color-ivory));
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Keyframe Animations
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Atelier: candle flicker ─────────────────────────────────────── */
+@keyframes atelier-flicker {
+  0%   { transform: scaleX(1.0)  scaleY(1.0)  rotate(0deg);    opacity: 0.90; }
+  33%  { transform: scaleX(0.92) scaleY(1.05) rotate(-1deg);   opacity: 0.85; }
+  67%  { transform: scaleX(1.06) scaleY(0.97) rotate(1deg);    opacity: 0.95; }
+  100% { transform: scaleX(0.96) scaleY(1.03) rotate(-0.5deg); opacity: 0.88; }
+}
+
+/* ── Atelier: chisel sweep ───────────────────────────────────────── */
+@keyframes atelier-chisel {
+  0%   { clip-path: inset(0 100% 0 0 round 2px); opacity: 0.85; }
+  60%  { clip-path: inset(0 0%   0 0 round 2px); opacity: 0.85; }
+  100% { clip-path: inset(0 0%   0 0 round 2px); opacity: 0;    }
+}
+
+/* ── Coffee Room: steam system ───────────────────────────────────── */
+@keyframes steam-rise {
+  0%   { transform: translateY(0)     scaleX(1.0) rotate(0deg);    opacity: 0;   }
+  15%  { opacity: 0.7; }
+  50%  { transform: translateY(-18px) scaleX(1.3) rotate(3deg);    opacity: 0.5; }
+  85%  { opacity: 0.2; }
+  100% { transform: translateY(-36px) scaleX(0.7) rotate(-2deg);   opacity: 0;   }
+}
+@keyframes steam-rise-alt {
+  0%   { transform: translateY(0)     scaleX(1.0) rotate(0deg);    opacity: 0;    }
+  20%  { opacity: 0.6; }
+  55%  { transform: translateY(-22px) scaleX(0.8) rotate(-4deg);   opacity: 0.4;  }
+  80%  { opacity: 0.15; }
+  100% { transform: translateY(-40px) scaleX(1.2) rotate(2deg);    opacity: 0;    }
+}
+@keyframes steam-wisp {
+  0%   { transform: translateY(0)     translateX(0)   scaleY(1);   opacity: 0;   }
+  25%  { opacity: 0.5; }
+  60%  { transform: translateY(-28px) translateX(4px) scaleY(1.4); opacity: 0.3; }
+  100% { transform: translateY(-50px) translateX(-3px) scaleY(0.6);opacity: 0;   }
+}
+@keyframes room-chalk-write {
+  0%   { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0% 0 0);   }
+}
+@keyframes room-tile-draw {
+  0%   { stroke-dashoffset: 400; opacity: 0; }
+  30%  { opacity: 1; }
+  100% { stroke-dashoffset: 0;   opacity: 1; }
+}
+@keyframes room-wobble-in {
+  0%   { transform: translateY(12px) rotate(-1.5deg) scale(0.96); opacity: 0; }
+  60%  { transform: translateY(-3px) rotate(0.5deg)  scale(1.01); opacity: 1; }
+  100% { transform: translateY(0)    rotate(0deg)    scale(1);    opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Utility Classes
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Coffee Room: paper grain texture ───────────────────────────── */
+.room-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* ── Atelier: canvas weave texture ──────────────────────────────── */
+.atelier-weave {
+  background-image:
+    repeating-linear-gradient(0deg,  transparent, transparent 2px, rgba(237,232,218,0.025) 2px, rgba(237,232,218,0.025) 4px),
+    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(237,232,218,0.025) 2px, rgba(237,232,218,0.025) 4px);
+}
+
+/* ── DS utility: semantic surface/text helpers ───────────────────── */
+.surface-page    { background: var(--surface-page);    color: var(--text-primary);   }
+.surface-raised  { background: var(--surface-raised);  color: var(--text-primary);   }
+.surface-inverse { background: var(--surface-inverse); color: var(--text-inverse);   }
+.text-accent     { color: var(--text-accent);   }
+.text-secondary  { color: var(--text-secondary); }
+.text-tertiary   { color: var(--text-tertiary);  }
+.border-subtle   { border-color: var(--border-subtle);  }
+.border-default  { border-color: var(--border-default); }
+.border-accent   { border-color: var(--border-accent);  }
