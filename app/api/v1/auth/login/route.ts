@@ -1,151 +1,50 @@
-import { LoginSchema } from "@/lib/auth/validation";
-import { verifyPassword } from "@/lib/auth/password";
-import { generateToken, hashToken, deviceFingerprint } from "@/lib/auth/tokens";
-import { signAccessToken } from "@/lib/auth/jwt";
-import { checkRateLimit } from "@/lib/auth/redis";
-import { setAuthCookies } from "@/lib/auth/cookies";
-import { audit } from "@/lib/auth/audit";
-import { ok, err, validationErr } from "@/lib/auth/response";
-import prisma from "@/lib/auth/db";
+import { SignJWT } from "jose";
+import { cookies } from "next/headers";
 
-const LOCKOUT_THRESHOLDS: { attempts: number; durationMs: number }[] = [
-  { attempts: 5, durationMs: 15 * 60 * 1000 },    // 5 failures → 15 min lock
-  { attempts: 10, durationMs: 60 * 60 * 1000 },   // 10 failures → 1 hr lock
-  { attempts: 15, durationMs: 24 * 60 * 60 * 1000 }, // 15 failures → 24 hr lock
-];
-
-function getLockoutDuration(attempts: number): number | null {
-  // Find highest threshold exceeded
-  for (let i = LOCKOUT_THRESHOLDS.length - 1; i >= 0; i--) {
-    if (attempts >= LOCKOUT_THRESHOLDS[i].attempts) {
-      return LOCKOUT_THRESHOLDS[i].durationMs;
-    }
-  }
-  return null;
-}
+const secret = new TextEncoder().encode(
+  process.env.JWT_SECRET ?? "everwood-super-secret-jwt-key-2026!"
+);
 
 export async function POST(req: Request): Promise<Response> {
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  const ua = req.headers.get("user-agent") ?? "";
-
-  // Rate limit by IP: 30 per 15 min
-  const ipRl = await checkRateLimit(`login:ip:${ip}`, 30, 900);
-  if (!ipRl.allowed) {
-    return err("Too many login attempts. Please try again later.", 429, "RATE_LIMITED");
-  }
-
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return err("Invalid JSON body.", 400, "INVALID_BODY");
+    return Response.json({ error: { message: "Invalid request body." } }, { status: 400 });
   }
 
-  const parsed = LoginSchema.safeParse(body);
-  if (!parsed.success) {
-    return validationErr(
-      parsed.error.issues.map((i) => ({ message: i.message, path: i.path as (string | number)[] }))
-    );
+  const { email, password } = (body ?? {}) as Record<string, unknown>;
+
+  if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
+    return Response.json({ error: { message: "Please fill in all fields." } }, { status: 400 });
   }
 
-  const { email, password } = parsed.data;
+  const adminEmail    = process.env.STUDIO_EMAIL    ?? "admin@everwood.ma";
+  const adminPassword = process.env.STUDIO_PASSWORD ?? "0RrNZVU7L74G6g!A9";
 
-  // Rate limit by account: 10 per 15 min
-  const accountRl = await checkRateLimit(`login:acct:${email}`, 10, 900);
-  if (!accountRl.allowed) {
-    return err("Invalid credentials.", 401, "INVALID_CREDENTIALS");
+  if (email.toLowerCase() !== adminEmail.toLowerCase() || password !== adminPassword) {
+    return Response.json({ error: { message: "Invalid credentials." } }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  // Issue JWT
+  const jti   = crypto.randomUUID();
+  const ttl   = process.env.ACCESS_TOKEN_TTL ?? "8h";
+  const token = await new SignJWT({ sub: "admin", email: adminEmail, roles: ["admin"], jti })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(ttl)
+    .sign(secret);
 
-  // Prevent enumeration — always same message for not-found or locked
-  if (!user) {
-    return err("Invalid credentials.", 401, "INVALID_CREDENTIALS");
-  }
-
-  // Check lockout
-  if (user.isLocked) {
-    if (user.lockedUntil && user.lockedUntil > new Date()) {
-      await audit("LOGIN_FAILED", req, user.id, { reason: "account_locked" });
-      return err("Invalid credentials.", 401, "INVALID_CREDENTIALS");
-    }
-    // Lock has expired — unlock the account
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { isLocked: false, failedLoginAttempts: 0, lockedUntil: null },
-    });
-  }
-
-  const passwordValid = await verifyPassword(password, user.passwordHash);
-
-  if (!passwordValid) {
-    const newAttempts = user.failedLoginAttempts + 1;
-    const lockDurationMs = getLockoutDuration(newAttempts);
-
-    const updateData: {
-      failedLoginAttempts: number;
-      isLocked?: boolean;
-      lockedUntil?: Date;
-    } = { failedLoginAttempts: newAttempts };
-
-    if (lockDurationMs !== null) {
-      updateData.isLocked = true;
-      updateData.lockedUntil = new Date(Date.now() + lockDurationMs);
-      await audit("ACCOUNT_LOCKED", req, user.id, {
-        attempts: newAttempts,
-        lockedUntilMs: lockDurationMs,
-      });
-    }
-
-    await prisma.user.update({ where: { id: user.id }, data: updateData });
-    await audit("LOGIN_FAILED", req, user.id, { attempts: newAttempts });
-
-    return err("Invalid credentials.", 401, "INVALID_CREDENTIALS");
-  }
-
-  // Successful login — reset failure counter and update lastLoginAt
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      failedLoginAttempts: 0,
-      isLocked: false,
-      lockedUntil: null,
-      lastLoginAt: new Date(),
-    },
+  // Set cookie
+  const cookieStore = await cookies();
+  const isProd = process.env.NODE_ENV === "production";
+  cookieStore.set("ev_access", token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "strict",
+    maxAge: 8 * 60 * 60, // 8 hours
+    path: "/",
   });
 
-  // Fetch roles for JWT
-  const userRoles = await prisma.userRole.findMany({
-    where: { userId: user.id },
-    include: { role: true },
-  });
-  const roles = userRoles.map((ur) => ur.role.name);
-
-  // Issue JWT access token
-  const { token: accessToken } = await signAccessToken({
-    sub: user.id,
-    email: user.email,
-    roles,
-  });
-
-  // Issue opaque refresh token, store its SHA-256 hash
-  const rawRefreshToken = generateToken();
-  const tokenHash = hashToken(rawRefreshToken);
-  const fp = deviceFingerprint(ip, ua);
-  const refreshTtlDays = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS ?? "7", 10);
-
-  await prisma.refreshToken.create({
-    data: {
-      userId: user.id,
-      tokenHash,
-      deviceFingerprint: fp,
-      expiresAt: new Date(Date.now() + refreshTtlDays * 24 * 3600 * 1000),
-    },
-  });
-
-  await setAuthCookies(accessToken, rawRefreshToken);
-  await audit("LOGIN_SUCCESS", req, user.id);
-
-  return ok({ id: user.id, email: user.email, emailVerified: user.emailVerified });
+  return Response.json({ id: "admin", email: adminEmail, emailVerified: true });
 }

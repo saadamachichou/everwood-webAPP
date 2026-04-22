@@ -109,80 +109,85 @@ export default function EventsPage() {
         {/* hero content */}
         <motion.div
           style={{
-            position: "relative", flex: 1,
-            display: "flex", alignItems: "flex-start", justifyContent: "center",
-            paddingTop: "178px",
-            y: contentY, opacity: heroOpacity,
+            position: "relative",
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingTop: "clamp(4.75rem, 11vh, 6.5rem)",
+            paddingBottom: "clamp(3.5rem, 9vh, 5.5rem)",
+            y: contentY,
+            opacity: heroOpacity,
             margin: 0,
           }}
         >
-          <div className="w-full max-w-6xl mx-auto px-6 sm:px-10 lg:px-16 pb-6">
+          <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 xl:px-20 pb-4">
 
-            <div className="grid lg:grid-cols-[1fr_380px] gap-10 xl:gap-14 items-start">
+            <div className="grid lg:grid-cols-[1fr_420px] gap-12 xl:gap-16 items-start">
 
               {/* ── LEFT ── */}
               <div>
                 {/* eyebrow — line draws in, then text slides */}
-                <div className="flex items-center gap-3 mb-5">
+                <div className="flex items-center gap-3 mb-6">
                   <motion.span
                     initial={{ scaleX:0, opacity:0 }}
                     animate={{ scaleX:1, opacity:1 }}
                     transition={{ duration:.55, ease:[.16,1,.3,1], delay:.1 }}
-                    style={{ width:32, height:1, background:"#D4943A", flexShrink:0, display:"inline-block", transformOrigin:"left center" }} />
+                    style={{ width:40, height:1, background:"#D4943A", flexShrink:0, display:"inline-block", transformOrigin:"left center" }} />
                   <motion.span
                     initial={{ opacity:0, x:-14 }}
                     animate={{ opacity:1, x:0 }}
                     transition={{ duration:.6, ease:[.16,1,.3,1], delay:.22 }}
-                    style={{ fontSize:".62rem", letterSpacing:".3em", textTransform:"uppercase", fontWeight:500, color:"#D4943A" }}>
+                    style={{ fontSize:".68rem", letterSpacing:".32em", textTransform:"uppercase", fontWeight:500, color:"#D4943A" }}>
                     Season 2026 · Now Booking
                   </motion.span>
                 </div>
 
                 {/* title */}
-                <div className="mb-5">
+                <div className="mb-6">
                   <TextSplit text="Where Music" as="h1" delay={.3} stagger={.1}
-                    style={{ fontFamily:"var(--font-playfair)", fontSize:"clamp(2.6rem,6vw,5.2rem)", color:"#F2E8D8", lineHeight:1, display:"block", marginBottom:".05em" }} />
+                    style={{ fontFamily:"var(--font-playfair)", fontSize:"clamp(3rem,6.8vw,5.85rem)", color:"#F2E8D8", lineHeight:1, display:"block", marginBottom:".05em" }} />
                   <motion.span
                     initial={{ opacity:0, y:64, rotate:4, filter:"blur(10px)" }}
                     animate={{ opacity:1, y:0, rotate:0, filter:"blur(0px)" }}
                     transition={{ duration:1.1, ease:[.34,1.56,.64,1], delay:.85 }}
-                    style={{ display:"block", fontFamily:"var(--font-playfair)", fontSize:"clamp(2.6rem,6vw,5.2rem)", fontStyle:"italic", color:"#D4943A", lineHeight:1 }}>
+                    style={{ display:"block", fontFamily:"var(--font-playfair)", fontSize:"clamp(3rem,6.8vw,5.85rem)", fontStyle:"italic", color:"#D4943A", lineHeight:1 }}>
                     Comes Alive.
                   </motion.span>
                 </div>
 
                 {/* description */}
                 <RevealOnScroll delay={.85} y={16}>
-                  <p style={{ fontFamily:"var(--font-garamond)", fontSize:"clamp(.95rem,1.4vw,1.05rem)", color:"#8A7E72", maxWidth:"40ch", lineHeight:1.7, marginBottom:"0.75rem" }}>
+                  <p style={{ fontFamily:"var(--font-garamond)", fontSize:"clamp(1.02rem,1.55vw,1.18rem)", color:"#8A7E72", maxWidth:"44ch", lineHeight:1.75, marginBottom:"0.85rem" }}>
                     Jazz, swing, blues, and the unexpected — curated inside a 16th‑century riad in the heart of Casablanca&apos;s medina.
                   </p>
                 </RevealOnScroll>
 
                 {/* CTAs */}
                 <RevealOnScroll delay={1.05} y={12}>
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:"1rem", marginBottom:"0.75rem" }}>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:"1.1rem", marginBottom:"0.85rem" }}>
                     <motion.a href="#lineup"
-                      style={{ display:"inline-flex", alignItems:"center", gap:10, background:"#6B1E2F", color:"#F2E8D8", padding:".875rem 1.75rem", fontSize:".72rem", letterSpacing:".14em", textTransform:"uppercase", fontWeight:500, textDecoration:"none", borderRadius:9999 }}
+                      style={{ display:"inline-flex", alignItems:"center", gap:11, background:"#6B1E2F", color:"#F2E8D8", padding:"1rem 1.95rem", fontSize:".76rem", letterSpacing:".15em", textTransform:"uppercase", fontWeight:500, textDecoration:"none", borderRadius:9999 }}
                       whileHover={{ scale:1.03, backgroundColor:"#8B2E3F" }} whileTap={{ scale:.97 }}
                       transition={{ type:"spring", stiffness:400, damping:20 }}>
-                      <Play size={13} strokeWidth={2.5} />Browse Events
+                      <Play size={14} strokeWidth={2.5} />Browse Events
                     </motion.a>
                     <motion.a href="/contact"
-                      style={{ display:"inline-flex", alignItems:"center", gap:10, border:"1px solid rgba(212,148,58,.35)", color:"#D4943A", padding:".875rem 1.75rem", fontSize:".72rem", letterSpacing:".14em", textTransform:"uppercase", fontWeight:500, textDecoration:"none", borderRadius:9999 }}
+                      style={{ display:"inline-flex", alignItems:"center", gap:11, border:"1px solid rgba(212,148,58,.35)", color:"#D4943A", padding:"1rem 1.95rem", fontSize:".76rem", letterSpacing:".15em", textTransform:"uppercase", fontWeight:500, textDecoration:"none", borderRadius:9999 }}
                       whileHover={{ scale:1.03, borderColor:"#D4943A", backgroundColor:"rgba(212,148,58,.06)" }} whileTap={{ scale:.97 }}
                       transition={{ type:"spring", stiffness:400, damping:20 }}>
-                      <Bell size={13} strokeWidth={2} />Get Notified
+                      <Bell size={14} strokeWidth={2} />Get Notified
                     </motion.a>
                   </div>
                 </RevealOnScroll>
 
                 {/* stats */}
                 <RevealOnScroll delay={1.2} y={10}>
-                  <div style={{ display:"flex", gap:"2rem", paddingTop:"1rem", borderTop:"1px solid rgba(255,255,255,.06)" }}>
+                  <div style={{ display:"flex", gap:"2.35rem", paddingTop:"1.15rem", borderTop:"1px solid rgba(255,255,255,.06)" }}>
                     {[{ num:"6+", label:"Events this season" }, { num:"3", label:"Unique spaces" }, { num:"280", label:"Max capacity" }].map(({ num, label }) => (
                       <div key={label}>
-                        <span style={{ display:"block", fontFamily:"var(--font-playfair)", fontSize:"1.5rem", color:"#E6C49A", lineHeight:1 }}>{num}</span>
-                        <span style={{ display:"block", fontSize:".6rem", letterSpacing:".1em", textTransform:"uppercase", color:"#8A7E72", marginTop:4 }}>{label}</span>
+                        <span style={{ display:"block", fontFamily:"var(--font-playfair)", fontSize:"1.72rem", color:"#E6C49A", lineHeight:1 }}>{num}</span>
+                        <span style={{ display:"block", fontSize:".62rem", letterSpacing:".11em", textTransform:"uppercase", color:"#8A7E72", marginTop:5 }}>{label}</span>
                       </div>
                     ))}
                   </div>
@@ -225,7 +230,7 @@ export default function EventsPage() {
                             variants={{ hover:{ scale:1.1 } }} transition={{ delay:i*.06, type:"spring", stiffness:200, damping:20 }} />
                         ))}
                         <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                          <motion.span style={{ fontFamily:"var(--font-playfair)", fontSize:"2.5rem", fontWeight:700, color:featured.accent, opacity:.7 }} variants={{ hover:{ opacity:1 } }}>
+                          <motion.span style={{ fontFamily:"var(--font-playfair)", fontSize:"2.85rem", fontWeight:700, color:featured.accent, opacity:.7 }} variants={{ hover:{ opacity:1 } }}>
                             {featured.initials}
                           </motion.span>
                         </div>
@@ -236,8 +241,8 @@ export default function EventsPage() {
 
                       {/* body */}
                       <div style={{ padding:".8rem 1.1rem 1rem" }}>
-                        <h3 style={{ fontFamily:"var(--font-playfair)", fontSize:"1.1rem", color:"#F2E8D8", lineHeight:1.15, marginBottom:".15rem" }}>{featured.title}</h3>
-                        <p style={{ fontFamily:"var(--font-garamond)", fontStyle:"italic", color:"#8A7E72", fontSize:".85rem", marginBottom:".65rem" }}>{featured.artist}</p>
+                        <h3 style={{ fontFamily:"var(--font-playfair)", fontSize:"1.22rem", color:"#F2E8D8", lineHeight:1.15, marginBottom:".15rem" }}>{featured.title}</h3>
+                        <p style={{ fontFamily:"var(--font-garamond)", fontStyle:"italic", color:"#8A7E72", fontSize:".92rem", marginBottom:".65rem" }}>{featured.artist}</p>
                         <div style={{ display:"flex", flexDirection:"column", gap:4, marginBottom:".75rem" }}>
                           <span style={{ display:"flex", alignItems:"center", gap:6, fontSize:".7rem", color:"#8A7E72" }}><Clock size={11} />{featured.time} · Doors {featured.doors}</span>
                           <span style={{ display:"flex", alignItems:"center", gap:6, fontSize:".7rem", color:"#8A7E72" }}><MapPin size={11} />{featured.venue} · {featured.capacity}</span>

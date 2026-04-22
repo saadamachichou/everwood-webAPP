@@ -34,18 +34,6 @@ const recognition = [
   { pub: "Wallpaper*", tag: "Design" },
 ];
 
-const bentoItems = [
-  { label: "The Grand Riad", sub: "Casablanca medina · est. 1923", area: "hero", cols: "lg:col-span-6 lg:row-span-2", h: "h-[340px] lg:h-auto", grad: "radial-gradient(ellipse at 40% 60%, #1a1228, #0d0d1a)" },
-  { label: "The Courtyard", sub: "", area: "m1", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 60% 40%, #12201a, #0a120d)" },
-  { label: "Cabinet Room", sub: "", area: "s1", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 30% 70%, #20121a, #120810)" },
-  { label: "The Music Stage", sub: "", area: "m2", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 50% 50%, #201a10, #120e08)" },
-  { label: "The Archive", sub: "", area: "s2", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 40% 60%, #10181e, #080e12)" },
-  { label: "Rooftop Terrace", sub: "", area: "", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 50% 40%, #1e1810, #120e06)" },
-  { label: "The Library", sub: "", area: "", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 30% 70%, #14121e, #0a0814)" },
-  { label: "The Atelier", sub: "", area: "", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 50% 50%, #12201a, #0a120d)" },
-  { label: "The Salon", sub: "", area: "", cols: "lg:col-span-3", h: "h-[200px]", grad: "radial-gradient(ellipse at 60% 40%, #1a1228, #0d0d1a)" },
-];
-
 function ManifestoWord({ scrollYProgress, word, index, total }: {
   scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
   word: string;
@@ -77,7 +65,7 @@ function ManifestoSection() {
     }}>
       <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-10">Philosophy</p>
       <div style={{ width: 28, height: 1, background: "rgba(201,169,110,0.3)", margin: "0 auto 2.5rem" }} />
-      <p ref={ref} className="font-[family-name:var(--font-cormorant)] italic text-[clamp(1.4rem,2.5vw,2.1rem)] leading-relaxed" style={{ maxWidth: "52ch" }} aria-label="Philosophy quote">
+      <p ref={ref} className="relative font-[family-name:var(--font-cormorant)] italic text-[clamp(1.4rem,2.5vw,2.1rem)] leading-relaxed" style={{ maxWidth: "52ch" }} aria-label="Philosophy quote">
         {words.map((word, i) => (
           <ManifestoWord key={i} scrollYProgress={scrollYProgress} word={word} index={i} total={words.length} />
         ))}
@@ -97,7 +85,7 @@ export default function AboutPage() {
       <Navigation />
 
       {/* ── HERO ─────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col justify-end pb-20 pt-32 overflow-hidden" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
+      <section className="relative mt-20 min-h-screen flex flex-col justify-end pb-28 pt-32 overflow-hidden md:mt-28" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 110%, rgba(201,169,110,0.09), transparent 70%)" }} />
           <motion.div className="absolute inset-0" animate={{ opacity: [0.9, 1, 0.85, 0.95, 0.9] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
@@ -108,7 +96,8 @@ export default function AboutPage() {
           The Archaeology
         </motion.p>
         <TextSplit text="We excavate beauty from forgotten time." as="h1" delay={0.3} stagger={0.06}
-          className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.95] text-[var(--color-ivory)] mb-8 max-w-5xl" />
+          className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.95] text-[var(--color-ivory)] mb-0 max-w-5xl" />
+        <div className="h-[clamp(2.75rem,7vw,4.25rem)] shrink-0" aria-hidden="true" />
         <RevealOnScroll delay={0.9}>
           <p className="font-[family-name:var(--font-garamond)] italic text-xl text-[var(--color-mist)] max-w-[42ch] leading-relaxed">
             Everwood is not a venue. It is a living archaeology — a space built from the conviction that beauty outlives the centuries that tried to bury it.
@@ -121,8 +110,31 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
+      {/* ── Bridge: narrative → numbers (gradient + rule, not empty space) ── */}
+      <div
+        className="w-full"
+        style={{
+          paddingLeft: "60px",
+          paddingRight: "60px",
+          paddingTop: "clamp(2.25rem, 5vw, 3.75rem)",
+          paddingBottom: "clamp(2.25rem, 5vw, 3.75rem)",
+          background: "linear-gradient(180deg, var(--color-void) 0%, #06060f 48%, var(--color-obsidian) 100%)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto flex items-center gap-5 md:gap-8" aria-hidden="true">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(201,169,110,0.4)] to-[rgba(201,169,110,0.12)]" />
+          <span
+            className="shrink-0 text-[0.5rem] font-medium tracking-[0.38em] uppercase text-[var(--color-gold)]"
+            style={{ fontFamily: "var(--font-dm-mono)", opacity: 0.72 }}
+          >
+            In figures
+          </span>
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[rgba(201,169,110,0.4)] to-[rgba(201,169,110,0.12)]" />
+        </div>
+      </div>
+
       {/* ── STATS ─────────────────────────────────────── */}
-      <section className="bg-[var(--color-obsidian)] py-24" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
+      <section className="bg-[var(--color-obsidian)] pt-6 pb-24 md:pt-8 md:pb-28" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
         <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-12 max-w-6xl mx-auto">By the numbers</p>
         <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-white/5">
           {stats.map(({ target, label, suffix }, i) => (
@@ -170,37 +182,6 @@ export default function AboutPage() {
 
       {/* ── MANIFESTO ────────────────────────────────── */}
       <ManifestoSection />
-
-      {/* ── BENTO GALLERY ────────────────────────────── */}
-      <section className="bg-[var(--color-obsidian)] py-24" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-end justify-between mb-10">
-            <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)]">The Space</p>
-            <p className="font-[family-name:var(--font-playfair)] text-4xl text-[var(--color-ash)] leading-none">09</p>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-12 auto-rows-[200px] gap-1">
-            {bentoItems.map((item, i) => (
-              <RevealOnScroll key={i} delay={i * 0.06}
-                className={`relative overflow-hidden group ${item.cols} ${i === 0 ? "col-span-2 lg:col-span-6 lg:row-span-2" : ""}`}>
-                <div className="absolute inset-0 grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-[1.04]"
-                  style={{ background: item.grad }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                {i === 0 && (
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <h3 className="font-[family-name:var(--font-playfair)] text-2xl text-[var(--color-ivory)] mb-1">{item.label}</h3>
-                    <p className="text-[0.75rem] text-[var(--color-mist)]">{item.sub}</p>
-                  </div>
-                )}
-                {i > 0 && (
-                  <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <p className="text-[0.65rem] tracking-widest uppercase text-[var(--color-mist)]">{item.label}</p>
-                  </div>
-                )}
-              </RevealOnScroll>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── RECOGNITION MARQUEE ──────────────────────── */}
       <section className="py-20 border-t border-white/5">

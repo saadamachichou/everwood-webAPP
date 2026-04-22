@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env NEXT_WEBPACK_ALLOW_DEVTOOL=1 next dev --webpack",
+    "dev:turbo": "next dev --turbopack",
+    "dev:fast": "next dev --webpack",
+    "preview": "next build && next start",
+    "postinstall": "patch-package",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -50,6 +54,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
+    "patch-package": "^8.0.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

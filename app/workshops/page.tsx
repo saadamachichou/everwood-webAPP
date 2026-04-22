@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   motion, AnimatePresence,
   useScroll, useTransform, useSpring, useMotionValue, useInView,
@@ -17,14 +18,20 @@ gsap.registerPlugin(ScrollTrigger);
 
 // ── Module-scope constants (no SSR/client float mismatch) ──────────────────
 
-// 5 floating polaroid "photographs" (gradient paintings standing in for real images)
-const POLAROIDS = [
-  { label: "Pottery", gradient: "radial-gradient(ellipse at 40% 60%, #3a1a0a 0%, #1e0e05 100%)", rotation: -3, yFrom: -80, xFrom: 0,   delay: 0,    top: "8%",  right: "5%" },
-  { label: "Glass Painting", gradient: "radial-gradient(ellipse at 60% 40%, #0a0618 0%, #050410 100%)", rotation: 5,  yFrom: 0,   xFrom: 60,  delay: 0.2,  top: "22%", right: "18%" },
-  { label: "Resin Decor", gradient: "radial-gradient(ellipse at 50% 30%, #2a1a06 0%, #160e03 100%)", rotation: -1, yFrom: 60,  xFrom: 0,   delay: 0.35, top: "40%", right: "3%" },
-  { label: "Terrarium", gradient: "radial-gradient(ellipse at 30% 70%, #0a1e08 0%, #051004 100%)", rotation: 8,  yFrom: 0,   xFrom: -40, delay: 0.48, top: "55%", right: "22%" },
-  { label: "Jewellery", gradient: "radial-gradient(ellipse at 60% 40%, #1e1408 0%, #100a04 100%)", rotation: -4, yFrom: -40, xFrom: 0,   delay: 0.18, top: "28%", right: "32%" },
+// Hero polaroids — layout + workshop id (images from `workshops`)
+const HERO_POLAROID_LAYOUT = [
+  { id: "pottery", rotation: -3, yFrom: -80, xFrom: 0, delay: 0, top: "8%", right: "5%" },
+  { id: "glass-painting", rotation: 5, yFrom: 0, xFrom: 60, delay: 0.2, top: "22%", right: "18%" },
+  { id: "resin-decor", rotation: -1, yFrom: 60, xFrom: 0, delay: 0.35, top: "40%", right: "3%" },
+  { id: "terrarium", rotation: 8, yFrom: 0, xFrom: -40, delay: 0.48, top: "55%", right: "22%" },
+  { id: "jewellery-making", rotation: -4, yFrom: -40, xFrom: 0, delay: 0.18, top: "28%", right: "32%" },
 ] as const;
+
+const HERO_POLAROIDS = HERO_POLAROID_LAYOUT.map((layout) => {
+  const workshop = workshops.find((w) => w.id === layout.id);
+  if (!workshop) throw new Error(`Workshop hero polaroid: missing "${layout.id}"`);
+  return { ...layout, workshop };
+});
 
 // Philosophy statement words
 const PHIL_WORDS = "Every material remembers the hands that shaped it.".split(" ");
@@ -45,13 +52,15 @@ const SURREAL_OBJECTS = [
 const PhilosophyWord = ({
   word, position, lightPos,
 }: { word: string; position: number; lightPos: MotionValue<number> }) => {
+  const dim = position > 0.55 ? 0.68 : 0.58;
+  const tail = position > 0.55 ? 0.94 : 0.9;
   const opacity = useTransform(lightPos,
-    [Math.max(0, position - 0.18), position, Math.min(1, position + 0.12)],
-    [0.1, 1.0, 0.68]
+    [Math.max(0, position - 0.2), position, Math.min(1, position + 0.14)],
+    [dim, 1.0, tail]
   );
   const color = useTransform(lightPos,
-    [Math.max(0, position - 0.18), position, Math.min(1, position + 0.1)],
-    ["#5A5040", "#F7F2E5", "#EDE8DA"]
+    [Math.max(0, position - 0.2), position, Math.min(1, position + 0.12)],
+    ["#C4B8A4", "#F7F2E5", "#EDE8DA"]
   );
   return (
     <motion.span style={{ opacity, color, display: "inline" }}>
@@ -165,7 +174,9 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
           transformOrigin: "top",
         }} transition={{ duration: 0.2 }} />
         {/* thumbnail */}
-        <div style={{ width: 64, height: 64, flexShrink: 0, background: w.gradient, borderRadius: 2 }} />
+        <div style={{ width: 64, height: 64, flexShrink: 0, borderRadius: 2, overflow: "hidden", position: "relative", background: w.gradient }}>
+          <img src={w.image} alt={w.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "1.1rem", color: "#F7F2E5", marginBottom: "0.2rem" }}>{w.title}</div>
           <div style={{ fontFamily: "var(--font-lora)", fontSize: "0.78rem", color: "#5A5040", fontStyle: "italic" }}>{w.tagline}</div>
@@ -218,10 +229,17 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
       {/* image area */}
       <div style={{ height: 200, overflow: "hidden", position: "relative", margin: 0 }}>
         <motion.div
-          style={{ height: "100%", background: w.gradient }}
+          style={{ height: "100%", background: w.gradient, position: "relative" }}
           animate={{ scale: hovered ? 1.05 : 1 }}
           transition={{ duration: 0.4 }}
-        />
+        >
+          <img
+            src={w.image}
+            alt={w.title}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+          <div style={{ position: "absolute", inset: 0, background: "rgba(10,8,4,0.28)" }} />
+        </motion.div>
         {w.isPopular && (
           <div style={{
             position: "absolute", top: "0.75rem", right: "0.75rem",
@@ -352,9 +370,17 @@ const SurrealShape = ({ type, size }: { type: string; size: number }) => {
 };
 
 // ── Main page component ────────────────────────────────────────────────────
-export default function WorkshopsPage() {
+function WorkshopsPageContent() {
+  const searchParams = useSearchParams();
   const [filter, setFilter]     = useState<WorkshopCategory | "all">("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  useEffect(() => {
+    const c = searchParams.get("category");
+    if (c === "nature-earth" || c === "light-wonder" || c === "imagination" || c === "making-craft") {
+      setFilter(c);
+    }
+  }, [searchParams]);
 
   const chamberOuterRef = useRef<HTMLDivElement>(null);
   const chamberTrackRef = useRef<HTMLDivElement>(null);
@@ -391,8 +417,6 @@ export default function WorkshopsPage() {
         start: "top top",
         end: () => `+=${totalScroll}`,
         scrub: 1.4,
-        pin: true,
-        anticipatePin: 1,
         invalidateOnRefresh: true,
       },
     });
@@ -418,7 +442,10 @@ export default function WorkshopsPage() {
           ref={heroRef}
           aria-label="The Atelier — hero"
           style={{
-            position: "relative", height: "100vh", overflow: "hidden",
+            position: "relative",
+            height: "100dvh",
+            minHeight: "100svh",
+            overflow: "hidden",
             background: "#131008", margin: 0, padding: 0,
           }}
         >
@@ -451,19 +478,20 @@ export default function WorkshopsPage() {
           <motion.div style={{
             position: "absolute", inset: 0, margin: 0,
             display: "flex", flexDirection: "column", justifyContent: "center",
-            paddingTop: "172px",
-            paddingBottom: "6rem",
+            paddingTop: "clamp(5.5rem, 14vh, 10.75rem)",
+            paddingBottom: "clamp(5.5rem, 12vh, 7rem)",
             paddingLeft: "clamp(2rem,7vw,7rem)",
             paddingRight: "clamp(2rem,7vw,7rem)",
             y: heroY, opacity: heroOpacity,
+            boxSizing: "border-box",
           }}>
-            <div style={{ maxWidth: "55vw" }}>
+            <div style={{ maxWidth: "min(55vw, 40rem)", width: "100%" }}>
               {/* eyebrow */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
-                style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}
+                style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "clamp(0.65rem, 2vh, 1.25rem)" }}
               >
                 <div style={{ width: 28, height: 1, background: "#D4820A" }} />
                 <span style={{
@@ -475,7 +503,16 @@ export default function WorkshopsPage() {
 
               {/* Main headline — each word springs in */}
               {["Make", "Something", "Real."].map((word, i) => (
-                <div key={word} style={{ overflow: "hidden" }}>
+                <div
+                  key={word}
+                  style={{
+                    overflow: "hidden",
+                    lineHeight: 1.05,
+                    paddingLeft: "0.08em",
+                    paddingRight: "0.04em",
+                    marginLeft: "-0.08em",
+                  }}
+                >
                   <motion.div
                     initial={{ y: "100%", rotate: [-2, 1, -3][i], opacity: 0 }}
                     animate={{ y: 0, rotate: 0, opacity: 1 }}
@@ -487,11 +524,13 @@ export default function WorkshopsPage() {
                     }}
                     style={{
                       fontFamily: "var(--font-playfair)",
-                      fontSize: "clamp(4rem, 8vw, 9.5rem)",
-                      fontWeight: 400, lineHeight: 0.92,
+                      fontSize: "clamp(1.85rem, min(4vw, 6.5dvh), 3.35rem)",
+                      fontWeight: 400,
+                      lineHeight: 1.05,
                       color: "#F7F2E5",
                       display: "block",
                       margin: 0,
+                      WebkitFontSmoothing: "antialiased",
                     }}
                   >{word}</motion.div>
                 </div>
@@ -503,9 +542,9 @@ export default function WorkshopsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.1, duration: 0.6 }}
                 style={{
-                  fontFamily: "var(--font-lora)", fontSize: "clamp(0.9rem,1.4vw,1.1rem)",
-                  color: "rgba(237,232,218,0.65)", lineHeight: 1.75,
-                  maxWidth: "44ch", marginTop: "1.75rem", marginBottom: "2.25rem",
+                  fontFamily: "var(--font-lora)", fontSize: "clamp(0.85rem, min(1.35vw, 2.4dvh), 1.05rem)",
+                  color: "rgba(237,232,218,0.65)", lineHeight: 1.65,
+                  maxWidth: "44ch", marginTop: "clamp(0.85rem, 2.5vh, 1.5rem)", marginBottom: "clamp(1rem, 3vh, 1.75rem)",
                 }}
               >
                 Twenty workshops. Every material imaginable.<br />
@@ -554,11 +593,11 @@ export default function WorkshopsPage() {
             </div>
           </motion.div>
 
-          {/* Right — 5 floating polaroid photographs */}
+          {/* Right — 5 floating polaroid photographs (real workshop art) */}
           <div style={{ position: "absolute", inset: 0, margin: 0, pointerEvents: "none" }}>
-            {POLAROIDS.map((p, i) => (
+            {HERO_POLAROIDS.map((p) => (
               <motion.div
-                key={p.label}
+                key={p.workshop.id}
                 initial={{ y: p.yFrom, x: p.xFrom, rotate: (p.rotation > 0 ? p.rotation * 3 : p.rotation * 2), opacity: 0 }}
                 animate={{ y: 0, x: 0, rotate: p.rotation, opacity: 1 }}
                 transition={{
@@ -569,18 +608,57 @@ export default function WorkshopsPage() {
                   position: "absolute",
                   top: p.top, right: p.right,
                   width: 200, height: 260,
-                  background: p.gradient,
                   border: "8px solid #F7F2E5",
                   borderRadius: 2,
                   boxShadow: "8px 16px 40px rgba(10,8,4,0.65)",
-                  display: "flex", alignItems: "flex-end",
-                  padding: "0.5rem",
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                  background: "#1a1510",
                 }}
               >
-                <span style={{
-                  fontFamily: "var(--font-caveat)", fontWeight: 700,
-                  fontSize: "0.9rem", color: "rgba(10,8,4,0.5)",
-                }}>{p.label}</span>
+                <div style={{ position: "relative", flex: 1, minHeight: 0, width: "100%" }}>
+                  <img
+                    src={p.workshop.image}
+                    alt={p.workshop.title}
+                    width={184}
+                    height={184}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                      display: "block",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      margin: 0,
+                      background: "linear-gradient(to top, rgba(10,8,4,0.35) 0%, transparent 45%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    flexShrink: 0,
+                    padding: "0.35rem 0.45rem 0.5rem",
+                    background: "#F7F2E5",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--font-caveat)", fontWeight: 700,
+                      fontSize: "0.88rem", color: "rgba(10,8,4,0.55)",
+                      lineHeight: 1.15,
+                      display: "block",
+                    }}
+                  >
+                    {p.workshop.title}
+                  </span>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -629,9 +707,11 @@ export default function WorkshopsPage() {
         ref={philRef}
         aria-label="The Atelier philosophy"
         style={{
-          height: "65vh", display: "flex", flexDirection: "column",
-          justifyContent: "center", alignItems: "center",
-          background: "#131008", padding: "0 clamp(2rem,8vw,10rem)",
+          minHeight: "clamp(360px, 58vh, 640px)",
+          display: "flex", flexDirection: "column",
+          justifyContent: "flex-start", alignItems: "flex-start",
+          background: "#131008",
+          padding: "clamp(5rem, 16vh, 9rem) clamp(2rem, 7vw, 7rem) clamp(2.5rem, 8vh, 5rem)",
           position: "relative", margin: 0,
         }}
       >
@@ -641,15 +721,30 @@ export default function WorkshopsPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", position: "relative", zIndex: 1 }}
+          style={{
+            textAlign: "left",
+            position: "relative",
+            zIndex: 1,
+            width: "100%",
+            maxWidth: "min(44rem, 92vw)",
+            margin: 0,
+            marginRight: "auto",
+            paddingLeft: 0,
+            paddingRight: "clamp(1rem, 4vw, 2rem)",
+            boxSizing: "border-box",
+          }}
         >
           <p
             style={{
               fontFamily: "var(--font-playfair)", fontStyle: "italic",
-              fontWeight: 900,
-              fontSize: "clamp(1.8rem, 5vw, 5.5rem)",
-              lineHeight: 1.1,
+              fontWeight: 700,
+              fontSize: "clamp(1.85rem, min(5vw, 7.5dvh), 4.25rem)",
+              lineHeight: 1.22,
               margin: 0,
+              letterSpacing: "0.01em",
+              WebkitFontSmoothing: "antialiased",
+              textAlign: "left",
+              textWrap: "balance",
             }}
             aria-label={PHIL_WORDS.join(" ")}
           >
@@ -669,9 +764,10 @@ export default function WorkshopsPage() {
             viewport={{ once: true, margin: "-40px" }}
             transition={{ delay: 0.4, type: "spring", stiffness: 150 }}
             style={{
-              fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem",
-              letterSpacing: "0.25em", textTransform: "uppercase",
-              color: "#D4820A", marginTop: "2rem",
+              fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem",
+              letterSpacing: "0.28em", textTransform: "uppercase",
+              color: "#D4820A", marginTop: "clamp(1.25rem, 4vh, 2rem)",
+              textAlign: "left",
             }}
           >— The Atelier</motion.p>
         </motion.div>
@@ -707,7 +803,7 @@ export default function WorkshopsPage() {
       <div
         ref={chamberOuterRef}
         aria-label="Nature & Earth workshops"
-        style={{ height: `${(natureWorkshops.length) * 100 + 100}vh`, margin: 0, contain: "layout style paint" }}
+        style={{ height: `calc(100vh + ${(natureWorkshops.length - 1) * 100}vw)`, margin: 0 }}
       >
         <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden", margin: 0 }}>
           {/* category watermark */}
@@ -752,6 +848,10 @@ export default function WorkshopsPage() {
                   background: w.gradient, margin: 0,
                 }}
               >
+                {/* real photo */}
+                <img src={w.image} alt={w.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                {/* gradient colour tint */}
+                <div style={{ position: "absolute", inset: 0, margin: 0, background: w.gradient, opacity: 0.45, mixBlendMode: "multiply" }} />
                 {/* bottom fade */}
                 <div style={{ position: "absolute", inset: 0, margin: 0, background: "linear-gradient(to top, rgba(10,8,4,0.82) 0%, transparent 55%)" }} />
 
@@ -889,7 +989,8 @@ export default function WorkshopsPage() {
           >
             {/* image half */}
             <div style={{ width: "50%", flexShrink: 0, position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", inset: 0, margin: 0, background: w.gradient }} />
+              <img src={w.image} alt={w.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <div style={{ position: "absolute", inset: 0, margin: 0, background: w.gradient, opacity: 0.5, mixBlendMode: "multiply" }} />
               {/* Candle flame for candle-making */}
               {w.id === "candle-making" && (
                 <div style={{ position: "absolute", top: "35%", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -1090,6 +1191,10 @@ export default function WorkshopsPage() {
                 margin: 0,
               }}
             >
+              {/* real photo background */}
+              <img src={w.image} alt={w.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", inset: 0, background: w.gradient, opacity: 0.72, mixBlendMode: "multiply", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", inset: 0, background: "rgba(10,8,4,0.45)", pointerEvents: "none" }} />
               {/* Surrealism: floating SVG objects */}
               {isSurrealism && SURREAL_OBJECTS.map((obj, oi) => (
                 <motion.div
@@ -1231,6 +1336,9 @@ export default function WorkshopsPage() {
                 }}
                 whileHover="hovered"
               >
+                {/* real photo */}
+                <img src={w.image} alt={w.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
+                <div style={{ position: "absolute", inset: 0, background: w.gradient, opacity: 0.5, mixBlendMode: "multiply", pointerEvents: "none" }} />
                 {/* chisel sweep for wood carving */}
                 {isWood && (
                   <motion.div
@@ -1389,13 +1497,30 @@ export default function WorkshopsPage() {
             {viewMode === "grid" ? (
               <motion.div
                 key="grid"
-                style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1px", background: "#322C1E", margin: 0 }}
+                layout
+                style={{
+                  border: "1px solid #322C1E",
+                  borderRadius: 6,
+                  overflow: "hidden",
+                  background: "#131008",
+                  margin: 0,
+                }}
               >
-                {filtered.map(w => (
-                  <div key={w.id} style={{ background: "#131008" }}>
-                    <WorkshopCard w={w} isListView={false} />
-                  </div>
-                ))}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                    gap: 1,
+                    background: "#252018",
+                    margin: 0,
+                  }}
+                >
+                  {filtered.map(w => (
+                    <div key={w.id} style={{ background: "#131008", minWidth: 0 }}>
+                      <WorkshopCard w={w} isListView={false} />
+                    </div>
+                  ))}
+                </div>
               </motion.div>
             ) : (
               <motion.div key="list" style={{ borderTop: "1px solid #322C1E", margin: 0 }}>
@@ -1550,5 +1675,13 @@ export default function WorkshopsPage() {
 
       <Footer />
     </>
+  );
+}
+
+export default function WorkshopsPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0a0a0f" }} aria-hidden />}>
+      <WorkshopsPageContent />
+    </Suspense>
   );
 }

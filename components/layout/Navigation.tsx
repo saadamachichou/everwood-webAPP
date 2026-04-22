@@ -94,7 +94,7 @@ export default function Navigation() {
           onClick={() => setVaultOpen(true)}
           aria-label="Open navigation menu"
           aria-expanded={vaultOpen}
-          className="flex flex-col gap-[5px] p-1 bg-transparent border-none group"
+          className="flex flex-col gap-[5px] p-1 bg-transparent border-none group mr-4 md:mr-5"
         >
           {[28, 20, 24].map((w, i) => (
             <span

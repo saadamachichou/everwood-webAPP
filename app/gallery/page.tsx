@@ -35,17 +35,28 @@ const HERO_RING_TICKS = Array.from({ length: 36 }).map((_, i) => {
   };
 });
 
+/** Gallery-only backdrop: celadon–ink (distinct from site void #03030A) */
+const GB = {
+  void: "#061018",
+  ink: "#0a1824",
+  deep: "#030c12",
+  panel: "#071a26",
+  wash: "linear-gradient(165deg, rgba(55, 95, 88, 0.14) 0%, transparent 42%, rgba(18, 42, 52, 0.35) 100%)",
+  cardVeilTop: "rgba(6, 22, 30, 0.9)",
+  vignetteEdge: "rgba(3, 14, 20, 0.58)",
+} as const;
+
 // ── Metadata strip ──────────────────────────────────────────────────────────
 const MetaTag = ({ label, value }: { label: string; value: string }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
     <span style={{
-      fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
+      fontFamily: "var(--font-dm-mono)", fontSize: "0.48rem", fontWeight: 500,
       letterSpacing: "0.28em", textTransform: "uppercase",
-      color: "rgba(201,169,110,0.45)",
+      color: "rgba(201,169,110,0.5)",
     }}>{label}</span>
     <span style={{
-      fontFamily: "var(--font-grotesk)", fontSize: "0.72rem",
-      letterSpacing: "0.1em", color: "rgba(244,241,232,0.7)",
+      fontFamily: "var(--font-dm-mono)", fontSize: "0.68rem", fontWeight: 400,
+      letterSpacing: "0.12em", color: "rgba(244,241,232,0.78)",
     }}>{value}</span>
   </div>
 );
@@ -76,7 +87,7 @@ const ArtifactCard = ({
     {/* gradient wash overlay */}
     <div style={{
       position: "absolute", inset: 0, margin: 0,
-      background: "linear-gradient(to top, rgba(3,3,10,0.88) 0%, rgba(3,3,10,0.2) 55%, transparent 100%)",
+      background: `linear-gradient(to top, ${GB.cardVeilTop} 0%, rgba(6,22,30,0.22) 55%, transparent 100%)`,
       zIndex: 1,
     }} />
 
@@ -152,9 +163,11 @@ export default function GalleryPage() {
   const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroLayer1Y  = useTransform(heroP, [0, 1], ["0%", "28%"]);
   const heroLayer2Y  = useTransform(heroP, [0, 1], ["0%", "14%"]);
+  const heroBloomY   = useTransform(heroP, [0, 1], ["0%", "18%"]);
   const heroTextY    = useTransform(heroP, [0, 1], ["0%", "-22%"]);
   const heroOpacity  = useTransform(heroP, [0, 0.6], [1, 0]);
   const heroRingRot  = useTransform(heroP, [0, 1], ["0deg", "60deg"]);
+  const heroFrameOp  = useTransform(heroP, [0, 0.45], [1, 0.35]);
 
   // ── Feature story parallax ─────────────────────────────────────────────────
   const { scrollYProgress: featP } = useScroll({ target: featureRef, offset: ["start end", "end start"] });
@@ -215,6 +228,23 @@ export default function GalleryPage() {
     <>
       <Navigation />
 
+      {/* Full-height gallery atmosphere (shows between sections / overscroll) */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          background: `
+            ${GB.wash},
+            radial-gradient(ellipse 120% 80% at 10% 0%, rgba(72, 110, 102, 0.07) 0%, transparent 50%),
+            radial-gradient(ellipse 90% 70% at 100% 30%, rgba(30, 58, 68, 0.12) 0%, transparent 55%),
+            linear-gradient(180deg, ${GB.void} 0%, ${GB.ink} 38%, ${GB.deep} 100%)
+          `,
+        }}
+      />
+
       {/* ══════════════════════════════════════════════════════════════════════
           § 1 — HERO
       ══════════════════════════════════════════════════════════════════════ */}
@@ -222,40 +252,115 @@ export default function GalleryPage() {
         ref={heroRef}
         aria-label="Gallery hero"
         style={{
-          position: "relative", height: "100vh", overflow: "hidden",
-          background: "#030208", margin: 0, padding: 0,
+          position: "relative",
+          zIndex: 1,
+          height: "100vh",
+          minHeight: "100dvh",
+          overflow: "hidden",
+          background: "transparent",
+          margin: 0,
+          padding: 0,
+          isolation: "isolate",
         }}
       >
-        {/* Deep void layer — slowest parallax */}
+        {/* Deep void — charcoal + umber (slow parallax) */}
         <motion.div
           aria-hidden="true"
           style={{
             position: "absolute", inset: 0, margin: 0,
-            background: "radial-gradient(ellipse at 30% 60%, #1a0e0a 0%, #0a0606 35%, #030208 80%)",
+            background: `
+              radial-gradient(ellipse 85% 65% at 18% 50%, rgba(52, 82, 76, 0.22) 0%, transparent 52%),
+              radial-gradient(ellipse 50% 45% at 88% 18%, rgba(24, 48, 58, 0.45) 0%, transparent 48%),
+              radial-gradient(ellipse at 32% 58%, #0f1816 0%, #081012 40%, ${GB.void} 76%)
+            `,
             y: heroLayer1Y,
           }}
         />
 
-        {/* Mid atmosphere layer */}
+        {/* Warm gallery pool — track lighting feel */}
         <motion.div
           aria-hidden="true"
           style={{
             position: "absolute", inset: 0, margin: 0,
-            background: "radial-gradient(ellipse at 70% 40%, rgba(201,169,110,0.06) 0%, transparent 60%)",
+            background: `
+              radial-gradient(ellipse 45% 35% at 72% 42%, rgba(201,169,110,0.14) 0%, transparent 65%),
+              radial-gradient(ellipse 80% 40% at 50% 100%, rgba(201,169,110,0.05) 0%, transparent 55%)
+            `,
             y: heroLayer2Y,
           }}
         />
 
-        {/* Decorative ring SVG — rotates with scroll */}
+        {/* Diffused “glass” blooms — editorial still-life mood */}
         <motion.div
           aria-hidden="true"
           style={{
             position: "absolute",
-            top: "50%", left: "50%",
-            width: 800, height: 800,
-            marginTop: -400, marginLeft: -400,
+            top: "-12%",
+            right: "-8%",
+            width: "min(52vw, 620px)",
+            height: "min(52vw, 620px)",
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 40% 40%, rgba(120, 160, 190, 0.12) 0%, rgba(201, 169, 110, 0.06) 42%, transparent 70%)",
+            filter: "blur(48px)",
+            y: heroBloomY,
+            opacity: 0.85,
+          }}
+        />
+        <motion.div
+          aria-hidden="true"
+          animate={{ opacity: [0.35, 0.55, 0.35], scale: [1, 1.04, 1] }}
+          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            bottom: "5%",
+            left: "55%",
+            width: "min(38vw, 420px)",
+            height: "min(38vw, 420px)",
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(201,169,110,0.09) 0%, transparent 68%)",
+            filter: "blur(36px)",
+          }}
+        />
+
+        {/* Fine grain — tactile print / museum wall */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            margin: 0,
+            opacity: 0.055,
+            mixBlendMode: "overlay",
+            pointerEvents: "none",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          }}
+        />
+
+        {/* Vignette */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            margin: 0,
+            pointerEvents: "none",
+            background: `radial-gradient(ellipse 75% 65% at 45% 48%, transparent 0%, ${GB.vignetteEdge} 100%)`,
+          }}
+        />
+
+        {/* Astrolabe ring — offset, like a hanging instrument */}
+        <motion.div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: "46%",
+            left: "58%",
+            width: 800,
+            height: 800,
+            marginTop: -400,
+            marginLeft: -400,
             rotate: heroRingRot,
-            opacity: 0.07,
+            opacity: 0.09,
           }}
         >
           <svg viewBox="0 0 800 800" width="800" height="800" style={{ margin: 0 }}>
@@ -271,116 +376,213 @@ export default function GalleryPage() {
           </svg>
         </motion.div>
 
-        {/* Hero text block */}
+        {/* Thin horizon — exhibition sight line */}
+        <motion.div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: "clamp(1.5rem, 6vw, 5rem)",
+            right: "18%",
+            top: "42%",
+            height: 1,
+            background: "linear-gradient(90deg, rgba(201,169,110,0.35) 0%, rgba(201,169,110,0.06) 55%, transparent 100%)",
+            opacity: heroFrameOp,
+          }}
+        />
+
+        {/* Hero text — plate + typographic stack */}
         <motion.div
           style={{
-            position: "absolute", inset: 0, margin: 0,
-            display: "flex", flexDirection: "column",
+            position: "absolute",
+            inset: 0,
+            margin: 0,
+            display: "flex",
+            flexDirection: "column",
             justifyContent: "center",
-            paddingTop: "172px",
+            paddingTop: "clamp(6rem, 14vw, 10.5rem)",
             paddingLeft: "clamp(2rem, 8vw, 8rem)",
             paddingRight: "clamp(2rem, 8vw, 8rem)",
             y: heroTextY,
             opacity: heroOpacity,
           }}
         >
-          {/* Volume label */}
-          <motion.div
-            initial={{ opacity: 0, x: -16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}
-          >
-            <div style={{ width: 32, height: 1, background: "rgba(201,169,110,0.5)" }} />
-            <span style={{
-              fontFamily: "var(--font-grotesk)", fontSize: "0.55rem",
-              letterSpacing: "0.32em", textTransform: "uppercase",
-              color: "rgba(201,169,110,0.65)",
-            }}>The Archive · Vol. IV · Casablanca 2026</span>
-          </motion.div>
+          <div style={{ position: "relative", maxWidth: "min(52rem, 92vw)" }}>
+            {/* Corner brackets — mat board / frame */}
+            <motion.div
+              aria-hidden="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35, duration: 1 }}
+              style={{
+                position: "absolute",
+                inset: "-1.25rem -1.5rem -1.75rem -1.5rem",
+                pointerEvents: "none",
+                opacity: 0.5,
+              }}
+            >
+              <span style={{ position: "absolute", top: 0, left: 0, width: 44, height: 44, borderTop: "1px solid rgba(201,169,110,0.45)", borderLeft: "1px solid rgba(201,169,110,0.45)" }} />
+              <span style={{ position: "absolute", top: 0, right: 0, width: 44, height: 44, borderTop: "1px solid rgba(201,169,110,0.45)", borderRight: "1px solid rgba(201,169,110,0.45)" }} />
+              <span style={{ position: "absolute", bottom: 0, left: 0, width: 44, height: 44, borderBottom: "1px solid rgba(201,169,110,0.45)", borderLeft: "1px solid rgba(201,169,110,0.45)" }} />
+              <span style={{ position: "absolute", bottom: 0, right: 0, width: 44, height: 44, borderBottom: "1px solid rgba(201,169,110,0.45)", borderRight: "1px solid rgba(201,169,110,0.45)" }} />
+            </motion.div>
 
-          {/* Main title */}
-          <HeroTitle
-            text="Obsidian Ritual"
-            delay={0.2}
-            style={{
-              fontFamily: "var(--font-playfair)",
-              fontSize: "clamp(3.2rem, 7vw, 9rem)",
-              fontWeight: 400, lineHeight: 0.95,
-              color: "#F4F1E8", margin: 0,
-            }}
-          />
+            {/* Exhibition plate */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: "0.75rem 1.25rem",
+                marginBottom: "1.75rem",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "var(--font-dm-mono)",
+                  fontSize: "0.5rem",
+                  fontWeight: 500,
+                  letterSpacing: "0.34em",
+                  textTransform: "uppercase",
+                  color: "rgba(201,169,110,0.72)",
+                }}
+              >
+                Permanent collection
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-dm-mono)",
+                  fontSize: "0.48rem",
+                  letterSpacing: "0.22em",
+                  textTransform: "uppercase",
+                  color: "rgba(244,241,232,0.35)",
+                  padding: "0.35rem 0.75rem",
+                  border: "1px solid rgba(201,169,110,0.28)",
+                  background: "rgba(201,169,110,0.04)",
+                }}
+              >
+                Pl. IV · Casablanca · 2026
+              </span>
+            </motion.div>
 
-          <div style={{ height: "0.6rem" }} />
+            {/* Main title — two-line gallery cadence */}
+            <HeroTitle
+              text="Obsidian Ritual"
+              delay={0.2}
+              style={{
+                fontFamily: "var(--font-playfair)",
+                fontSize: "clamp(3rem, 6.8vw, 8.25rem)",
+                fontWeight: 400,
+                lineHeight: 0.92,
+                letterSpacing: "-0.02em",
+                color: "#F4F1E8",
+                margin: 0,
+                textShadow: "0 4px 48px rgba(0,0,0,0.45), 0 0 80px rgba(201,169,110,0.08)",
+              }}
+            />
 
-          <HeroTitle
-            as="h2"
-            text="Chapter IV"
-            delay={0.5}
-            style={{
-              fontFamily: "var(--font-cormorant)",
-              fontSize: "clamp(1.4rem, 3vw, 3.5rem)",
-              fontWeight: 300, fontStyle: "italic",
-              color: "#C9A96E", margin: 0,
-            }}
-          />
+            <div style={{ height: "clamp(0.35rem, 1.2vw, 0.85rem)" }} />
 
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              fontFamily: "var(--font-garamond)", fontStyle: "italic",
-              fontSize: "clamp(0.9rem, 1.5vw, 1.15rem)",
-              color: "rgba(244,241,232,0.45)", lineHeight: 1.7,
-              maxWidth: "46ch", marginTop: "1.8rem",
-            }}
-          >
-            A living archaeology of objects displaced by history,
-            preserved by devotion, and reassembled in a 16th-century
-            riad in the heart of Casablanca&apos;s medina.
-          </motion.p>
+            <HeroTitle
+              as="h2"
+              text="Chapter IV"
+              delay={0.5}
+              style={{
+                fontFamily: "var(--font-cormorant)",
+                fontSize: "clamp(1.35rem, 2.8vw, 3.25rem)",
+                fontWeight: 300,
+                fontStyle: "italic",
+                color: "#C9A96E",
+                margin: 0,
+                letterSpacing: "0.02em",
+              }}
+            />
 
-          {/* Meta strip */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.4, duration: 0.8 }}
-            style={{
-              display: "flex", gap: "3rem", marginTop: "3.5rem",
-              borderLeft: "1px solid rgba(201,169,110,0.2)",
-              paddingLeft: "2rem",
-            }}
-          >
-            <MetaTag label="Objects" value="247" />
-            <MetaTag label="Centuries" value="X – XX" />
-            <MetaTag label="Origins" value="23 regions" />
-          </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.05, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                fontFamily: "var(--font-garamond)",
+                fontStyle: "italic",
+                fontSize: "clamp(0.95rem, 1.45vw, 1.2rem)",
+                color: "rgba(232,228,218,0.52)",
+                lineHeight: 1.75,
+                maxWidth: "44ch",
+                marginTop: "2rem",
+                borderLeft: "2px solid rgba(201,169,110,0.22)",
+                paddingLeft: "1.35rem",
+              }}
+            >
+              Light, glass, and time — a living archaeology of objects displaced by history,
+              preserved by devotion, and reassembled in a sixteenth-century riad in the
+              heart of Casablanca&apos;s medina.
+            </motion.p>
+
+            {/* Specimen meta — label card */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.35, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "2.25rem 3rem",
+                marginTop: "2.75rem",
+                padding: "1.35rem 1.75rem",
+                maxWidth: "max-content",
+                background: "linear-gradient(135deg, rgba(12,14,24,0.65) 0%, rgba(8,10,18,0.4) 100%)",
+                border: "1px solid rgba(201,169,110,0.18)",
+                backdropFilter: "blur(12px)",
+                boxShadow: "0 24px 48px rgba(0,0,0,0.35)",
+              }}
+            >
+              <MetaTag label="Objects" value="247" />
+              <MetaTag label="Centuries" value="X – XX" />
+              <MetaTag label="Origins" value="23 regions" />
+            </motion.div>
+          </div>
         </motion.div>
 
-        {/* Scroll indicator */}
+        {/* Scroll — editorial, corner anchor */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.8, duration: 0.6 }}
+          transition={{ delay: 1.75, duration: 0.6 }}
           aria-hidden="true"
           style={{
-            position: "absolute", bottom: "2.5rem", left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex", flexDirection: "column",
-            alignItems: "center", gap: "0.5rem",
+            position: "absolute",
+            bottom: "clamp(1.75rem, 4vw, 2.75rem)",
+            right: "clamp(1.75rem, 5vw, 3.5rem)",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "0.85rem",
           }}
         >
-          <span style={{
-            fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
-            letterSpacing: "0.3em", textTransform: "uppercase",
-            color: "rgba(201,169,110,0.4)",
-          }}>Scroll</span>
+          <span
+            style={{
+              fontFamily: "var(--font-dm-mono)",
+              fontSize: "0.48rem",
+              fontWeight: 500,
+              letterSpacing: "0.32em",
+              textTransform: "uppercase",
+              color: "rgba(201,169,110,0.42)",
+            }}
+          >
+            Enter
+          </span>
           <motion.div
-            style={{ width: 1, height: 40, background: "linear-gradient(to bottom, rgba(201,169,110,0.5), transparent)" }}
-            animate={{ scaleY: [1, 0.4, 1], opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+            style={{
+              width: 48,
+              height: 1,
+              background: "linear-gradient(to right, rgba(201,169,110,0.55), transparent)",
+              transformOrigin: "left center",
+            }}
+            animate={{ scaleX: [1, 0.35, 1], opacity: [0.45, 0.95, 0.45] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
           />
         </motion.div>
       </section>
@@ -391,7 +593,7 @@ export default function GalleryPage() {
       <section
         ref={featureRef}
         aria-label="Feature story"
-        style={{ display: "flex", background: "#030208", margin: 0 }}
+        style={{ position: "relative", zIndex: 1, display: "flex", background: "transparent", margin: 0 }}
       >
         {/* Left — sticky image panel */}
         <div style={{
@@ -401,14 +603,14 @@ export default function GalleryPage() {
         }}>
           <motion.div style={{
             position: "absolute", inset: 0, margin: 0,
-            background: "radial-gradient(ellipse at 50% 40%, #2a1508 0%, #14090302 45%, #070302 100%)",
+            background: `radial-gradient(ellipse at 50% 40%, #1e2c28 0%, rgba(8, 20, 24, 0.65) 45%, ${GB.deep} 100%)`,
             scale: featImgScale,
             y: featImgY,
           }} />
           {/* Overlay gradient to blend right edge */}
           <div style={{
             position: "absolute", inset: 0, margin: 0,
-            background: "linear-gradient(to right, transparent 70%, #030208 100%)",
+            background: `linear-gradient(to right, transparent 65%, ${GB.ink} 100%)`,
             zIndex: 2,
           }} />
           {/* Title overlay */}
@@ -549,12 +751,13 @@ export default function GalleryPage() {
       <div
         ref={chamberRef}
         aria-label="Gallery chamber — horizontal scroll"
-        style={{ height: `${100 + (chamberPanels.length - 1) * 100}vh`, margin: 0 }}
+        style={{ position: "relative", zIndex: 1, height: `${100 + (chamberPanels.length - 1) * 100}vh`, margin: 0 }}
       >
         {/* The sticky viewport */}
         <div style={{
           position: "sticky", top: 0, height: "100vh",
           overflow: "hidden", margin: 0,
+          background: `linear-gradient(180deg, ${GB.panel} 0%, ${GB.deep} 100%)`,
         }}>
           {/* Chapter heading — appears above track */}
           <div style={{
@@ -668,7 +871,7 @@ export default function GalleryPage() {
       {/* ══════════════════════════════════════════════════════════════════════
           § 4 — CASCADE PANELS ("fixed background" journey)
       ══════════════════════════════════════════════════════════════════════ */}
-      <div aria-label="The archive — three chapters" style={{ margin: 0 }}>
+      <div aria-label="The archive — three chapters" style={{ position: "relative", zIndex: 1, margin: 0 }}>
         {cascadePanels.map((panel, i) => (
           <div
             key={panel.id}
@@ -684,7 +887,7 @@ export default function GalleryPage() {
               {/* Atmospheric vignette */}
               <div style={{
                 position: "absolute", inset: 0, margin: 0,
-                background: "radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(3,3,10,0.55) 100%)",
+                background: `radial-gradient(ellipse at 50% 50%, transparent 30%, ${GB.vignetteEdge} 100%)`,
               }} />
 
               {/* Horizontal gold rule */}
@@ -780,7 +983,7 @@ export default function GalleryPage() {
       ══════════════════════════════════════════════════════════════════════ */}
       <section
         aria-label="Archive collection"
-        style={{ background: "#030208", padding: "8rem clamp(1.5rem,6vw,6rem)", margin: 0 }}
+        style={{ position: "relative", zIndex: 1, background: "transparent", padding: "8rem clamp(1.5rem,6vw,6rem)", margin: 0 }}
       >
         {/* Section header */}
         <motion.div
@@ -828,8 +1031,10 @@ export default function GalleryPage() {
         ref={closingRef}
         aria-label="Closing"
         style={{
-          position: "relative", height: "100vh", overflow: "hidden",
-          background: "#020108", margin: 0, padding: 0,
+          position: "relative", zIndex: 1,
+          height: "100vh", overflow: "hidden",
+          background: `radial-gradient(ellipse 80% 60% at 50% 100%, rgba(62, 98, 90, 0.08) 0%, transparent 55%), ${GB.deep}`,
+          margin: 0, padding: 0,
           display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
@@ -838,7 +1043,7 @@ export default function GalleryPage() {
           aria-hidden="true"
           style={{
             position: "absolute", inset: 0, margin: 0,
-            background: "radial-gradient(ellipse at 50% 60%, rgba(180,90,20,0.06) 0%, transparent 65%)",
+            background: "radial-gradient(ellipse at 50% 55%, rgba(180, 120, 70, 0.05) 0%, rgba(50, 90, 82, 0.06) 35%, transparent 68%)",
             y: closingY,
           }}
         />
@@ -926,7 +1131,9 @@ export default function GalleryPage() {
         </motion.div>
       </section>
 
-      <Footer />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <Footer />
+      </div>
     </>
   );
 }

@@ -1,0 +1,12 @@
+[
+  { "id": "ANT-001", "name": "Art Deco Brass Lamp",        "era": "1920s",        "origin": "France",      "price": 4800,  "category": "Lighting",   "condition": "Excellent", "status": "Available", "featured": true  },
+  { "id": "ANT-002", "name": "Moroccan Cedar Cabinet",     "era": "Early 20th c.","origin": "Morocco",     "price": 12500, "category": "Furniture",  "condition": "Good",      "status": "Reserved",  "featured": true  },
+  { "id": "ANT-003", "name": "Ottoman Copper Tray Set",    "era": "19th c.",      "origin": "Turkey",      "price": 2200,  "category": "Decorative", "condition": "Good",      "status": "Available", "featured": false },
+  { "id": "ANT-004", "name": "Persian Silk Rug 3×2m",     "era": "1940s",        "origin": "Iran",        "price": 18000, "category": "Textile",    "condition": "Excellent", "status": "Available", "featured": true  },
+  { "id": "ANT-005", "name": "Vintage Oud & Case",         "era": "1960s",        "origin": "Egypt",       "price": 9500,  "category": "Music",      "condition": "Fair",      "status": "Available", "featured": false },
+  { "id": "ANT-006", "name": "Art Nouveau Vanity Mirror",  "era": "1900s",        "origin": "Belgium",     "price": 3600,  "category": "Mirrors",    "condition": "Good",      "status": "Sold",      "featured": false },
+  { "id": "ANT-007", "name": "Copper Coffee Service Set",  "era": "1950s",        "origin": "Egypt",       "price": 1800,  "category": "Ceramics",   "condition": "Excellent", "status": "Available", "featured": false },
+  { "id": "ANT-008", "name": "Tunisian Mosaic Side Table", "era": "1930s",        "origin": "Tunisia",     "price": 5200,  "category": "Furniture",  "condition": "Good",      "status": "Available", "featured": true  },
+  { "id": "ANT-009", "name": "Antique Compass Collection", "era": "1880s",        "origin": "England",     "price": 7800,  "category": "Decorative", "condition": "Fair",      "status": "Available", "featured": false },
+  { "id": "ANT-010", "name": "Hand-painted Silk Suzani",   "era": "1900s",        "origin": "Uzbekistan",  "price": 8400,  "category": "Textile",    "condition": "Good",      "status": "Available", "featured": false }
+]

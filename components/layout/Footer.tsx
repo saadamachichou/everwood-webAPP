@@ -5,10 +5,13 @@ import { Mail, MapPin, ArrowUpRight } from "lucide-react";
 import RevealOnScroll from "@/components/effects/RevealOnScroll";
 
 const NAV = [
-  { href: "/",         label: "Events"   },
-  { href: "/antiques", label: "Antiques" },
-  { href: "/about",    label: "About"    },
-  { href: "/contact",  label: "Contact"  },
+  { href: "/events",    label: "Events"    },
+  { href: "/antiques",  label: "Antiques"  },
+  { href: "/gallery",   label: "Gallery"   },
+  { href: "/workshops", label: "Workshops" },
+  { href: "/menu",      label: "Menu"      },
+  { href: "/about",     label: "About"     },
+  { href: "/contact",   label: "Contact"   },
 ];
 
 /* Inline SVG brand icons — Lucide-stroke style */
@@ -39,10 +42,10 @@ export default function Footer() {
       <div className="flex items-center gap-6" style={{ paddingLeft: "60px", paddingRight: "60px", paddingTop: "4rem" }}>
         <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, transparent, rgba(212,148,58,.2))" }} />
         <span style={{
-          fontSize: ".55rem", letterSpacing: ".42em", textTransform: "uppercase",
-          color: "rgba(212,148,58,.38)", fontFamily: "var(--font-grotesk)", whiteSpace: "nowrap",
+          fontSize: ".5rem", letterSpacing: ".38em", textTransform: "uppercase",
+          color: "rgba(201,169,110,.72)", fontFamily: "var(--font-dm-mono)", fontWeight: 500, whiteSpace: "nowrap",
         }}>
-          Season 2026 · Casablanca
+          Casablanca · Season 2026
         </span>
         <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, transparent, rgba(212,148,58,.2))" }} />
       </div>
@@ -57,32 +60,38 @@ export default function Footer() {
               {/* wordmark */}
               <p style={{
                 fontFamily: "var(--font-playfair)",
-                fontSize: "clamp(2.5rem,4vw,4rem)",
-                color: "#F4F1E8", lineHeight: 1,
-                marginBottom: ".65rem", letterSpacing: "-.015em",
+                fontSize: "clamp(2.35rem, 3.6vw, 3.65rem)",
+                fontWeight: 400,
+                color: "#F4F1E8", lineHeight: 1.02,
+                marginBottom: ".85rem", letterSpacing: "-0.02em",
               }}>
-                Ever<span style={{ color: "#C9A96E" }}>wood</span>
+                Ever<span style={{ color: "#C9A96E", fontWeight: 400 }}>wood</span>
               </p>
 
               <p style={{
-                fontSize: ".56rem", letterSpacing: ".32em", textTransform: "uppercase",
-                color: "rgba(201,169,110,.4)", marginBottom: "1.75rem",
-                fontFamily: "var(--font-grotesk)",
+                fontSize: ".5rem", letterSpacing: ".34em", textTransform: "uppercase",
+                color: "rgba(201,169,110,.68)", marginBottom: "1.5rem",
+                fontFamily: "var(--font-dm-mono)", fontWeight: 500, lineHeight: 1.5,
               }}>
-                Where music comes alive
+                Listening room · Gallery · Workshops
               </p>
 
               <p style={{
-                fontFamily: "var(--font-garamond)", fontStyle: "italic",
-                fontSize: "1.02rem", color: "#8884A8",
-                lineHeight: 1.8, maxWidth: "32ch", marginBottom: "2.25rem",
+                fontFamily: "var(--font-garamond)",
+                fontSize: "clamp(1rem, 1.05vw, 1.125rem)",
+                fontWeight: 400,
+                color: "rgba(232, 228, 218, 0.9)",
+                lineHeight: 1.72, maxWidth: "38ch", marginBottom: "2.25rem",
+                letterSpacing: "0.01em",
               }}>
-                A living archaeology of music, art, and rare objects inside a
-                16th-century riad in the heart of Casablanca&apos;s medina.
+                Everwood is a cultural house in Casablanca&apos;s Ancienne Médina: intimate
+                concerts, a curated antiques gallery, and maker-led workshops in a restored
+                sixteenth-century riad. We open Thursday through Sunday for evenings shaped by
+                sound, craft, and considered hospitality.
               </p>
 
               {/* social — icon only */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 {SOCIAL.map(({ href, label, Icon }) => (
                   <motion.a
                     key={label}
@@ -91,10 +100,10 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      width: 44, height: 44,
+                      width: 48, height: 48,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      border: "1px solid rgba(255,255,255,.1)",
-                      color: "#8884A8", textDecoration: "none",
+                      border: "1px solid rgba(255,255,255,.14)",
+                      color: "rgba(232,228,218,0.88)", textDecoration: "none",
                       borderRadius: "50%",
                     }}
                     whileHover={{ borderColor: "rgba(201,169,110,.55)", color: "#C9A96E", scale: 1.08 }}
@@ -110,10 +119,10 @@ export default function Footer() {
                   href="mailto:hello@everwood.ma"
                   aria-label="Send us an email"
                   style={{
-                    width: 44, height: 44,
+                    width: 48, height: 48,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "1px solid rgba(255,255,255,.1)",
-                    color: "#8884A8", textDecoration: "none",
+                    border: "1px solid rgba(255,255,255,.14)",
+                    color: "rgba(232,228,218,0.88)", textDecoration: "none",
                     borderRadius: "50%",
                   }}
                   whileHover={{ borderColor: "rgba(201,169,110,.55)", color: "#C9A96E", scale: 1.08 }}
@@ -130,11 +139,11 @@ export default function Footer() {
           <RevealOnScroll delay={.1} y={18}>
             <div>
               <p style={{
-                fontSize: ".55rem", letterSpacing: ".3em", textTransform: "uppercase",
-                color: "rgba(201,169,110,.38)", marginBottom: ".75rem",
-                fontFamily: "var(--font-grotesk)",
+                fontSize: ".5rem", letterSpacing: ".32em", textTransform: "uppercase",
+                color: "rgba(201,169,110,.68)", marginBottom: ".75rem",
+                fontFamily: "var(--font-dm-mono)", fontWeight: 500,
               }}>
-                Navigate
+                Explore
               </p>
               <div style={{ width: 28, height: 1, background: "rgba(201,169,110,.22)", marginBottom: "1.75rem" }} />
 
@@ -145,9 +154,13 @@ export default function Footer() {
                       href={href}
                       style={{
                         display: "inline-flex", alignItems: "center", gap: 5,
-                        fontFamily: "var(--font-playfair)", fontSize: "1.05rem",
-                        color: "rgba(244,241,232,.6)", textDecoration: "none",
-                        padding: ".5rem 0",
+                        fontFamily: "var(--font-playfair)", fontSize: "1.02rem",
+                        fontWeight: 400,
+                        color: "rgba(244,241,232,.88)", textDecoration: "none",
+                        padding: ".75rem 0",
+                        minHeight: 48,
+                        boxSizing: "border-box",
+                        letterSpacing: "0.01em",
                       }}
                       className="transition-colors duration-200 hover:!text-[#F4F1E8]"
                     >
@@ -170,9 +183,9 @@ export default function Footer() {
           <RevealOnScroll delay={.2} y={18}>
             <div>
               <p style={{
-                fontSize: ".55rem", letterSpacing: ".3em", textTransform: "uppercase",
-                color: "rgba(201,169,110,.38)", marginBottom: ".75rem",
-                fontFamily: "var(--font-grotesk)",
+                fontSize: ".5rem", letterSpacing: ".32em", textTransform: "uppercase",
+                color: "rgba(201,169,110,.68)", marginBottom: ".75rem",
+                fontFamily: "var(--font-dm-mono)", fontWeight: 500,
               }}>
                 Visit
               </p>
@@ -181,7 +194,7 @@ export default function Footer() {
               {/* address */}
               <div className="flex gap-3 mb-5">
                 <MapPin size={14} style={{ color: "#C9A96E", flexShrink: 0, marginTop: 3 }} />
-                <address style={{ fontStyle: "normal", fontSize: ".88rem", color: "#8884A8", lineHeight: 1.8 }}>
+                <address style={{ fontStyle: "normal", fontSize: ".875rem", color: "rgba(232,228,218,0.88)", lineHeight: 1.75, letterSpacing: "0.02em" }}>
                   12 Derb Moulay Cherif<br />
                   Ancienne Médina<br />
                   Casablanca 20250, Morocco
@@ -193,7 +206,7 @@ export default function Footer() {
                 <Mail size={14} style={{ color: "#C9A96E", flexShrink: 0, marginTop: 2 }} />
                 <a
                   href="mailto:hello@everwood.ma"
-                  style={{ fontSize: ".88rem", color: "#8884A8", textDecoration: "none" }}
+                  style={{ fontSize: ".875rem", color: "rgba(232,228,218,0.9)", textDecoration: "none", letterSpacing: "0.02em" }}
                   className="hover:text-[#C9A96E] transition-colors duration-200"
                 >
                   hello@everwood.ma
@@ -207,15 +220,15 @@ export default function Footer() {
                 padding: "1.1rem 1.25rem",
               }}>
                 <p style={{
-                  fontSize: ".52rem", letterSpacing: ".24em", textTransform: "uppercase",
-                  color: "rgba(201,169,110,.45)", marginBottom: ".6rem",
-                  fontFamily: "var(--font-grotesk)",
+                  fontSize: ".5rem", letterSpacing: ".26em", textTransform: "uppercase",
+                  color: "rgba(201,169,110,.72)", marginBottom: ".6rem",
+                  fontFamily: "var(--font-dm-mono)", fontWeight: 500,
                 }}>
-                  Opening Hours
+                  Hours
                 </p>
-                <p style={{ fontSize: ".85rem", color: "#8884A8", lineHeight: 1.7 }}>
-                  Thu – Sun&nbsp;
-                  <span style={{ color: "rgba(244,241,232,.65)" }}>7:00 PM – late</span>
+                <p style={{ fontSize: ".875rem", color: "rgba(232,228,218,0.88)", lineHeight: 1.65, letterSpacing: "0.02em" }}>
+                  Thursday – Sunday&nbsp;
+                  <span style={{ color: "rgba(244,241,232,.95)" }}>7:00 p.m. – late</span>
                 </p>
               </div>
             </div>
@@ -229,7 +242,7 @@ export default function Footer() {
         <div className="w-full flex flex-wrap gap-4 items-center justify-between" style={{ paddingLeft: "60px", paddingRight: "60px", paddingTop: "1.5rem", paddingBottom: "1.5rem" }}>
           <p style={{
             fontSize: ".62rem", letterSpacing: ".08em",
-            color: "#ffffff",
+            color: "#F4F4F5",
             fontFamily: "var(--font-grotesk)",
           }}>
             © 2026 Everwood. All rights reserved.
@@ -240,15 +253,28 @@ export default function Footer() {
               <a
                 key={t}
                 href="#"
-                style={{ fontSize: ".62rem", letterSpacing: ".06em", color: "#ffffff", textDecoration: "none" }}
+                style={{ fontSize: ".62rem", letterSpacing: ".06em", color: "#F4F4F5", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 48, padding: "0 6px", boxSizing: "border-box" }}
               >
                 {t}
               </a>
             ))}
             <span style={{ width: 1, height: 12, background: "rgba(255,255,255,.3)", display: "inline-block" }} />
+            <span style={{ fontSize: ".62rem", letterSpacing: ".06em", color: "rgba(255,255,255,.78)", fontFamily: "var(--font-grotesk)" }}>
+              Site by{" "}
+              <a
+                href="https://astroqodelabs.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#F4F4F5", textDecoration: "none", letterSpacing: ".1em", display: "inline-flex", alignItems: "center", minHeight: 48, padding: "0 4px" }}
+                className="hover:text-[#C9A96E] transition-colors duration-200"
+              >
+                ASTROQODELABS
+              </a>
+            </span>
+            <span style={{ width: 1, height: 12, background: "rgba(255,255,255,.3)", display: "inline-block" }} />
             <span style={{
               fontSize: ".62rem", letterSpacing: ".12em",
-              color: "#ffffff",
+              color: "#F4F4F5",
               fontFamily: "var(--font-grotesk)",
             }}>
               Casablanca, Morocco
