@@ -7,7 +7,7 @@ import {
   LayoutDashboard, FileText, Coffee, Scissors, Image, Archive,
   Calendar, BookOpen, Mail, BarChart2, Settings, Users, Shield,
   Search, Bell, Plus, ExternalLink, ChevronRight, X, Menu,
-  Zap, TrendingUp, Globe, Layers, Inbox, Receipt,
+  Zap, TrendingUp, Globe, Layers, Inbox, Receipt, Truck,
 } from "lucide-react";
 
 // ── Design tokens ──────────────────────────────────────────────────
@@ -45,6 +45,7 @@ const NAV = [
   { group: "OPERATIONS",   items: [
     { href: "/studio/bookings",     icon: BookOpen,        label: "Bookings",        badge: 7    },
     { href: "/studio/reservations", icon: Receipt,         label: "Reservations",    badge: null },
+    { href: "/studio/cod",          icon: Truck,           label: "COD Dispatch",    badge: 5    },
   ]},
   { group: "COMMUNICATION",items: [
     { href: "/studio/newsletter",   icon: Mail,            label: "Newsletter",      badge: null },

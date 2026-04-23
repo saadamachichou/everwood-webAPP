@@ -8,8 +8,8 @@ import {
 } from "recharts";
 import {
   Users, Scissors, Coffee, Mail, TrendingUp, ArrowUpRight,
-  ArrowDownRight, Calendar, Plus, Send, BookOpen, Upload,
-  ChevronRight, Eye, Zap, Activity, FileText,
+  ArrowDownRight, Calendar, Plus, Send, BookOpen,
+  ChevronRight, Eye, Zap, Activity, FileText, Truck,
 } from "lucide-react";
 
 // ── Design tokens ──────────────────────────────────────────────────
@@ -522,7 +522,7 @@ const QUICK = [
   { icon: Calendar, label: "New Event",       sub: "Add to the stage",     href: "/studio/events/new",    color: D.purple },
   { icon: Send,     label: "Send Newsletter", sub: "Compose campaign",     href: "/studio/newsletter",    color: D.green  },
   { icon: BookOpen, label: "View Bookings",   sub: "7 new today",          href: "/studio/bookings",      color: D.gold   },
-  { icon: Upload,   label: "Upload Photos",   sub: "Media library",        href: "/studio/gallery",       color: D.subtle },
+  { icon: Truck,    label: "COD Dispatch",    sub: "Assign riders",        href: "/studio/cod",           color: D.blue   },
 ];
 
 function QuickActions() {
