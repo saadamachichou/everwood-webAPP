@@ -1,0 +1,11 @@
+{
+  "name": "everwood-webapp-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix ./everwood-webAPP-main",
+    "dev:turbo": "npm run dev:turbo --prefix ./everwood-webAPP-main",
+    "build": "npm run build --prefix ./everwood-webAPP-main",
+    "start": "npm run start --prefix ./everwood-webAPP-main",
+    "lint": "npm run lint --prefix ./everwood-webAPP-main"
+  }
+}

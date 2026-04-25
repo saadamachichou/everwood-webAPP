@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ':*)",
+      "Bash(gtimeout 30 npx tsc --noEmit)",
+      "Bash(/opt/homebrew/bin/brew services:*)",
+      "Read(//opt/homebrew/opt/**)",
+      "Bash(/opt/homebrew/bin/brew install:*)"
+    ]
+  }
+}

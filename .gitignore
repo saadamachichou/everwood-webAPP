@@ -1,0 +1,21 @@
+# Monorepo-style root (if tools add root node_modules)
+node_modules/
+
+# Next.js app (nested)
+everwood-webAPP-main/node_modules/
+everwood-webAPP-main/.next/
+everwood-webAPP-main/out/
+everwood-webAPP-main/build/
+everwood-webAPP-main/coverage/
+everwood-webAPP-main/.vercel
+everwood-webAPP-main/.env*
+everwood-webAPP-main/*.tsbuildinfo
+everwood-webAPP-main/next-env.d.ts
+everwood-webAPP-main/.DS_Store
+everwood-webAPP-main/npm-debug.log*
+everwood-webAPP-main/yarn-debug.log*
+everwood-webAPP-main/yarn-error.log*
+everwood-webAPP-main/.pnpm-debug.log*
+
+.DS_Store
+*.pem
