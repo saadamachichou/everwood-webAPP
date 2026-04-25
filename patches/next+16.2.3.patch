@@ -1,0 +1,13 @@
+diff --git a/node_modules/next/dist/build/webpack-config.js b/node_modules/next/dist/build/webpack-config.js
+index ce257df..0d8781b 100644
+--- a/node_modules/next/dist/build/webpack-config.js
++++ b/node_modules/next/dist/build/webpack-config.js
+@@ -2104,7 +2104,7 @@ async function getBaseWebpackConfig(dir, { buildId, encryptionKey, config, compi
+                 configurable: true
+             });
+         }
+-        if (dev && originalDevtool !== webpackConfig.devtool) {
++        if (dev && originalDevtool !== webpackConfig.devtool && process.env.NEXT_WEBPACK_ALLOW_DEVTOOL !== '1') {
+             webpackConfig.devtool = originalDevtool;
+             devtoolRevertWarning(originalDevtool);
+         }

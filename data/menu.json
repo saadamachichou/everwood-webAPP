@@ -1,0 +1,17 @@
+[
+  { "id": "M-001", "name": "Ethiopian Pour Over",   "category": "Coffee",  "price": 85,  "status": "Available", "tags": ["Single Origin", "Light Roast"], "popular": true  },
+  { "id": "M-002", "name": "Iced Jasmine Latte",    "category": "Coffee",  "price": 90,  "status": "Available", "tags": ["Seasonal"],                     "popular": true  },
+  { "id": "M-003", "name": "Cortado",               "category": "Coffee",  "price": 75,  "status": "Available", "tags": [],                               "popular": false },
+  { "id": "M-004", "name": "Cold Brew Tonic",       "category": "Coffee",  "price": 95,  "status": "Available", "tags": ["Seasonal"],                     "popular": false },
+  { "id": "M-005", "name": "Matcha Ceremonial",     "category": "Tea",     "price": 80,  "status": "Available", "tags": ["Organic"],                      "popular": true  },
+  { "id": "M-006", "name": "Rose Oolong",           "category": "Tea",     "price": 75,  "status": "Available", "tags": ["Organic"],                      "popular": false },
+  { "id": "M-007", "name": "Cardamom Chai",         "category": "Tea",     "price": 70,  "status": "Available", "tags": ["Vegan"],                        "popular": false },
+  { "id": "M-008", "name": "Almond Croissant",      "category": "Pastry",  "price": 65,  "status": "Available", "tags": [],                               "popular": true  },
+  { "id": "M-009", "name": "Cardamom Honey Cake",   "category": "Pastry",  "price": 80,  "status": "Available", "tags": ["Signature"],                    "popular": true  },
+  { "id": "M-010", "name": "Fig & Walnut Tart",     "category": "Pastry",  "price": 75,  "status": "Seasonal",  "tags": ["Seasonal"],                     "popular": false },
+  { "id": "M-011", "name": "Avocado Toast",         "category": "Food",    "price": 110, "status": "Available", "tags": ["Vegan"],                        "popular": false },
+  { "id": "M-012", "name": "Mushroom Bruschetta",   "category": "Food",    "price": 95,  "status": "Available", "tags": ["Vegetarian"],                   "popular": true  },
+  { "id": "M-013", "name": "Butternut Soup",        "category": "Food",    "price": 120, "status": "Seasonal",  "tags": ["Vegetarian", "Seasonal"],       "popular": false },
+  { "id": "M-014", "name": "Ceremonial Hibiscus",   "category": "Drinks",  "price": 65,  "status": "Available", "tags": ["Cold"],                         "popular": false },
+  { "id": "M-015", "name": "Turmeric Lemonade",     "category": "Drinks",  "price": 65,  "status": "Draft",     "tags": [],                               "popular": false }
+]
