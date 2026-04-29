@@ -1,0 +1,8 @@
+[
+  { "id": "E-001", "title": "Jazz in the Garden",       "type": "Live Music", "date": "Fri 18 Apr", "time": "7:30 PM", "capacity": 60, "rsvp": 45, "price": 120, "status": "Published", "description": "An intimate jazz evening in the riad garden with local artists." },
+  { "id": "E-002", "title": "Oud Night — Vol. 3",       "type": "Live Music", "date": "Thu 24 Apr", "time": "8:00 PM", "capacity": 50, "rsvp": 50, "price": 150, "status": "Published", "description": "The third edition of our acclaimed oud sessions in the medina." },
+  { "id": "E-003", "title": "Pottery & Wine",           "type": "Dining",     "date": "Sat 26 Apr", "time": "7:00 PM", "capacity": 24, "rsvp": 12, "price": 280, "status": "Published", "description": "Throw a bowl, drink good wine. Both activities are equally important." },
+  { "id": "E-004", "title": "Summer Tasting Evening",   "type": "Dining",     "date": "Sun 27 Apr", "time": "8:00 PM", "capacity": 40, "rsvp": 28, "price": 0,   "status": "Published", "description": "A seasonal tasting menu celebrating local Moroccan produce." },
+  { "id": "E-005", "title": "Artisan Market",           "type": "Exhibition", "date": "Sat 3 May",  "time": "10:00 AM","capacity": 0,  "rsvp": 0,  "price": 0,   "status": "Draft",     "description": "A curated market of local artisans, craftspeople, and makers." },
+  { "id": "E-006", "title": "Photography Exhibition",   "type": "Exhibition", "date": "May 10–17",  "time": "All day", "capacity": 0,  "rsvp": 0,  "price": 0,   "status": "Draft",     "description": "A week-long exhibition of documentary photography from Morocco." }
+]

@@ -1,7 +1,25 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# Monorepo-style root
+node_modules/
+
+# Next.js app (nested)
+everwood-webAPP-main/node_modules/
+everwood-webAPP-main/.next/
+everwood-webAPP-main/out/
+everwood-webAPP-main/build/
+everwood-webAPP-main/coverage/
+everwood-webAPP-main/.vercel
+everwood-webAPP-main/.env*
+everwood-webAPP-main/*.tsbuildinfo
+everwood-webAPP-main/next-env.d.ts
+everwood-webAPP-main/.DS_Store
+everwood-webAPP-main/npm-debug.log*
+everwood-webAPP-main/yarn-debug.log*
+everwood-webAPP-main/yarn-error.log*
+everwood-webAPP-main/.pnpm-debug.log*
+
+# dependencies (if tools use root pnp)
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,15 +28,11 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# next.js (root copy)
 /.next/
 /out/
-
-# production
 /build
+/coverage
 
 # misc
 .DS_Store
@@ -30,7 +44,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
 
 # vercel

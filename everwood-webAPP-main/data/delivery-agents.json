@@ -1,0 +1,42 @@
+[
+  {
+    "id": "DRV-001",
+    "name": "Yassine El Idrissi",
+    "phone": "+212 6 12 34 56 70",
+    "zone": "Casablanca Centre",
+    "vehicle": "Moto",
+    "status": "Active"
+  },
+  {
+    "id": "DRV-002",
+    "name": "Salma Ait Omar",
+    "phone": "+212 6 12 34 56 71",
+    "zone": "Maarif / Anfa",
+    "vehicle": "Scooter",
+    "status": "Active"
+  },
+  {
+    "id": "DRV-003",
+    "name": "Hamza Bennis",
+    "phone": "+212 6 12 34 56 72",
+    "zone": "Ain Sebaa / Sidi Bernoussi",
+    "vehicle": "Van",
+    "status": "Active"
+  },
+  {
+    "id": "DRV-004",
+    "name": "Ikram Tazi",
+    "phone": "+212 6 12 34 56 73",
+    "zone": "Rabat",
+    "vehicle": "Moto",
+    "status": "Break"
+  },
+  {
+    "id": "DRV-005",
+    "name": "Nabil Cherkaoui",
+    "phone": "+212 6 12 34 56 74",
+    "zone": "Mohammedia",
+    "vehicle": "Car",
+    "status": "Offline"
+  }
+]
