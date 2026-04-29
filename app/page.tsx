@@ -487,6 +487,7 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
   }, []);
 
   const HERO_WORDS = ["Where", "craft", "meets", "culture"] as const;
+  const HERO_VIDEO_PLAYBACK_RATE = 0.55;
 
   const nextEvent = events.find(e => !e.soldOut);
 
@@ -512,7 +513,6 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
           }}
         />
         {/* Video — place hero.mp4 in /public/videos/ and set HERO_VIDEO_ENABLED=true to enable */}
-        {(process.env.NEXT_PUBLIC_HERO_VIDEO === "true") && (
           <video
             ref={videoRef}
             autoPlay
@@ -520,12 +520,19 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
             loop
             playsInline
             preload="metadata"
-            onCanPlay={() => setVideoReady(true)}
+            onLoadedMetadata={(e) => {
+              e.currentTarget.defaultPlaybackRate = HERO_VIDEO_PLAYBACK_RATE;
+              e.currentTarget.playbackRate = HERO_VIDEO_PLAYBACK_RATE;
+            }}
+            onCanPlay={(e) => {
+              // Re-apply in case the browser resets playback speed on canplay.
+              e.currentTarget.playbackRate = HERO_VIDEO_PLAYBACK_RATE;
+              setVideoReady(true);
+            }}
             style={{ position: "absolute", inset: 0, margin: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
           >
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
-        )}
       </motion.div>
 
       {/* ── Cinematic overlay stack ───────────────────────────────── */}
@@ -2272,3 +2279,4 @@ export default function HomePage() {
     </div>
   );
 }
+

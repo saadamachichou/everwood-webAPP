@@ -132,19 +132,27 @@ export default function AntiquesPage() {
               />
             ))}
 
-            <div className="relative z-10 flex flex-col items-center gap-8 text-center">
+            <div className="relative z-10 flex flex-col items-center gap-10 text-center">
               {/* SVG mark — Moroccan star seal */}
               <motion.div
                 initial={{ scale: 0.65, opacity: 0, filter: "blur(16px)" }}
                 animate={{ scale: 1,    opacity: 1, filter: "blur(0px)"  }}
                 transition={{ duration: 1.4, ease: [0.34, 1.56, 0.64, 1] }}
               >
-                <svg width="160" height="160" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+                <svg width="260" height="260" viewBox="0 0 140 140" fill="none" aria-hidden="true">
                   {/* Outer ring — draws in */}
                   <motion.circle cx="70" cy="70" r="65"
                     stroke="#C9A96E" strokeWidth="0.9" opacity="0.55"
-                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
-                    transition={{ duration: 2.0, delay: 0.15, ease: "easeInOut" }} />
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1, opacity: [0.4, 0.75, 0.4] }}
+                    transition={{ duration: 4.5, delay: 0.15, ease: "easeInOut", repeat: Infinity }} />
+                  {/* Outer halo */}
+                  <motion.circle cx="70" cy="70" r="69"
+                    stroke="#D7B57A" strokeWidth="0.35" opacity="0.2"
+                    initial={{ scale: 0.94, opacity: 0 }}
+                    animate={{ scale: [0.98, 1.03, 0.98], opacity: [0.1, 0.28, 0.1] }}
+                    style={{ transformOrigin: "70px 70px" }}
+                    transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut", delay: 0.45 }} />
                   {/* 24 tick marks */}
                   {ENT_TICKS.map((t, i) => (
                     <motion.line key={i}
@@ -164,7 +172,7 @@ export default function AntiquesPage() {
                   <motion.g
                     style={{ transformOrigin: "50% 50%" }}
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
                   >
                     <circle cx="70" cy="70" r="38"
                       stroke="#C9A96E" strokeWidth="0.45"
@@ -192,9 +200,16 @@ export default function AntiquesPage() {
                   <motion.circle cx="70" cy="70" r="4"
                     fill="#C9A96E"
                     initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 0.9 }}
+                    animate={{ scale: [0.9, 1.25, 0.9], opacity: [0.65, 1, 0.65] }}
                     style={{ transformOrigin: "70px 70px" }}
-                    transition={{ duration: 0.5, delay: 2.0, type: "spring", stiffness: 300 }} />
+                    transition={{ duration: 2.8, delay: 2.0, repeat: Infinity, ease: "easeInOut" }} />
+                  <motion.path
+                    d="M70 56 L74 70 L70 84 L66 70 Z"
+                    stroke="#D7B57A" strokeWidth="0.55" fill="rgba(201,169,110,0.12)"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: [0.2, 0.7, 0.2], scale: [0.9, 1.12, 0.9] }}
+                    style={{ transformOrigin: "70px 70px" }}
+                    transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }} />
                 </svg>
               </motion.div>
 
@@ -205,7 +220,7 @@ export default function AntiquesPage() {
                 transition={{ duration: 1.1, delay: 0.9 }}
                 style={{
                   fontFamily: "var(--font-grotesk)",
-                  fontSize: "0.56rem",
+                  fontSize: "0.7rem",
                   textTransform: "uppercase",
                   color: "rgba(201,169,110,0.45)",
                 }}
@@ -221,7 +236,7 @@ export default function AntiquesPage() {
                 style={{
                   fontFamily: "var(--font-cormorant)",
                   fontStyle: "italic",
-                  fontSize: "clamp(1.8rem, 2.8vw, 2.4rem)",
+                  fontSize: "clamp(2.35rem, 3.8vw, 3.3rem)",
                   color: "#F4F1E8",
                   lineHeight: 1.28,
                   maxWidth: "26ch",
@@ -247,10 +262,10 @@ export default function AntiquesPage() {
                   border: "1px solid rgba(201,169,110,0.3)",
                   color: "#C9A96E",
                   fontFamily: "var(--font-grotesk)",
-                  fontSize: "0.62rem",
+                  fontSize: "0.76rem",
                   letterSpacing: "0.28em",
                   textTransform: "uppercase",
-                  padding: "0.9rem 2.75rem",
+                  padding: "1.05rem 3.2rem",
                   background: "transparent",
                   cursor: "pointer",
                   transition: "all 0.3s",

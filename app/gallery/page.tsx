@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useRef, type CSSProperties, type ElementType } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -60,6 +60,96 @@ const MetaTag = ({ label, value }: { label: string; value: string }) => (
     }}>{value}</span>
   </div>
 );
+
+function hexToRgba(hex: string, alpha: number) {
+  const clean = hex.replace("#", "");
+  const value = clean.length === 3
+    ? clean.split("").map((char) => char + char).join("")
+    : clean;
+
+  const r = Number.parseInt(value.slice(0, 2), 16);
+  const g = Number.parseInt(value.slice(2, 4), 16);
+  const b = Number.parseInt(value.slice(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function ScrollLitWord({
+  scrollYProgress,
+  word,
+  index,
+  total,
+  dimColor,
+  brightColor,
+  overlap = 3,
+}: {
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  word: string;
+  index: number;
+  total: number;
+  dimColor: string;
+  brightColor: string;
+  overlap?: number;
+}) {
+  const wordProgress = useTransform(
+    scrollYProgress,
+    [index / total, Math.min((index + overlap) / total, 1)],
+    [0, 1],
+  );
+  const color = useTransform(wordProgress, [0, 1], [dimColor, brightColor]);
+
+  return <motion.span style={{ color }}>{word} </motion.span>;
+}
+
+function ScrollLitText({
+  scrollYProgress,
+  text,
+  dimColor,
+  brightColor,
+  className,
+  style,
+  as: Tag = "p",
+  overlap = 3,
+}: {
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+  text: string;
+  dimColor: string;
+  brightColor: string;
+  className?: string;
+  style?: CSSProperties;
+  as?: ElementType;
+  overlap?: number;
+}) {
+  const lines = text.split("\n").map((line) => line.split(" ").filter(Boolean));
+  const totalWords = lines.reduce((count, line) => count + line.length, 0);
+  let currentIndex = 0;
+
+  return (
+    <Tag className={className} style={style}>
+      {lines.map((line, lineIndex) => (
+        <span key={`${line.join(" ")}-${lineIndex}`}>
+          {line.map((word, wordIndex) => {
+            const index = currentIndex++;
+
+            return (
+              <ScrollLitWord
+                key={`${word}-${lineIndex}-${wordIndex}`}
+                scrollYProgress={scrollYProgress}
+                word={`${word} `}
+                index={index}
+                total={totalWords}
+                dimColor={dimColor}
+                brightColor={brightColor}
+                overlap={overlap}
+              />
+            );
+          })}
+          {lineIndex < lines.length - 1 ? <br /> : null}
+        </span>
+      ))}
+    </Tag>
+  );
+}
 
 // ── Archive artifact card ────────────────────────────────────────────────────
 const ArtifactCard = ({
@@ -151,6 +241,163 @@ const ArtifactCard = ({
     />
   </motion.article>
 );
+
+function CascadeChapterPanel({
+  panel,
+  index,
+}: {
+  panel: (typeof cascadePanels)[number];
+  index: number;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: panelRef, offset: ["start end", "end start"] });
+  const labelProgress = useTransform(scrollYProgress, [0.12, 0.26], [0, 1]);
+  const titleProgress = useTransform(scrollYProgress, [0.18, 0.42], [0, 1]);
+  const subtitleProgress = useTransform(scrollYProgress, [0.28, 0.5], [0, 1]);
+  const bodyProgress = useTransform(scrollYProgress, [0.3, 0.82], [0, 1]);
+  const indexProgress = useTransform(scrollYProgress, [0.7, 0.9], [0, 1]);
+
+  return (
+    <div
+      ref={panelRef}
+      style={{ height: "200vh", position: "relative", margin: 0 }}
+    >
+      {/* Sticky inner — creates the "fixed background" illusion */}
+      <div style={{
+        position: "sticky", top: 0,
+        height: "100vh", overflow: "hidden",
+        background: panel.gradient,
+        margin: 0, padding: 0,
+      }}>
+        {/* Atmospheric vignette */}
+        <div style={{
+          position: "absolute", inset: 0, margin: 0,
+          background: `radial-gradient(ellipse at 50% 50%, transparent 30%, ${GB.vignetteEdge} 100%)`,
+        }} />
+
+        {/* Horizontal gold rule */}
+        <div style={{
+          position: "absolute", top: "50%", left: 0, right: 0,
+          height: 1, margin: 0,
+          background: `linear-gradient(to right, transparent, ${panel.accent}18, transparent)`,
+        }} />
+
+        {/* Label — top left */}
+        <div style={{
+          position: "absolute", top: "3rem", left: "clamp(2rem,6vw,6rem)",
+          display: "flex", alignItems: "center", gap: "0.75rem",
+        }}>
+          <div style={{ width: 20, height: 1, background: `${panel.accent}55` }} />
+          <ScrollLitText
+            as="span"
+            scrollYProgress={labelProgress}
+            text={panel.label}
+            dimColor={hexToRgba(panel.accent, 0.3)}
+            brightColor={hexToRgba(panel.accent, 0.88)}
+            overlap={3}
+            style={{
+              fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
+              letterSpacing: "0.32em", textTransform: "uppercase",
+            }}
+          />
+        </div>
+
+        {/* Centered content */}
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "min(780px, 90vw)",
+          textAlign: "center",
+        }}>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-120px" }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <ScrollLitText
+              as="h2"
+              scrollYProgress={titleProgress}
+              text={panel.title}
+              dimColor="rgba(244,241,232,0.14)"
+              brightColor="#F4F1E8"
+              overlap={5}
+              style={{
+                fontFamily: "var(--font-playfair)", fontStyle: "italic",
+                fontSize: "clamp(2.4rem, 5vw, 5.5rem)",
+                fontWeight: 400, lineHeight: 1.1,
+                marginBottom: "1.25rem",
+              }}
+            />
+
+            <ScrollLitText
+              as="p"
+              scrollYProgress={subtitleProgress}
+              text={panel.subtitle}
+              dimColor={hexToRgba(panel.accent, 0.22)}
+              brightColor={hexToRgba(panel.accent, 0.78)}
+              overlap={4}
+              style={{
+                fontFamily: "var(--font-grotesk)", fontSize: "0.6rem",
+                letterSpacing: "0.22em", textTransform: "uppercase",
+                marginBottom: "2.5rem",
+              }}
+            />
+
+            {/* Ornamental divider */}
+            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "2.5rem", justifyContent: "center" }}>
+              <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
+              <svg width="8" height="8" viewBox="0 0 8 8" style={{ margin: 0 }}>
+                <path d="M4 0L5 3L8 4L5 5L4 8L3 5L0 4L3 3Z" fill={panel.accent} fillOpacity="0.4" />
+              </svg>
+              <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
+            </div>
+
+            <ScrollLitText
+              as="p"
+              scrollYProgress={bodyProgress}
+              text={panel.body}
+              dimColor="rgba(244,241,232,0.12)"
+              brightColor="rgba(244,241,232,0.64)"
+              overlap={7}
+              style={{
+                fontFamily: "var(--font-garamond)", fontStyle: "italic",
+                fontSize: "clamp(0.95rem, 1.5vw, 1.2rem)",
+                lineHeight: 1.85,
+                maxWidth: "56ch", margin: "0 auto",
+              }}
+            />
+          </motion.div>
+        </div>
+
+        {/* Bottom index */}
+        <div style={{
+          position: "absolute", bottom: "2.5rem", right: "clamp(2rem,6vw,6rem)",
+          display: "flex", alignItems: "center", gap: "0.75rem",
+        }}>
+          <span style={{
+            fontFamily: "var(--font-playfair)", fontStyle: "italic",
+            fontSize: "clamp(3rem, 5vw, 5rem)",
+            color: "rgba(255,255,255,0.04)",
+            userSelect: "none",
+          }}>{String(index + 1).padStart(2, "0")}</span>
+          <ScrollLitText
+            as="span"
+            scrollYProgress={indexProgress}
+            text="/ 03"
+            dimColor="rgba(244,241,232,0.15)"
+            brightColor="rgba(244,241,232,0.38)"
+            overlap={1}
+            style={{
+              fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
+              letterSpacing: "0.28em", textTransform: "uppercase",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function GalleryPage() {
   const heroRef    = useRef<HTMLDivElement>(null);
@@ -399,14 +646,14 @@ export default function GalleryPage() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            paddingTop: "clamp(6rem, 14vw, 10.5rem)",
+            alignItems: "center",
             paddingLeft: "clamp(2rem, 8vw, 8rem)",
             paddingRight: "clamp(2rem, 8vw, 8rem)",
             y: heroTextY,
             opacity: heroOpacity,
           }}
         >
-          <div style={{ position: "relative", maxWidth: "min(52rem, 92vw)" }}>
+          <div style={{ position: "relative", width: "min(52rem, 92vw)", textAlign: "center" }}>
             {/* Corner brackets — mat board / frame */}
             <motion.div
               aria-hidden="true"
@@ -751,7 +998,7 @@ export default function GalleryPage() {
       <div
         ref={chamberRef}
         aria-label="Gallery chamber — horizontal scroll"
-        style={{ position: "relative", zIndex: 1, height: `${100 + (chamberPanels.length - 1) * 100}vh`, margin: 0 }}
+        style={{ position: "relative", zIndex: 1, height: "100vh", margin: 0 }}
       >
         {/* The sticky viewport */}
         <div style={{
@@ -873,108 +1120,7 @@ export default function GalleryPage() {
       ══════════════════════════════════════════════════════════════════════ */}
       <div aria-label="The archive — three chapters" style={{ position: "relative", zIndex: 1, margin: 0 }}>
         {cascadePanels.map((panel, i) => (
-          <div
-            key={panel.id}
-            style={{ height: "200vh", position: "relative", margin: 0 }}
-          >
-            {/* Sticky inner — creates the "fixed background" illusion */}
-            <div style={{
-              position: "sticky", top: 0,
-              height: "100vh", overflow: "hidden",
-              background: panel.gradient,
-              margin: 0, padding: 0,
-            }}>
-              {/* Atmospheric vignette */}
-              <div style={{
-                position: "absolute", inset: 0, margin: 0,
-                background: `radial-gradient(ellipse at 50% 50%, transparent 30%, ${GB.vignetteEdge} 100%)`,
-              }} />
-
-              {/* Horizontal gold rule */}
-              <div style={{
-                position: "absolute", top: "50%", left: 0, right: 0,
-                height: 1, margin: 0,
-                background: `linear-gradient(to right, transparent, ${panel.accent}18, transparent)`,
-              }} />
-
-              {/* Label — top left */}
-              <div style={{
-                position: "absolute", top: "3rem", left: "clamp(2rem,6vw,6rem)",
-                display: "flex", alignItems: "center", gap: "0.75rem",
-              }}>
-                <div style={{ width: 20, height: 1, background: `${panel.accent}55` }} />
-                <span style={{
-                  fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
-                  letterSpacing: "0.32em", textTransform: "uppercase",
-                  color: `${panel.accent}88`,
-                }}>{panel.label}</span>
-              </div>
-
-              {/* Centered content */}
-              <div style={{
-                position: "absolute", top: "50%", left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "min(780px, 90vw)",
-                textAlign: "center",
-              }}>
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-120px" }}
-                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <h2 style={{
-                    fontFamily: "var(--font-playfair)", fontStyle: "italic",
-                    fontSize: "clamp(2.4rem, 5vw, 5.5rem)",
-                    fontWeight: 400, color: "#F4F1E8",
-                    lineHeight: 1.1, whiteSpace: "pre-line",
-                    marginBottom: "1.25rem",
-                  }}>{panel.title}</h2>
-
-                  <p style={{
-                    fontFamily: "var(--font-grotesk)", fontSize: "0.6rem",
-                    letterSpacing: "0.22em", textTransform: "uppercase",
-                    color: panel.accent, opacity: 0.6,
-                    marginBottom: "2.5rem",
-                  }}>{panel.subtitle}</p>
-
-                  {/* Ornamental divider */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "2.5rem", justifyContent: "center" }}>
-                    <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
-                    <svg width="8" height="8" viewBox="0 0 8 8" style={{ margin: 0 }}>
-                      <path d="M4 0L5 3L8 4L5 5L4 8L3 5L0 4L3 3Z" fill={panel.accent} fillOpacity="0.4" />
-                    </svg>
-                    <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
-                  </div>
-
-                  <p style={{
-                    fontFamily: "var(--font-garamond)", fontStyle: "italic",
-                    fontSize: "clamp(0.95rem, 1.5vw, 1.2rem)",
-                    color: "rgba(244,241,232,0.52)", lineHeight: 1.85,
-                    maxWidth: "56ch", margin: "0 auto",
-                  }}>{panel.body}</p>
-                </motion.div>
-              </div>
-
-              {/* Bottom index */}
-              <div style={{
-                position: "absolute", bottom: "2.5rem", right: "clamp(2rem,6vw,6rem)",
-                display: "flex", alignItems: "center", gap: "0.75rem",
-              }}>
-                <span style={{
-                  fontFamily: "var(--font-playfair)", fontStyle: "italic",
-                  fontSize: "clamp(3rem, 5vw, 5rem)",
-                  color: "rgba(255,255,255,0.04)",
-                  userSelect: "none",
-                }}>{String(i + 1).padStart(2, "0")}</span>
-                <span style={{
-                  fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
-                  letterSpacing: "0.28em", textTransform: "uppercase",
-                  color: "rgba(244,241,232,0.25)",
-                }}>/ 03</span>
-              </div>
-            </div>
-          </div>
+          <CascadeChapterPanel key={panel.id} panel={panel} index={i} />
         ))}
       </div>
 
@@ -1137,3 +1283,6 @@ export default function GalleryPage() {
     </>
   );
 }
+
+
+

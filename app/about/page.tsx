@@ -1,6 +1,7 @@
 "use client";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import TextSplit from "@/components/effects/TextSplit";
@@ -85,24 +86,42 @@ export default function AboutPage() {
       <Navigation />
 
       {/* ── HERO ─────────────────────────────────────── */}
-      <section className="relative mt-20 min-h-screen flex flex-col justify-end pb-28 pt-32 overflow-hidden md:mt-28" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
+      <section className="relative mt-20 min-h-screen flex flex-col justify-end pb-28 pt-32 overflow-hidden md:mt-28" style={{ paddingLeft: "60px", paddingRight: "60px", backgroundColor: "#06060f" }}>
+        <div className="absolute inset-0" aria-hidden="true">
+          <Image
+            src="/herosections/about_The Archaeology_herosection.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: "center center", opacity: 0.62 }}
+          />
+        </div>
+        <div className="absolute inset-0" aria-hidden="true" style={{ background: "linear-gradient(180deg, rgba(5,5,10,0.25) 0%, rgba(5,5,10,0.58) 55%, rgba(5,5,10,0.84) 100%)" }} />
+
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 110%, rgba(201,169,110,0.09), transparent 70%)" }} />
           <motion.div className="absolute inset-0" animate={{ opacity: [0.9, 1, 0.85, 0.95, 0.9] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             style={{ background: "radial-gradient(ellipse 30% 50% at 50% 115%, rgba(232,93,38,0.05), transparent 60%)" }} />
         </div>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="text-[0.7rem] tracking-[0.25em] uppercase text-[var(--color-gold)] mb-8">
-          The Archaeology
-        </motion.p>
-        <TextSplit text="We excavate beauty from forgotten time." as="h1" delay={0.3} stagger={0.06}
-          className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.95] text-[var(--color-ivory)] mb-0 max-w-5xl" />
-        <div className="h-[clamp(2.75rem,7vw,4.25rem)] shrink-0" aria-hidden="true" />
-        <RevealOnScroll delay={0.9}>
-          <p className="font-[family-name:var(--font-garamond)] italic text-xl text-[var(--color-mist)] max-w-[42ch] leading-relaxed">
-            Everwood is not a venue. It is a living archaeology — a space built from the conviction that beauty outlives the centuries that tried to bury it.
-          </p>
-        </RevealOnScroll>
+        <div className="relative z-10">
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="text-[0.7rem] tracking-[0.25em] uppercase text-[var(--color-gold)] mb-8"
+            style={{ textShadow: "0 1px 10px rgba(0,0,0,0.45)" }}>
+            The Archaeology
+          </motion.p>
+          <TextSplit text="We excavate beauty from forgotten time." as="h1" delay={0.3} stagger={0.06}
+            className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.95] text-[var(--color-ivory)] mb-0 max-w-5xl"
+            style={{ textShadow: "0 8px 30px rgba(0,0,0,0.45)" }} />
+          <div className="h-[clamp(2.75rem,7vw,4.25rem)] shrink-0" aria-hidden="true" />
+          <RevealOnScroll delay={0.9}>
+            <p className="font-[family-name:var(--font-garamond)] italic text-xl text-[var(--color-mist)] max-w-[42ch] leading-relaxed"
+              style={{ textShadow: "0 4px 20px rgba(0,0,0,0.4)" }}>
+              Everwood is not a venue. It is a living archaeology — a space built from the conviction that beauty outlives the centuries that tried to bury it.
+            </p>
+          </RevealOnScroll>
+        </div>
         <motion.div className="absolute bottom-8 right-10 flex items-center gap-3 text-[0.65rem] tracking-[0.2em] uppercase text-[var(--color-ash)]"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
           <span>Scroll</span>
@@ -112,7 +131,7 @@ export default function AboutPage() {
 
       {/* ── Bridge: narrative → numbers (gradient + rule, not empty space) ── */}
       <div
-        className="w-full"
+        className="w-full flex justify-center"
         style={{
           paddingLeft: "60px",
           paddingRight: "60px",
@@ -121,7 +140,7 @@ export default function AboutPage() {
           background: "linear-gradient(180deg, var(--color-void) 0%, #06060f 48%, var(--color-obsidian) 100%)",
         }}
       >
-        <div className="max-w-6xl mx-auto flex items-center gap-5 md:gap-8" aria-hidden="true">
+        <div className="w-full max-w-[1080px] mx-auto flex items-center gap-5 md:gap-8" aria-hidden="true">
           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[rgba(201,169,110,0.4)] to-[rgba(201,169,110,0.12)]" />
           <span
             className="shrink-0 text-[0.5rem] font-medium tracking-[0.38em] uppercase text-[var(--color-gold)]"
@@ -134,17 +153,19 @@ export default function AboutPage() {
       </div>
 
       {/* ── STATS ─────────────────────────────────────── */}
-      <section className="bg-[var(--color-obsidian)] pt-6 pb-24 md:pt-8 md:pb-28" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
-        <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-12 max-w-6xl mx-auto">By the numbers</p>
-        <div className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-white/5">
-          {stats.map(({ target, label, suffix }, i) => (
-            <RevealOnScroll key={i} delay={i * 0.1} className="bg-[var(--color-obsidian)] p-10 flex flex-col gap-3">
-              <div className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,4vw,4rem)] text-[var(--color-ivory)] leading-none">
-                <CountUp target={target} suffix={suffix} className="text-[var(--color-ivory)]" />
-              </div>
-              <p className="text-[0.8rem] text-[var(--color-mist)] leading-relaxed max-w-[18ch]">{label}</p>
-            </RevealOnScroll>
-          ))}
+      <section className="bg-[var(--color-obsidian)] flex items-center justify-center py-10 md:py-12" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
+        <div className="w-full max-w-[1140px] mx-auto flex flex-col items-center">
+          <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-8 text-center">By the numbers</p>
+          <div className="grid w-full max-w-[1080px] grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[1px] bg-white/5 place-content-center">
+            {stats.map(({ target, label, suffix }, i) => (
+              <RevealOnScroll key={i} delay={i * 0.1} className="bg-[var(--color-obsidian)] min-h-[240px] px-8 py-10 flex flex-col justify-center gap-3 items-center text-center">
+                <div className="font-[family-name:var(--font-playfair)] text-[clamp(2.5rem,4vw,4rem)] text-[var(--color-ivory)] leading-none">
+                  <CountUp target={target} suffix={suffix} className="text-[var(--color-ivory)]" />
+                </div>
+                <p className="text-[0.8rem] text-[var(--color-mist)] leading-relaxed max-w-[18ch]">{label}</p>
+              </RevealOnScroll>
+            ))}
+          </div>
         </div>
       </section>
 
