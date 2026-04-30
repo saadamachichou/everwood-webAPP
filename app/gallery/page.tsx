@@ -1,5 +1,6 @@
 "use client";
-import { useRef, type CSSProperties, type ElementType } from "react";
+import { useRef } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -35,6 +36,9 @@ const HERO_RING_TICKS = Array.from({ length: 36 }).map((_, i) => {
   };
 });
 
+/** Hero photography — curiosity aisle / stained glass interior */
+const GALLERY_HERO_BG = "/images/nav/antqueee.jpeg";
+
 /** Gallery-only backdrop: celadon–ink (distinct from site void #03030A) */
 const GB = {
   void: "#061018",
@@ -60,96 +64,6 @@ const MetaTag = ({ label, value }: { label: string; value: string }) => (
     }}>{value}</span>
   </div>
 );
-
-function hexToRgba(hex: string, alpha: number) {
-  const clean = hex.replace("#", "");
-  const value = clean.length === 3
-    ? clean.split("").map((char) => char + char).join("")
-    : clean;
-
-  const r = Number.parseInt(value.slice(0, 2), 16);
-  const g = Number.parseInt(value.slice(2, 4), 16);
-  const b = Number.parseInt(value.slice(4, 6), 16);
-
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
-function ScrollLitWord({
-  scrollYProgress,
-  word,
-  index,
-  total,
-  dimColor,
-  brightColor,
-  overlap = 3,
-}: {
-  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
-  word: string;
-  index: number;
-  total: number;
-  dimColor: string;
-  brightColor: string;
-  overlap?: number;
-}) {
-  const wordProgress = useTransform(
-    scrollYProgress,
-    [index / total, Math.min((index + overlap) / total, 1)],
-    [0, 1],
-  );
-  const color = useTransform(wordProgress, [0, 1], [dimColor, brightColor]);
-
-  return <motion.span style={{ color }}>{word} </motion.span>;
-}
-
-function ScrollLitText({
-  scrollYProgress,
-  text,
-  dimColor,
-  brightColor,
-  className,
-  style,
-  as: Tag = "p",
-  overlap = 3,
-}: {
-  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
-  text: string;
-  dimColor: string;
-  brightColor: string;
-  className?: string;
-  style?: CSSProperties;
-  as?: ElementType;
-  overlap?: number;
-}) {
-  const lines = text.split("\n").map((line) => line.split(" ").filter(Boolean));
-  const totalWords = lines.reduce((count, line) => count + line.length, 0);
-  let currentIndex = 0;
-
-  return (
-    <Tag className={className} style={style}>
-      {lines.map((line, lineIndex) => (
-        <span key={`${line.join(" ")}-${lineIndex}`}>
-          {line.map((word, wordIndex) => {
-            const index = currentIndex++;
-
-            return (
-              <ScrollLitWord
-                key={`${word}-${lineIndex}-${wordIndex}`}
-                scrollYProgress={scrollYProgress}
-                word={`${word} `}
-                index={index}
-                total={totalWords}
-                dimColor={dimColor}
-                brightColor={brightColor}
-                overlap={overlap}
-              />
-            );
-          })}
-          {lineIndex < lines.length - 1 ? <br /> : null}
-        </span>
-      ))}
-    </Tag>
-  );
-}
 
 // ── Archive artifact card ────────────────────────────────────────────────────
 const ArtifactCard = ({
@@ -242,163 +156,6 @@ const ArtifactCard = ({
   </motion.article>
 );
 
-function CascadeChapterPanel({
-  panel,
-  index,
-}: {
-  panel: (typeof cascadePanels)[number];
-  index: number;
-}) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: panelRef, offset: ["start end", "end start"] });
-  const labelProgress = useTransform(scrollYProgress, [0.12, 0.26], [0, 1]);
-  const titleProgress = useTransform(scrollYProgress, [0.18, 0.42], [0, 1]);
-  const subtitleProgress = useTransform(scrollYProgress, [0.28, 0.5], [0, 1]);
-  const bodyProgress = useTransform(scrollYProgress, [0.3, 0.82], [0, 1]);
-  const indexProgress = useTransform(scrollYProgress, [0.7, 0.9], [0, 1]);
-
-  return (
-    <div
-      ref={panelRef}
-      style={{ height: "200vh", position: "relative", margin: 0 }}
-    >
-      {/* Sticky inner — creates the "fixed background" illusion */}
-      <div style={{
-        position: "sticky", top: 0,
-        height: "100vh", overflow: "hidden",
-        background: panel.gradient,
-        margin: 0, padding: 0,
-      }}>
-        {/* Atmospheric vignette */}
-        <div style={{
-          position: "absolute", inset: 0, margin: 0,
-          background: `radial-gradient(ellipse at 50% 50%, transparent 30%, ${GB.vignetteEdge} 100%)`,
-        }} />
-
-        {/* Horizontal gold rule */}
-        <div style={{
-          position: "absolute", top: "50%", left: 0, right: 0,
-          height: 1, margin: 0,
-          background: `linear-gradient(to right, transparent, ${panel.accent}18, transparent)`,
-        }} />
-
-        {/* Label — top left */}
-        <div style={{
-          position: "absolute", top: "3rem", left: "clamp(2rem,6vw,6rem)",
-          display: "flex", alignItems: "center", gap: "0.75rem",
-        }}>
-          <div style={{ width: 20, height: 1, background: `${panel.accent}55` }} />
-          <ScrollLitText
-            as="span"
-            scrollYProgress={labelProgress}
-            text={panel.label}
-            dimColor={hexToRgba(panel.accent, 0.3)}
-            brightColor={hexToRgba(panel.accent, 0.88)}
-            overlap={3}
-            style={{
-              fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
-              letterSpacing: "0.32em", textTransform: "uppercase",
-            }}
-          />
-        </div>
-
-        {/* Centered content */}
-        <div style={{
-          position: "absolute", top: "50%", left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "min(780px, 90vw)",
-          textAlign: "center",
-        }}>
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-120px" }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <ScrollLitText
-              as="h2"
-              scrollYProgress={titleProgress}
-              text={panel.title}
-              dimColor="rgba(244,241,232,0.14)"
-              brightColor="#F4F1E8"
-              overlap={5}
-              style={{
-                fontFamily: "var(--font-playfair)", fontStyle: "italic",
-                fontSize: "clamp(2.4rem, 5vw, 5.5rem)",
-                fontWeight: 400, lineHeight: 1.1,
-                marginBottom: "1.25rem",
-              }}
-            />
-
-            <ScrollLitText
-              as="p"
-              scrollYProgress={subtitleProgress}
-              text={panel.subtitle}
-              dimColor={hexToRgba(panel.accent, 0.22)}
-              brightColor={hexToRgba(panel.accent, 0.78)}
-              overlap={4}
-              style={{
-                fontFamily: "var(--font-grotesk)", fontSize: "0.6rem",
-                letterSpacing: "0.22em", textTransform: "uppercase",
-                marginBottom: "2.5rem",
-              }}
-            />
-
-            {/* Ornamental divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "2.5rem", justifyContent: "center" }}>
-              <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
-              <svg width="8" height="8" viewBox="0 0 8 8" style={{ margin: 0 }}>
-                <path d="M4 0L5 3L8 4L5 5L4 8L3 5L0 4L3 3Z" fill={panel.accent} fillOpacity="0.4" />
-              </svg>
-              <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
-            </div>
-
-            <ScrollLitText
-              as="p"
-              scrollYProgress={bodyProgress}
-              text={panel.body}
-              dimColor="rgba(244,241,232,0.12)"
-              brightColor="rgba(244,241,232,0.64)"
-              overlap={7}
-              style={{
-                fontFamily: "var(--font-garamond)", fontStyle: "italic",
-                fontSize: "clamp(0.95rem, 1.5vw, 1.2rem)",
-                lineHeight: 1.85,
-                maxWidth: "56ch", margin: "0 auto",
-              }}
-            />
-          </motion.div>
-        </div>
-
-        {/* Bottom index */}
-        <div style={{
-          position: "absolute", bottom: "2.5rem", right: "clamp(2rem,6vw,6rem)",
-          display: "flex", alignItems: "center", gap: "0.75rem",
-        }}>
-          <span style={{
-            fontFamily: "var(--font-playfair)", fontStyle: "italic",
-            fontSize: "clamp(3rem, 5vw, 5rem)",
-            color: "rgba(255,255,255,0.04)",
-            userSelect: "none",
-          }}>{String(index + 1).padStart(2, "0")}</span>
-          <ScrollLitText
-            as="span"
-            scrollYProgress={indexProgress}
-            text="/ 03"
-            dimColor="rgba(244,241,232,0.15)"
-            brightColor="rgba(244,241,232,0.38)"
-            overlap={1}
-            style={{
-              fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
-              letterSpacing: "0.28em", textTransform: "uppercase",
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function GalleryPage() {
   const heroRef    = useRef<HTMLDivElement>(null);
   const featureRef = useRef<HTMLDivElement>(null);
@@ -426,30 +183,36 @@ export default function GalleryPage() {
   const closingY = useTransform(closingP, [0, 1], ["6%", "-6%"]);
 
   // ── GSAP: horizontal chamber ───────────────────────────────────────────────
+  // Pin scroll distance must match the track (scrollWidth − viewport). A fixed
+  // 500vh wrapper with a shorter pin distance left “dead” scroll on the last card.
   useGSAP(() => {
     const track   = trackRef.current;
     const wrapper = chamberRef.current;
     if (!track || !wrapper) return;
 
-    const panelCount = chamberPanels.length;
-    const panelW     = window.innerWidth;
-    const totalScroll = panelW * (panelCount - 1);
+    const getScrollX = () => Math.max(0, track.scrollWidth - window.innerWidth);
 
     const tween = gsap.to(track, {
-      x: -totalScroll,
+      x: () => -getScrollX(),
       ease: "none",
       scrollTrigger: {
         trigger: wrapper,
         start: "top top",
-        end: () => `+=${totalScroll}`,
-        scrub: 1.2,
+        end: () => `+=${getScrollX()}`,
+        scrub: 0.9,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
       },
     });
 
+    const onResize = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener("resize", onResize);
+
     return () => {
+      window.removeEventListener("resize", onResize);
       tween.scrollTrigger?.kill();
       tween.kill();
     };
@@ -510,19 +273,67 @@ export default function GalleryPage() {
           isolation: "isolate",
         }}
       >
-        {/* Deep void — charcoal + umber (slow parallax) */}
+        {/* Antique interior — slow parallax base + scrims for centered plate typography */}
         <motion.div
           aria-hidden="true"
           style={{
-            position: "absolute", inset: 0, margin: 0,
-            background: `
-              radial-gradient(ellipse 85% 65% at 18% 50%, rgba(52, 82, 76, 0.22) 0%, transparent 52%),
-              radial-gradient(ellipse 50% 45% at 88% 18%, rgba(24, 48, 58, 0.45) 0%, transparent 48%),
-              radial-gradient(ellipse at 32% 58%, #0f1816 0%, #081012 40%, ${GB.void} 76%)
-            `,
+            position: "absolute",
+            inset: 0,
+            margin: 0,
+            overflow: "hidden",
             y: heroLayer1Y,
           }}
-        />
+        >
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: "118%",
+              height: "118%",
+              minHeight: 640,
+              transform: "translate(-50%, -50%)",
+              margin: 0,
+            }}
+          >
+            <Image
+              src={GALLERY_HERO_BG}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              style={{ objectFit: "cover", objectPosition: "50% 42%" }}
+            />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: 0,
+              background: `linear-gradient(165deg, ${GB.deep}77 0%, transparent 38%, ${GB.void}aa 100%)`,
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: 0,
+              background: `radial-gradient(ellipse 72% 62% at 50% 46%, rgba(6, 16, 22, 0.25) 0%, rgba(6, 16, 22, 0.72) 58%, ${GB.deep}f2 100%)`,
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: 0,
+              opacity: 0.85,
+              background: `radial-gradient(circle at 70% 22%, rgba(201,169,110,0.07) 0%, transparent 42%)`,
+              pointerEvents: "none",
+            }}
+          />
+        </motion.div>
 
         {/* Warm gallery pool — track lighting feel */}
         <motion.div
@@ -647,13 +458,22 @@ export default function GalleryPage() {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
+            paddingTop: "calc(2rem + 140px + 0.75rem + env(safe-area-inset-top, 0px))",
+            paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))",
             paddingLeft: "clamp(2rem, 8vw, 8rem)",
             paddingRight: "clamp(2rem, 8vw, 8rem)",
             y: heroTextY,
             opacity: heroOpacity,
           }}
         >
-          <div style={{ position: "relative", width: "min(52rem, 92vw)", textAlign: "center" }}>
+          <div
+            style={{
+              position: "relative",
+              maxWidth: "min(52rem, 92vw)",
+              width: "100%",
+              textAlign: "center",
+            }}
+          >
             {/* Corner brackets — mat board / frame */}
             <motion.div
               aria-hidden="true"
@@ -682,6 +502,7 @@ export default function GalleryPage() {
                 display: "flex",
                 flexWrap: "wrap",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: "0.75rem 1.25rem",
                 marginBottom: "1.75rem",
               }}
@@ -754,18 +575,39 @@ export default function GalleryPage() {
               style={{
                 fontFamily: "var(--font-garamond)",
                 fontStyle: "italic",
-                fontSize: "clamp(0.95rem, 1.45vw, 1.2rem)",
-                color: "rgba(232,228,218,0.52)",
-                lineHeight: 1.75,
-                maxWidth: "44ch",
-                marginTop: "2rem",
-                borderLeft: "2px solid rgba(201,169,110,0.22)",
-                paddingLeft: "1.35rem",
+                fontSize: "clamp(1rem, 1.5vw, 1.2rem)",
+                color: "rgba(244,241,232,0.88)",
+                lineHeight: 1.72,
+                maxWidth: "38ch",
+                margin: "2rem auto 0",
+                textAlign: "center",
+                borderTop: "2px solid rgba(201,169,110,0.28)",
+                paddingTop: "1.35rem",
+                borderLeft: "none",
+                paddingLeft: 0,
               }}
             >
-              Light, glass, and time — a living archaeology of objects displaced by history,
-              preserved by devotion, and reassembled in a sixteenth-century riad in the
-              heart of Casablanca&apos;s medina.
+              <span
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-playfair)",
+                  fontStyle: "normal",
+                  fontSize: "clamp(1.15rem, 1.85vw, 1.45rem)",
+                  fontWeight: 400,
+                  letterSpacing: "0.04em",
+                  color: "#F8F6F2",
+                  marginBottom: "0.85rem",
+                  textShadow: "0 2px 24px rgba(0,0,0,0.35)",
+                }}
+              >
+                The Art of More
+              </span>
+              <span style={{ display: "block", color: "rgba(248,246,242,0.92)" }}>
+                A maximalist gallery where every detail is part of the whole.
+              </span>
+              <span style={{ display: "block", marginTop: "0.65rem", color: "rgba(244,241,232,0.86)" }}>
+                Inviting you to slow down, look closer, and take it all in.
+              </span>
             </motion.p>
 
             {/* Specimen meta — label card */}
@@ -776,8 +618,9 @@ export default function GalleryPage() {
               style={{
                 display: "flex",
                 flexWrap: "wrap",
+                justifyContent: "center",
                 gap: "2.25rem 3rem",
-                marginTop: "2.75rem",
+                margin: "2.75rem auto 0",
                 padding: "1.35rem 1.75rem",
                 maxWidth: "max-content",
                 background: "linear-gradient(135deg, rgba(12,14,24,0.65) 0%, rgba(8,10,18,0.4) 100%)",
@@ -998,7 +841,7 @@ export default function GalleryPage() {
       <div
         ref={chamberRef}
         aria-label="Gallery chamber — horizontal scroll"
-        style={{ position: "relative", zIndex: 1, height: "100vh", margin: 0 }}
+        style={{ position: "relative", zIndex: 1, minHeight: "100vh", margin: 0 }}
       >
         {/* The sticky viewport */}
         <div style={{
@@ -1120,7 +963,108 @@ export default function GalleryPage() {
       ══════════════════════════════════════════════════════════════════════ */}
       <div aria-label="The archive — three chapters" style={{ position: "relative", zIndex: 1, margin: 0 }}>
         {cascadePanels.map((panel, i) => (
-          <CascadeChapterPanel key={panel.id} panel={panel} index={i} />
+          <div
+            key={panel.id}
+            style={{ height: "120vh", position: "relative", margin: 0 }}
+          >
+            {/* Sticky inner — creates the "fixed background" illusion */}
+            <div style={{
+              position: "sticky", top: 0,
+              height: "100vh", overflow: "hidden",
+              background: panel.gradient,
+              margin: 0, padding: 0,
+            }}>
+              {/* Atmospheric vignette */}
+              <div style={{
+                position: "absolute", inset: 0, margin: 0,
+                background: `radial-gradient(ellipse at 50% 50%, transparent 30%, ${GB.vignetteEdge} 100%)`,
+              }} />
+
+              {/* Horizontal gold rule */}
+              <div style={{
+                position: "absolute", top: "50%", left: 0, right: 0,
+                height: 1, margin: 0,
+                background: `linear-gradient(to right, transparent, ${panel.accent}18, transparent)`,
+              }} />
+
+              {/* Label — top left */}
+              <div style={{
+                position: "absolute", top: "3rem", left: "clamp(2rem,6vw,6rem)",
+                display: "flex", alignItems: "center", gap: "0.75rem",
+              }}>
+                <div style={{ width: 20, height: 1, background: `${panel.accent}55` }} />
+                <span style={{
+                  fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
+                  letterSpacing: "0.32em", textTransform: "uppercase",
+                  color: `${panel.accent}88`,
+                }}>{panel.label}</span>
+              </div>
+
+              {/* Centered content */}
+              <div style={{
+                position: "absolute", top: "50%", left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "min(780px, 90vw)",
+                textAlign: "center",
+              }}>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-120px" }}
+                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <h2 style={{
+                    fontFamily: "var(--font-playfair)", fontStyle: "italic",
+                    fontSize: "clamp(2.4rem, 5vw, 5.5rem)",
+                    fontWeight: 400, color: "#F4F1E8",
+                    lineHeight: 1.1, whiteSpace: "pre-line",
+                    marginBottom: "1.25rem",
+                  }}>{panel.title}</h2>
+
+                  <p style={{
+                    fontFamily: "var(--font-grotesk)", fontSize: "0.6rem",
+                    letterSpacing: "0.22em", textTransform: "uppercase",
+                    color: panel.accent, opacity: 0.6,
+                    marginBottom: "2.5rem",
+                  }}>{panel.subtitle}</p>
+
+                  {/* Ornamental divider */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "2.5rem", justifyContent: "center" }}>
+                    <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
+                    <svg width="8" height="8" viewBox="0 0 8 8" style={{ margin: 0 }}>
+                      <path d="M4 0L5 3L8 4L5 5L4 8L3 5L0 4L3 3Z" fill={panel.accent} fillOpacity="0.4" />
+                    </svg>
+                    <div style={{ width: 60, height: 1, background: `${panel.accent}30` }} />
+                  </div>
+
+                  <p style={{
+                    fontFamily: "var(--font-garamond)", fontStyle: "italic",
+                    fontSize: "clamp(0.95rem, 1.5vw, 1.2rem)",
+                    color: "rgba(244,241,232,0.52)", lineHeight: 1.85,
+                    maxWidth: "56ch", margin: "0 auto",
+                  }}>{panel.body}</p>
+                </motion.div>
+              </div>
+
+              {/* Bottom index */}
+              <div style={{
+                position: "absolute", bottom: "2.5rem", right: "clamp(2rem,6vw,6rem)",
+                display: "flex", alignItems: "center", gap: "0.75rem",
+              }}>
+                <span style={{
+                  fontFamily: "var(--font-playfair)", fontStyle: "italic",
+                  fontSize: "clamp(3rem, 5vw, 5rem)",
+                  color: "rgba(255,255,255,0.04)",
+                  userSelect: "none",
+                }}>{String(i + 1).padStart(2, "0")}</span>
+                <span style={{
+                  fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
+                  letterSpacing: "0.28em", textTransform: "uppercase",
+                  color: "rgba(244,241,232,0.25)",
+                }}>/ 03</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -1283,6 +1227,3 @@ export default function GalleryPage() {
     </>
   );
 }
-
-
-

@@ -33,6 +33,8 @@ export interface Event {
   bgColors: [string, string, string];
   accent: string;
   initials: string;
+  /** Detail-modal left hero photo (optional — use when multiple events share a genre, e.g. two jazz nights). */
+  modalHeroSrc?: string;
 }
 
 export const events: Event[] = [
@@ -62,6 +64,7 @@ export const events: Event[] = [
     bgColors: ["#1a1228", "#0d1020", "#08080f"],
     accent: "#8B5CF6",
     initials: "LB",
+    modalHeroSrc: "/images/jazz.jpeg",
   },
   {
     id: "e2",
@@ -167,6 +170,7 @@ export const events: Event[] = [
     bgColors: ["#1a1010", "#120a0a", "#080404"],
     accent: "#C9A96E",
     initials: "NL",
+    modalHeroSrc: "/images/jazzz.jpeg",
   },
   {
     id: "e6",

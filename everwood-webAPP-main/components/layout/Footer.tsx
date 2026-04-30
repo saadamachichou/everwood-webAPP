@@ -36,18 +36,18 @@ const SOCIAL = [
 
 export default function Footer() {
   return (
-    <footer className="w-full" style={{ background: "#03030A" }} aria-label="Site footer">
+    <footer className="w-full" style={{ background: "var(--ev-footer-bg, #03030A)" }} aria-label="Site footer">
 
       {/* ── top decorative rule — full width ── */}
       <div className="flex items-center gap-6" style={{ paddingLeft: "60px", paddingRight: "60px", paddingTop: "4rem" }}>
-        <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, transparent, rgba(212,148,58,.2))" }} />
+        <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, transparent, var(--ev-footer-rule, rgba(201,169,110,.22)))" }} />
         <span style={{
           fontSize: ".5rem", letterSpacing: ".38em", textTransform: "uppercase",
-          color: "rgba(201,169,110,.72)", fontFamily: "var(--font-dm-mono)", fontWeight: 500, whiteSpace: "nowrap",
+          color: "var(--ev-footer-muted, rgba(201,169,110,.72))", fontFamily: "var(--font-dm-mono)", fontWeight: 500, whiteSpace: "nowrap",
         }}>
           Casablanca · Season 2026
         </span>
-        <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, transparent, rgba(212,148,58,.2))" }} />
+        <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, transparent, var(--ev-footer-rule, rgba(201,169,110,.22)))" }} />
       </div>
 
       {/* ── main grid — full width, generous side padding ── */}
@@ -65,12 +65,12 @@ export default function Footer() {
                 color: "#F4F1E8", lineHeight: 1.02,
                 marginBottom: ".85rem", letterSpacing: "-0.02em",
               }}>
-                Ever<span style={{ color: "#C9A96E", fontWeight: 400 }}>wood</span>
+                Ever<span style={{ color: "var(--ev-footer-hover, #C9A96E)", fontWeight: 400 }}>wood</span>
               </p>
 
               <p style={{
                 fontSize: ".5rem", letterSpacing: ".34em", textTransform: "uppercase",
-                color: "rgba(201,169,110,.68)", marginBottom: "1.5rem",
+                color: "var(--ev-footer-muted, rgba(201,169,110,.68))", marginBottom: "1.5rem",
                 fontFamily: "var(--font-dm-mono)", fontWeight: 500, lineHeight: 1.5,
               }}>
                 Listening room · Gallery · Workshops
@@ -106,7 +106,7 @@ export default function Footer() {
                       color: "rgba(232,228,218,0.88)", textDecoration: "none",
                       borderRadius: "50%",
                     }}
-                    whileHover={{ borderColor: "rgba(201,169,110,.55)", color: "#C9A96E", scale: 1.08 }}
+                    whileHover={{ borderColor: "rgba(185,122,62,.42)", color: "var(--ev-footer-hover, #C9A96E)", scale: 1.08 }}
                     whileTap={{ scale: .93 }}
                     transition={{ type: "spring", stiffness: 380, damping: 22 }}
                   >
@@ -125,7 +125,7 @@ export default function Footer() {
                     color: "rgba(232,228,218,0.88)", textDecoration: "none",
                     borderRadius: "50%",
                   }}
-                  whileHover={{ borderColor: "rgba(201,169,110,.55)", color: "#C9A96E", scale: 1.08 }}
+                  whileHover={{ borderColor: "rgba(185,122,62,.42)", color: "var(--ev-footer-hover, #C9A96E)", scale: 1.08 }}
                   whileTap={{ scale: .93 }}
                   transition={{ type: "spring", stiffness: 380, damping: 22 }}
                 >
@@ -140,12 +140,12 @@ export default function Footer() {
             <div>
               <p style={{
                 fontSize: ".5rem", letterSpacing: ".32em", textTransform: "uppercase",
-                color: "rgba(201,169,110,.68)", marginBottom: ".75rem",
+                color: "var(--ev-footer-muted, rgba(201,169,110,.68))", marginBottom: ".75rem",
                 fontFamily: "var(--font-dm-mono)", fontWeight: 500,
               }}>
                 Explore
               </p>
-              <div style={{ width: 28, height: 1, background: "rgba(201,169,110,.22)", marginBottom: "1.75rem" }} />
+              <div style={{ width: 28, height: 1, background: "var(--ev-footer-rule, rgba(201,169,110,.22))", marginBottom: "1.75rem" }} />
 
               <nav className="flex flex-col">
                 {NAV.map(({ href, label }) => (
@@ -162,13 +162,13 @@ export default function Footer() {
                         boxSizing: "border-box",
                         letterSpacing: "0.01em",
                       }}
-                      className="transition-colors duration-200 hover:!text-[#F4F1E8]"
+                      className="transition-colors duration-200 hover:!text-[var(--ev-footer-hover,#F4F1E8)]"
                     >
                       {label}
                       <motion.span
                         variants={{ rest: { x: 0, opacity: 0 }, hover: { x: 4, opacity: 1 } }}
                         transition={{ duration: .2 }}
-                        style={{ color: "#C9A96E" }}
+                        style={{ color: "var(--ev-footer-hover, #C9A96E)" }}
                       >
                         <ArrowUpRight size={13} />
                       </motion.span>
@@ -184,16 +184,16 @@ export default function Footer() {
             <div>
               <p style={{
                 fontSize: ".5rem", letterSpacing: ".32em", textTransform: "uppercase",
-                color: "rgba(201,169,110,.68)", marginBottom: ".75rem",
+                color: "var(--ev-footer-muted, rgba(201,169,110,.68))", marginBottom: ".75rem",
                 fontFamily: "var(--font-dm-mono)", fontWeight: 500,
               }}>
                 Visit
               </p>
-              <div style={{ width: 28, height: 1, background: "rgba(201,169,110,.22)", marginBottom: "1.75rem" }} />
+              <div style={{ width: 28, height: 1, background: "var(--ev-footer-rule, rgba(201,169,110,.22))", marginBottom: "1.75rem" }} />
 
               {/* address */}
               <div className="flex gap-3 mb-5">
-                <MapPin size={14} style={{ color: "#C9A96E", flexShrink: 0, marginTop: 3 }} />
+                <MapPin size={14} style={{ color: "var(--ev-footer-hover, #C9A96E)", flexShrink: 0, marginTop: 3 }} />
                 <address style={{ fontStyle: "normal", fontSize: ".875rem", color: "rgba(232,228,218,0.88)", lineHeight: 1.75, letterSpacing: "0.02em" }}>
                   12 Derb Moulay Cherif<br />
                   Ancienne Médina<br />
@@ -203,11 +203,11 @@ export default function Footer() {
 
               {/* email */}
               <div className="flex gap-3 mb-8">
-                <Mail size={14} style={{ color: "#C9A96E", flexShrink: 0, marginTop: 2 }} />
+                <Mail size={14} style={{ color: "var(--ev-footer-hover, #C9A96E)", flexShrink: 0, marginTop: 2 }} />
                 <a
                   href="mailto:hello@everwood.ma"
                   style={{ fontSize: ".875rem", color: "rgba(232,228,218,0.9)", textDecoration: "none", letterSpacing: "0.02em" }}
-                  className="hover:text-[#C9A96E] transition-colors duration-200"
+                  className="hover:text-[var(--ev-footer-hover,#C9A96E)] transition-colors duration-200"
                 >
                   hello@everwood.ma
                 </a>
@@ -215,13 +215,13 @@ export default function Footer() {
 
               {/* hours card */}
               <div style={{
-                borderLeft: "2px solid rgba(201,169,110,.28)",
-                background: "rgba(201,169,110,.04)",
+                borderLeft: "2px solid var(--ev-footer-rule-strong, rgba(201,169,110,.28))",
+                background: "var(--ev-footer-hours-bg, rgba(201,169,110,.04))",
                 padding: "1.1rem 1.25rem",
               }}>
                 <p style={{
                   fontSize: ".5rem", letterSpacing: ".26em", textTransform: "uppercase",
-                  color: "rgba(201,169,110,.72)", marginBottom: ".6rem",
+                  color: "var(--ev-footer-muted, rgba(201,169,110,.72))", marginBottom: ".6rem",
                   fontFamily: "var(--font-dm-mono)", fontWeight: 500,
                 }}>
                   Hours
@@ -266,7 +266,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: "#F4F4F5", textDecoration: "none", letterSpacing: ".1em", display: "inline-flex", alignItems: "center", minHeight: 48, padding: "0 4px" }}
-                className="hover:text-[#C9A96E] transition-colors duration-200"
+                className="hover:text-[var(--ev-footer-hover,#C9A96E)] transition-colors duration-200"
               >
                 ASTROQODELABS
               </a>

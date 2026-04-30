@@ -1,5 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { Search, Heart, X, Grid3X3, List, ChevronDown } from "lucide-react";
 import Navigation from "@/components/layout/Navigation";
@@ -11,6 +12,8 @@ import { antiques, categories, type Antique, type Category } from "@/lib/data/an
 import { formatPrice, cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+/** Hero photography — curiosity cabinet interior */
+const ANTIQUES_HERO_BG = "/images/nav/antque.jpeg";
 
 // ── Entrance mark — pre-computed at module scope (toFixed(3)) ───────────────
 // 8-pointed star (center 70,70, outerR=52, innerR=21, 16 vertices @ 22.5° steps)
@@ -64,6 +67,8 @@ export default function AntiquesPage() {
   const { scrollY } = useScroll();
   const heroY       = useTransform(scrollY, [0, 900], ["0%",  "20%"]);
   const heroOpacity = useTransform(scrollY, [0, 650], [1,     0   ]);
+  /** Background moves slower than foreground copy — keeps scroll choreography */
+  const heroBgY     = useTransform(scrollY, [0, 900], ["0%",  "14%"]);
 
   const filtered = useMemo(() =>
     antiques.filter(a =>
@@ -139,7 +144,12 @@ export default function AntiquesPage() {
                 animate={{ scale: 1,    opacity: 1, filter: "blur(0px)"  }}
                 transition={{ duration: 1.4, ease: [0.34, 1.56, 0.64, 1] }}
               >
-                <svg width="160" height="160" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+                <svg
+                  className="mx-auto block w-[min(17.5rem,88vw)] h-[min(17.5rem,88vw)] sm:w-72 sm:h-72 lg:w-80 lg:h-80"
+                  viewBox="0 0 140 140"
+                  fill="none"
+                  aria-hidden="true"
+                >
                   {/* Outer ring — draws in */}
                   <motion.circle cx="70" cy="70" r="65"
                     stroke="#C9A96E" strokeWidth="0.9" opacity="0.55"
@@ -275,31 +285,45 @@ export default function AntiquesPage() {
           HERO  —  full-viewport, gallery-style centered text block
       ══════════════════════════════════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden"
+        className="relative overflow-hidden bg-[#050302]"
         style={{
           position: "relative",
           minHeight: "100svh",
-          background: "linear-gradient(155deg, #050302 0%, #0C0602 38%, #140A03 66%, #060302 100%)",
         }}
       >
-        {/* ── Atmospheric depth layers ── */}
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div style={{
-            position: "absolute", top: "8%", right: "12%",
-            width: "50vw", height: "50vw", borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(201,169,110,0.04) 0%, transparent 62%)",
-          }} />
-          <div style={{
-            position: "absolute", bottom: "10%", left: "-5%",
-            width: "45vw", height: "40vw", borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(180,70,30,0.03) 0%, transparent 65%)",
-          }} />
-        </div>
+        {/* ── Hero photography + scrims (readable left-aligned type) ── */}
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          style={{ y: heroBgY }}
+          aria-hidden
+        >
+          <div className="absolute left-1/2 top-1/2 h-[118%] w-[118%] min-h-[640px] -translate-x-1/2 -translate-y-1/2">
+            <Image
+              src={ANTIQUES_HERO_BG}
+              alt=""
+              fill
+              priority
+              className="object-cover object-[52%_42%]"
+              sizes="100vw"
+            />
+          </div>
+          <div className="absolute inset-0 bg-[#050302]/45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050302]/88 via-[#050302]/52 to-[#050302]/28" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050302]/82 via-transparent to-[#050302]/55" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_45%_at_85%_25%,transparent_30%,rgba(5,3,2,0.5)_85%)]" />
+          <div
+            className="absolute inset-0 opacity-[0.35]"
+            style={{
+              background:
+                "radial-gradient(circle at 78% 18%, rgba(201,169,110,0.07) 0%, transparent 55%)",
+            }}
+          />
+        </motion.div>
 
         {/* ── Animated golden compass ── */}
         <div
-          className="absolute pointer-events-none hidden lg:block"
-          style={{ top: "4%", right: "2%", width: "min(44vw, 580px)", height: "min(44vw, 580px)", opacity: 0.52 }}
+          className="pointer-events-none absolute z-[5] hidden lg:block"
+          style={{ top: "4%", right: "2%", width: "min(44vw, 580px)", height: "min(44vw, 580px)", opacity: 0.42 }}
         >
           <GoldenCompass />
         </div>
@@ -314,7 +338,7 @@ export default function AntiquesPage() {
             paddingLeft: "clamp(2rem, 7vw, 7rem)",
             paddingRight: "clamp(2rem, 7vw, 7rem)",
             y: heroY, opacity: heroOpacity,
-            zIndex: 10,
+            zIndex: 20,
           }}
         >
           {/* Eyebrow */}
@@ -328,7 +352,7 @@ export default function AntiquesPage() {
             <span style={{
               fontFamily: "var(--font-grotesk)", fontSize: "0.55rem",
               letterSpacing: "0.32em", textTransform: "uppercase",
-              color: "rgba(201,169,110,0.65)",
+              color: "rgba(213,190,145,0.82)",
             }}>The Curiosity Cabinet · Casablanca · Est. 1923</span>
           </motion.div>
 
@@ -367,7 +391,7 @@ export default function AntiquesPage() {
             style={{
               fontFamily: "var(--font-garamond)", fontStyle: "italic",
               fontSize: "clamp(0.9rem, 1.5vw, 1.15rem)",
-              color: "rgba(244,241,232,0.45)", lineHeight: 1.75,
+              color: "rgba(244,241,232,0.58)", lineHeight: 1.75,
               maxWidth: "46ch", marginTop: "1.8rem",
             }}
           >
@@ -415,7 +439,7 @@ export default function AntiquesPage() {
           style={{
             position: "absolute", bottom: "3rem",
             left: "clamp(2rem, 7vw, 7rem)",
-            zIndex: 10,
+            zIndex: 20,
             display: "flex", alignItems: "center", gap: "0.75rem",
           }}
         >
@@ -435,7 +459,7 @@ export default function AntiquesPage() {
 
         {/* Bottom edge rule */}
         <div
-          className="absolute bottom-0 left-0 right-0 pointer-events-none"
+          className="pointer-events-none absolute bottom-0 left-0 right-0 z-[21]"
           style={{ height: 1, background: "linear-gradient(to right, transparent, rgba(201,169,110,0.1) 25%, rgba(201,169,110,0.1) 75%, transparent)" }}
         />
       </section>

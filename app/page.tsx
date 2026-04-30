@@ -466,10 +466,21 @@ function LiveClock({ color }: { color: string }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// ROOM 0 — THRESHOLD HERO VIDEO (YouTube background unless MP4 env override)
+// ══════════════════════════════════════════════════════════════════════════════
+/** Muted autoplay loop backdrop for `#threshold`. Override with NEXT_PUBLIC_HERO_VIDEO=true + /videos/hero.mp4 */
+const THRESHOLD_YOUTUBE_ID = "rCMgcukgGEs";
+const THRESHOLD_YOUTUBE_POSTER_MAX = `https://i.ytimg.com/vi/${THRESHOLD_YOUTUBE_ID}/maxresdefault.jpg`;
+const THRESHOLD_YOUTUBE_POSTER_HQ = `https://i.ytimg.com/vi/${THRESHOLD_YOUTUBE_ID}/hqdefault.jpg`;
+/** `load` fires before the embed paints video; peeling immediately shows empty chrome ~300–900ms — delay aligns fade-out with motion */
+const THRESHOLD_YOUTUBE_POSTER_AFTER_LOAD_MS = 900;
+
+// ══════════════════════════════════════════════════════════════════════════════
 // ROOM 0 — THE THRESHOLD  (video hero)
 // ══════════════════════════════════════════════════════════════════════════════
 function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElement | null> }) {
   const reduceMotion = useReducedMotion();
+  const useMp4Hero = process.env.NEXT_PUBLIC_HERO_VIDEO === "true";
   const { scrollYProgress } = useScroll({ target: sectionRef as React.RefObject<HTMLElement>, offset: ["start start", "end start"] });
   const headlineY = useTransform(scrollYProgress, [0, 1], ["0%", "-20%"]);
   const videoOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
@@ -477,7 +488,10 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
-  const [videoReady, setVideoReady] = useState(false);
+  const [mp4Ready, setMp4Ready] = useState(false);
+  /** YouTube still-frame on top until iframe finishes loading — avoids blank wait on refresh */
+  const [youtubePosterDismissed, setYoutubePosterDismissed] = useState(false);
+  const youtubePosterPeelTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
 
   const toggleMute = useCallback(() => {
     const v = videoRef.current;
@@ -486,8 +500,28 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
     setMuted(prev => !prev);
   }, []);
 
+  /** YouTube iframe sometimes never fires load — still peel poster so video may appear underneath */
+  useEffect(() => {
+    if (useMp4Hero || reduceMotion) return;
+    const t = window.setTimeout(() => setYoutubePosterDismissed(true), 5200);
+    return () => {
+      window.clearTimeout(t);
+      if (youtubePosterPeelTimerRef.current != null) {
+        window.clearTimeout(youtubePosterPeelTimerRef.current);
+        youtubePosterPeelTimerRef.current = null;
+      }
+    };
+  }, [useMp4Hero, reduceMotion]);
+
+  const handleYoutubeIframeLoad = useCallback(() => {
+    if (youtubePosterPeelTimerRef.current != null) window.clearTimeout(youtubePosterPeelTimerRef.current);
+    youtubePosterPeelTimerRef.current = window.setTimeout(() => {
+      youtubePosterPeelTimerRef.current = null;
+      setYoutubePosterDismissed(true);
+    }, THRESHOLD_YOUTUBE_POSTER_AFTER_LOAD_MS);
+  }, []);
+
   const HERO_WORDS = ["Where", "craft", "meets", "culture"] as const;
-  const HERO_VIDEO_PLAYBACK_RATE = 0.55;
 
   const nextEvent = events.find(e => !e.soldOut);
 
@@ -502,37 +536,103 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
         style={{ position: "absolute", inset: 0, margin: 0, opacity: videoOpacity, zIndex: 0, pointerEvents: "none" }}
         aria-hidden="true"
       >
-        {/* Gradient fallback shown until video is ready */}
-        <div
-          style={{
-            position: "absolute", inset: 0, margin: 0,
-            background: `radial-gradient(ellipse 130% 80% at 50% 30%, #1E3028 0%, #162418 50%, #0E1810 100%)`,
-            transition: "opacity 1.2s ease",
-            opacity: videoReady ? 0 : 1,
-            zIndex: 1,
-          }}
-        />
-        {/* Video — place hero.mp4 in /public/videos/ and set HERO_VIDEO_ENABLED=true to enable */}
+        {/* Gradient fallback — MP4 path only (YouTube uses sharp poster instead of hiding iframe) */}
+        {useMp4Hero && (
+          <div
+            style={{
+              position: "absolute", inset: 0, margin: 0,
+              background: `radial-gradient(ellipse 130% 80% at 50% 30%, #1E3028 0%, #162418 50%, #0E1810 100%)`,
+              transition: "opacity 1.4s ease",
+              opacity: mp4Ready ? 0 : 1,
+              zIndex: 1,
+            }}
+          />
+        )}
+        {/* MP4 — opt-in via NEXT_PUBLIC_HERO_VIDEO */}
+        {useMp4Hero && (
           <video
             ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
-            preload="metadata"
-            onLoadedMetadata={(e) => {
-              e.currentTarget.defaultPlaybackRate = HERO_VIDEO_PLAYBACK_RATE;
-              e.currentTarget.playbackRate = HERO_VIDEO_PLAYBACK_RATE;
-            }}
-            onCanPlay={(e) => {
-              // Re-apply in case the browser resets playback speed on canplay.
-              e.currentTarget.playbackRate = HERO_VIDEO_PLAYBACK_RATE;
-              setVideoReady(true);
-            }}
-            style={{ position: "absolute", inset: 0, margin: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+            preload="auto"
+            onCanPlay={() => setMp4Ready(true)}
+            style={{ position: "absolute", inset: 0, margin: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", zIndex: 0 }}
           >
             <source src="/videos/hero.mp4" type="video/mp4" />
           </video>
+        )}
+        {/* Reduced motion: still frame only */}
+        {!useMp4Hero && reduceMotion && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={THRESHOLD_YOUTUBE_POSTER_HQ}
+            alt=""
+            decoding="sync"
+            fetchPriority="high"
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              zIndex: 0,
+            }}
+          />
+        )}
+        {/* YouTube — iframe loads behind poster; poster peels after embed has time to paint */}
+        {!useMp4Hero && !reduceMotion && (
+          <>
+            <iframe
+              title="Everwood hero background"
+              loading="eager"
+              src={`https://www.youtube.com/embed/${THRESHOLD_YOUTUBE_ID}?autoplay=1&mute=1&controls=0&playsinline=1&loop=1&playlist=${THRESHOLD_YOUTUBE_ID}&rel=0&modestbranding=1&iv_load_policy=3`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              onLoad={handleYoutubeIframeLoad}
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                width: "100vw",
+                height: "56.25vw",
+                minWidth: "177.77vh",
+                minHeight: "100vh",
+                transform: "translate(-50%, -50%)",
+                border: "none",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={THRESHOLD_YOUTUBE_POSTER_MAX}
+              alt=""
+              decoding="sync"
+              fetchPriority="high"
+              onError={(e) => {
+                const el = e.currentTarget;
+                if (el.src.includes("maxres")) el.src = THRESHOLD_YOUTUBE_POSTER_HQ;
+              }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                margin: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
+                zIndex: 2,
+                opacity: youtubePosterDismissed ? 0 : 1,
+                transition: "opacity 0.38s ease-out",
+                pointerEvents: "none",
+              }}
+            />
+          </>
+        )}
       </motion.div>
 
       {/* ── Cinematic overlay stack ───────────────────────────────── */}
@@ -547,18 +647,32 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
 
       {/* ── Content ────────────────────────────────────────────────── */}
       <motion.div
-        style={{ position: "relative", zIndex: 10, height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 clamp(2.5rem, 8vw, 7rem)", paddingTop: "172px", y: headlineY }}
+        style={{
+          position: "relative",
+          zIndex: 10,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          boxSizing: "border-box",
+          paddingTop: "max(172px, clamp(8rem, 14vh, 11rem))",
+          paddingBottom: "clamp(6rem, 12vh, 9rem)",
+          paddingLeft: "clamp(2.75rem, 9vw, 8rem)",
+          paddingRight: "clamp(2.75rem, 9vw, 8rem)",
+          y: headlineY,
+        }}
       >
+        <div style={{ display: "flex", flexDirection: "column", gap: "clamp(1.35rem, 3.2vw, 2.25rem)", maxWidth: "min(56rem, 100%)", margin: 0 }}>
         {/* Eyebrow — static for LCP (hero text must paint on first frame) */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: "2.2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, margin: 0 }}>
           <span style={{ display: "block", width: 48, height: 1, background: "#C9A96E", flexShrink: 0 }} />
-          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", letterSpacing: "0.45em", textTransform: "uppercase", color: "#C9A96E" }}>
+          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.62rem", letterSpacing: "0.42em", textTransform: "uppercase", color: "#C9A96E", lineHeight: 1.5 }}>
             Everwood · Casablanca · Est. 2024
           </span>
         </div>
 
         {/* Headline — no opacity/spring entrance: delayed paint was driving LCP */}
-        <h1 style={{ display: "flex", flexWrap: "wrap", gap: "0.38em 1.45em", marginBottom: "0.8rem", lineHeight: 0.95, margin: 0 }}>
+        <h1 style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "0.42em 1.55em", margin: 0, padding: "0.15em 0 0", lineHeight: 1.02 }}>
           {HERO_WORDS.map((w) => (
             <span
               key={w}
@@ -582,7 +696,7 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
               fontSize: "clamp(4rem, 9vw, 8rem)",
               fontWeight: 500,
               color: "#D4943A",
-              lineHeight: 0.95,
+              lineHeight: 1.02,
               textShadow: "0 2px 16px rgba(212,148,58,0.4)",
             }}
           >
@@ -597,10 +711,11 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
             fontWeight: 400,
             fontSize: "clamp(1.15rem, 2.4vw, 1.55rem)",
             color: "rgba(244,241,232,0.88)",
-            maxWidth: "50ch",
-            lineHeight: 1.65,
-            marginTop: "1rem",
-            marginBottom: "2.5rem",
+            maxWidth: "52ch",
+            lineHeight: 1.72,
+            margin: 0,
+            paddingTop: "0.35rem",
+            paddingBottom: "0.25rem",
             textShadow: "0 1px 12px rgba(0,0,0,0.5)",
           }}
         >
@@ -608,7 +723,7 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
           eat well, and discover something beautiful.
         </p>
 
-        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "clamp(1rem, 2.5vw, 1.35rem)", flexWrap: "wrap", marginTop: "0.35rem", paddingBottom: "0.25rem" }}>
           <Link href="/events" className="hero-cta hero-cta--primary">
             Explore Everwood <ArrowRight size={11} />
           </Link>
@@ -616,14 +731,15 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
             Reserve a Table
           </Link>
         </div>
+        </div>
 
         {/* Bottom row: next event + clock */}
         <div
           style={{
             position: "absolute",
             bottom: "2.5rem",
-            left: "clamp(2.5rem,8vw,7rem)",
-            right: "clamp(2.5rem,8vw,7rem)",
+            left: "clamp(2.75rem,9vw,8rem)",
+            right: "clamp(2.75rem,9vw,8rem)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-end",
@@ -643,7 +759,8 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
         </div>
       </motion.div>
 
-      {/* ── Mute / unmute video sound ─────────────────────────────── */}
+      {/* ── Mute / unmute (MP4 only — YouTube backdrop stays muted) ─ */}
+      {useMp4Hero && (
       <motion.button
         type="button"
         className="hero-mute"
@@ -655,7 +772,7 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
         style={{
           position: "absolute",
           bottom: "2.5rem",
-          right: "clamp(2.5rem,8vw,7rem)",
+          right: "clamp(2.75rem,9vw,8rem)",
           zIndex: 400,
         }}
         whileTap={{ scale: reduceMotion ? 1 : 0.95 }}
@@ -663,6 +780,7 @@ function Room0Threshold({ sectionRef }: { sectionRef: React.RefObject<HTMLElemen
         {muted ? <VolumeX size={12} /> : <Volume2 size={12} />}
         <span>{muted ? "Sound off" : "Sound on"}</span>
       </motion.button>
+      )}
 
       {/* ── Scroll cue ────────────────────────────────────────────── */}
       <motion.div
@@ -2279,4 +2397,3 @@ export default function HomePage() {
     </div>
   );
 }
-

@@ -6,7 +6,6 @@ import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import EventCard from "@/components/events/EventCard";
 import EventDetailPanel from "@/components/events/EventDetailPanel";
-import FeaturedHeroYoutube from "@/components/events/FeaturedHeroYoutube";
 import TextSplit from "@/components/effects/TextSplit";
 import RevealOnScroll from "@/components/effects/RevealOnScroll";
 import { events, type Event } from "@/lib/data/events";
@@ -20,8 +19,6 @@ const MONTHS = [
   { value: "apr", label: "April" },
   { value: "may", label: "May" },
 ] as const;
-
-const HERO_BG_IMAGE = "/images/nav/1event.jpeg";
 
 const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
   id: i,
@@ -86,54 +83,26 @@ export default function EventsPage() {
           padding: 0,
         }}
       >
-        {/* Photo + tint — parallax scroll */}
+        {/* subtle depth wash — base ↔ violet */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: washNightToViolet, opacity: 0.95 }}
+        />
+
+        {/* parallax bg */}
         <motion.div
           aria-hidden="true"
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            margin: 0,
-            padding: 0,
-            pointerEvents: "none",
-            y: prefersReducedMotion ? 0 : bgY,
+            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+            margin: 0, padding: 0, pointerEvents: "none",
+            y: bgY,
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              inset: "-12%",
-              margin: 0,
-              backgroundImage: `url(${HERO_BG_IMAGE})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
-          {/* readability — dark veil over busy venue photography */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              margin: 0,
-              background: `linear-gradient(180deg, rgba(15,17,21,0.78) 0%, rgba(15,17,21,0.42) 42%, rgba(15,17,21,0.82) 100%)`,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              margin: 0,
-              background: washNightToViolet,
-              opacity: 0.35,
-            }}
-          />
-          <div style={{ position:"absolute", inset:0, margin:0, background:`radial-gradient(ellipse 80% 65% at 18% 58%, ${evR.burgundy(0.16)}, transparent 65%)` }} />
-          <div style={{ position:"absolute", inset:0, margin:0, background:`radial-gradient(ellipse 55% 70% at 88% 18%, ${evR.violet(0.22)}, transparent 55%)` }} />
-          <div style={{ position:"absolute", inset:0, margin:0, background:`radial-gradient(ellipse 60% 45% at 52% 100%, ${evR.bronze(0.06)}, transparent 58%)` }} />
-          <div style={{ position:"absolute", inset:0, margin:0, background:`radial-gradient(ellipse 30% 28% at 68% 72%, ${evR.burgundy(0.07)}, transparent 50%)` }} />
+          <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, margin:0, background:`radial-gradient(ellipse 80% 65% at 18% 58%, ${evR.burgundy(0.28)}, transparent 65%)` }} />
+          <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, margin:0, background:`radial-gradient(ellipse 55% 70% at 88% 18%, ${evR.violet(0.38)}, transparent 55%)` }} />
+          <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, margin:0, background:`radial-gradient(ellipse 60% 45% at 52% 100%, ${evR.bronze(0.09)}, transparent 58%)` }} />
+          <div style={{ position:"absolute", top:0, left:0, right:0, bottom:0, margin:0, background:`radial-gradient(ellipse 30% 28% at 68% 72%, ${evR.burgundy(0.1)}, transparent 50%)` }} />
         </motion.div>
 
         {/* grain */}
@@ -173,7 +142,7 @@ export default function EventsPage() {
         >
           <div className="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 xl:px-20 pb-4">
 
-            <div className="grid lg:grid-cols-[1fr_minmax(460px,38vw)] xl:grid-cols-[1fr_minmax(520px,34vw)] gap-10 xl:gap-14 items-start">
+            <div className="grid lg:grid-cols-[1fr_420px] gap-12 xl:gap-16 items-start">
 
               {/* ── LEFT ── */}
               <div>
@@ -269,22 +238,11 @@ export default function EventsPage() {
                     onClick={() => setSelected(featured)}
                     onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelected(featured); } }}
                   >
-                    {/* glow halo — soft merge with hero */}
-                    <motion.div className="absolute -inset-px pointer-events-none rounded-lg" variants={{ hover:{ opacity:1 }, idle:{ opacity:0 } }} initial="idle"
-                      style={{ background:`radial-gradient(ellipse at 50% 0%, ${evR.cream(0.14)}, transparent 70%)`, boxShadow:`0 12px 48px rgba(15,17,21,0.45)` }} />
+                    {/* glow halo */}
+                    <motion.div className="absolute -inset-px pointer-events-none" variants={{ hover:{ opacity:1 }, idle:{ opacity:0 } }} initial="idle"
+                      style={{ background:`radial-gradient(ellipse at 50% 0%, ${evR.bronze(0.08)}, transparent 72%)`, boxShadow:`0 0 40px ${evR.violet(0.35)}` }} />
 
-                    <div
-                      style={{
-                        position: "relative",
-                        background: evR.violet(0.26),
-                        backdropFilter: "blur(22px) saturate(1.2)",
-                        WebkitBackdropFilter: "blur(22px) saturate(1.2)",
-                        border: `1px solid ${evR.cream(0.16)}`,
-                        overflow: "hidden",
-                        borderRadius: 12,
-                        boxShadow: `inset 0 1px 0 ${evR.cream(0.08)}`,
-                      }}
-                    >
+                    <div style={{ background: EV.violet, border:`1px solid ${evR.cream(0.12)}`, overflow:"hidden", boxShadow:`inset 0 1px 0 ${evR.burgundy(0.25)}` }}>
                       {/* top bar */}
                       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:".8rem 1.1rem .4rem" }}>
                         <span style={{ fontSize:".58rem", letterSpacing:".22em", textTransform:"uppercase", fontWeight:500, color: evMuted65 }}>Featured Tonight</span>
@@ -294,39 +252,22 @@ export default function EventsPage() {
                         </motion.div>
                       </div>
 
-                      {/* poster — 16:9 clip; FeaturedHeroYoutube = start @ 0s, tab-aware mute/unmute */}
-                      <div
-                        style={{
-                          position: "relative",
-                          margin: "0 0.5rem",
-                          aspectRatio: "16 / 9",
-                          overflow: "hidden",
-                          borderRadius: 10,
-                          background: EV.bg,
-                          isolation: "isolate",
-                        }}
-                      >
-                        <div
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            overflow: "hidden",
-                          }}
-                        >
-                          <FeaturedHeroYoutube />
+                      {/* poster */}
+                      <div style={{ position:"relative", margin:"0 1.1rem", aspectRatio:"16/7", overflow:"hidden" }}>
+                        <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 30% 70%, ${featured.bgColors[0]}, ${featured.bgColors[1]} 50%, ${featured.bgColors[2]})` }} />
+                        {/* rings */}
+                        {[80,56,36].map((s,i) => (
+                          <motion.div key={i} className="absolute rounded-full border"
+                            style={{ width:s, height:s, top:"50%", left:"50%", transform:"translate(-50%,-50%)", borderColor:`${featured.accent}${["18","28","40"][i]}` }}
+                            variants={{ hover:{ scale:1.1 } }} transition={{ delay:i*.06, type:"spring", stiffness:200, damping:20 }} />
+                        ))}
+                        <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <motion.span style={{ fontFamily:"var(--font-playfair)", fontSize:"2.85rem", fontWeight:700, color:featured.accent, opacity:.7 }} variants={{ hover:{ opacity:1 } }}>
+                            {featured.initials}
+                          </motion.span>
                         </div>
-                        <div
-                          aria-hidden
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            zIndex: 2,
-                            pointerEvents: "none",
-                            background: `linear-gradient(180deg, rgba(15,17,21,0.28) 0%, transparent 28%, transparent 72%, rgba(15,17,21,0.38) 100%)`,
-                          }}
-                        />
                         <div style={{
-                          position:"absolute", top:10, left:10, zIndex: 3,
+                          position:"absolute", top:10, left:10,
                           borderLeft:`3px solid ${EV.burgundy}`,
                           background:`rgba(15,17,21,0.72)`, backdropFilter:"blur(6px)",
                           color: EV.cream, padding:"4px 10px", fontSize:".55rem", letterSpacing:".15em",
@@ -351,7 +292,7 @@ export default function EventsPage() {
                           </div>
                           <div style={{ textAlign:"right" }}>
                             <span style={{ display:"block", fontSize:".56rem", letterSpacing:".12em", textTransform:"uppercase", color: evMuted, marginBottom:4 }}>Availability</span>
-                            <div style={{ width:72, height:3, background: evR.cream(0.12), borderRadius:2, overflow:"hidden" }}>
+                            <div style={{ width:72, height:3, background: evR.violet(0.85), borderRadius:2, overflow:"hidden" }}>
                               <motion.div style={{ height:"100%", background: EV.bronze, borderRadius:2 }}
                                 initial={{ width:0 }} animate={{ width:`${featured.availability}%` }} transition={{ duration:1.2, ease:"easeOut", delay:.8 }} />
                             </div>
@@ -367,7 +308,7 @@ export default function EventsPage() {
                         style={{
                           position: "absolute", top:0, left:0, right:0, bottom:0, margin:0,
                           pointerEvents:"none",
-                          background:`linear-gradient(135deg, ${evR.cream(0.1)}, transparent)`,
+                          background:`linear-gradient(135deg, ${evR.burgundy(0.08)}, transparent)`,
                         }} />
                     </div>
                   </motion.div>

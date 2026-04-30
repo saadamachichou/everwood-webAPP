@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Clock, MapPin, AlertCircle } from "lucide-react";
 import type { Event } from "@/lib/data/events";
+import { EV, evR, evMuted, evMuted65, evSoftLine } from "@/lib/events-theme";
 import { formatPrice } from "@/lib/utils";
 
 interface Props {
@@ -38,7 +39,7 @@ export default function EventCard({ event, index, onClick }: Props) {
           padding: 10,
           background: `radial-gradient(ellipse at 30% 20%, ${event.bgColors[0]}, ${event.bgColors[1]} 50%, ${event.bgColors[2]})`,
         }}
-        whileHover={{ scale: 1.01, boxShadow: `0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px ${event.accent}44` }}
+        whileHover={{ scale: 1.01, boxShadow: `0 28px 72px rgba(0,0,0,0.78), 0 0 0 1px ${evR.burgundy(0.35)}, 0 0 36px ${evR.violet(0.45)}` }}
         transition={{ type: "spring", stiffness: 280, damping: 22 }}
       >
         {/* ── Decorative rings — visible in the border gap ─────────── */}
@@ -108,25 +109,28 @@ export default function EventCard({ event, index, onClick }: Props) {
         <motion.div
           className="relative flex flex-col"
           style={{
-            background: "rgba(10, 8, 16, 0.88)",
-            backdropFilter: "blur(4px)",
+            background: evR.violet(0.92),
+            backdropFilter: "blur(8px)",
             borderRadius: 16,
             overflow: "hidden",
             zIndex: 2,
+            border: `1px solid ${evR.cream(0.06)}`,
           }}
-          whileHover={{ background: "rgba(10, 8, 16, 0.82)" }}
+          whileHover={{ background: evR.violet(0.88) }}
           transition={{ duration: 0.3 }}
         >
-          {/* top accent strip — matches event accent */}
-          <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${event.accent}CC, transparent)` }} aria-hidden="true" />
+          {/* accent strip — burgundy highlight */}
+          <div style={{ height: 2, background: `linear-gradient(90deg, transparent, ${EV.burgundy}, transparent)`, opacity: 0.85 }} aria-hidden="true" />
 
           {/* genre + date row */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.9rem 1.25rem 0" }}>
             <motion.div
               style={{
                 fontSize: "0.55rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500,
-                background: "#6B1E2F", color: "#F2E8D8",
-                padding: "0.25rem 0.6rem",
+                borderLeft: `3px solid ${EV.burgundy}`,
+                background: `rgba(15,17,21,0.55)`,
+                color: EV.cream,
+                padding: "0.25rem 0.55rem 0.25rem 0.5rem",
               }}
               initial={{ opacity: 0, x: -10 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -139,23 +143,23 @@ export default function EventCard({ event, index, onClick }: Props) {
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
                 width: 44, height: 44, borderRadius: "50%",
-                background: "rgba(212,148,58,0.1)", border: "1px solid rgba(212,148,58,0.28)",
+                background: "transparent", border: `1px solid ${evSoftLine}`,
               }}
               initial={{ opacity: 0, scale: 0.7 }}
               animate={inView ? { opacity: 1, scale: 1 } : {}}
               transition={{ delay: index * 0.08 + 0.3, type: "spring", stiffness: 320, damping: 18 }}
             >
-              <span style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.9rem", fontWeight: 700, color: "#D4943A", lineHeight: 1 }}>{event.day}</span>
-              <span style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.44rem", letterSpacing: "0.12em", color: "#D4943A", lineHeight: 1, marginTop: 2 }}>{event.monthLabel}</span>
+              <span style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.9rem", fontWeight: 700, color: EV.cream, lineHeight: 1 }}>{event.day}</span>
+              <span style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.44rem", letterSpacing: "0.12em", color: evMuted65, lineHeight: 1, marginTop: 2 }}>{event.monthLabel}</span>
             </motion.div>
           </div>
 
           {/* title + artist */}
           <div style={{ padding: "0.75rem 1.25rem 0" }}>
-            <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: "1.3rem", color: "#F2E8D8", lineHeight: 1.15, marginBottom: "0.3rem" }}>
+            <h3 style={{ fontFamily: "var(--font-playfair)", fontSize: "1.3rem", color: EV.cream, lineHeight: 1.15, marginBottom: "0.3rem" }}>
               {event.title}
             </h3>
-            <p style={{ fontFamily: "var(--font-garamond)", fontStyle: "italic", color: "#8A7E72", fontSize: "0.95rem" }}>
+            <p style={{ fontFamily: "var(--font-garamond)", fontStyle: "italic", color: evMuted65, fontSize: "0.95rem" }}>
               {event.artist}
             </p>
           </div>
@@ -163,22 +167,22 @@ export default function EventCard({ event, index, onClick }: Props) {
           {/* bio */}
           <p
             className="line-clamp-2"
-            style={{ fontFamily: "var(--font-garamond)", fontSize: "0.88rem", color: "rgba(138,126,114,0.65)", lineHeight: 1.65, padding: "0.6rem 1.25rem 0.9rem" }}
+            style={{ fontFamily: "var(--font-garamond)", fontSize: "0.88rem", color: evMuted65, lineHeight: 1.65, padding: "0.6rem 1.25rem 0.9rem" }}
           >
             {event.bio}
           </p>
 
           {/* divider */}
-          <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "0 1.25rem" }} aria-hidden="true" />
+          <div style={{ height: 1, background: evSoftLine, margin: "0 1.25rem" }} aria-hidden="true" />
 
           {/* meta */}
           <div style={{ padding: "0.85rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: "0.75rem", color: "#8A7E72" }}>
-              <Clock size={11} style={{ color: "#D4943A", flexShrink: 0 }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: "0.75rem", color: evMuted }}>
+              <Clock size={11} style={{ color: EV.burgundy, flexShrink: 0 }} />
               <span>{event.time} — Doors {event.doors}</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: "0.75rem", color: "#8A7E72" }}>
-              <MapPin size={11} style={{ color: "#D4943A", flexShrink: 0 }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: "0.75rem", color: evMuted }}>
+              <MapPin size={11} style={{ color: EV.burgundy, flexShrink: 0 }} />
               <span className="truncate">{event.venue} · {event.capacity}</span>
             </div>
           </div>
@@ -187,11 +191,11 @@ export default function EventCard({ event, index, onClick }: Props) {
           <div style={{ padding: "0 1.25rem 1.1rem", display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "0.75rem" }}>
             <div>
               {event.soldOut ? (
-                <span style={{ fontSize: "0.75rem", color: "#8A7E72" }}>Sold Out</span>
+                <span style={{ fontSize: "0.75rem", color: evMuted }}>Sold Out</span>
               ) : (
                 <>
-                  <span style={{ display: "block", fontSize: "0.54rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8A7E72", marginBottom: 2 }}>From</span>
-                  <span style={{ fontFamily: "var(--font-playfair)", fontSize: "1.4rem", color: "#D4943A" }}>{formatPrice(minPrice)}</span>
+                  <span style={{ display: "block", fontSize: "0.54rem", letterSpacing: "0.12em", textTransform: "uppercase", color: evMuted, marginBottom: 2 }}>From</span>
+                  <span style={{ fontFamily: "var(--font-playfair)", fontSize: "1.4rem", color: EV.cream }}>{formatPrice(minPrice)}</span>
                 </>
               )}
               {lowTickets && !event.soldOut && (
@@ -201,8 +205,8 @@ export default function EventCard({ event, index, onClick }: Props) {
                   animate={{ opacity: 1 }}
                   transition={{ delay: index * 0.08 + 0.6 }}
                 >
-                  <AlertCircle size={9} style={{ color: "#E85D26" }} />
-                  <span style={{ fontSize: "0.56rem", letterSpacing: "0.1em", color: "#E85D26" }}>Few tickets left</span>
+                  <AlertCircle size={9} style={{ color: EV.burgundy }} />
+                  <span style={{ fontSize: "0.56rem", letterSpacing: "0.1em", color: evMuted65 }}>Few tickets left</span>
                 </motion.div>
               )}
             </div>
@@ -224,11 +228,11 @@ export default function EventCard({ event, index, onClick }: Props) {
           </div>
 
           {/* availability bar */}
-          <div style={{ height: 2, background: "#211F2A", position: "relative", overflow: "hidden" }}>
+          <div style={{ height: 2, background: evR.violet(0.75), position: "relative", overflow: "hidden" }}>
             <motion.div
               style={{
                 position: "absolute", inset: "0 auto 0 0",
-                background: `linear-gradient(90deg, #6B1E2F, ${event.accent})`,
+                background: EV.bronze,
               }}
               initial={{ width: 0 }}
               animate={inView ? { width: `${event.availability}%` } : {}}
@@ -241,7 +245,7 @@ export default function EventCard({ event, index, onClick }: Props) {
             <div style={{ padding: "0.6rem 1.25rem", display: "flex", justifyContent: "center" }}>
               <span style={{
                 fontSize: "0.62rem", letterSpacing: "0.22em", textTransform: "uppercase",
-                color: "#8A7E72", border: "1px solid #8A7E72",
+                color: evMuted, border: `1px solid ${evR.bronze(0.35)}`,
                 padding: "0.3rem 0.9rem",
               }}>Sold Out</span>
             </div>

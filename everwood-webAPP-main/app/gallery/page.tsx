@@ -1,5 +1,6 @@
 "use client";
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -34,6 +35,9 @@ const HERO_RING_TICKS = Array.from({ length: 36 }).map((_, i) => {
     major,
   };
 });
+
+/** Hero photography — curiosity aisle / stained glass interior */
+const GALLERY_HERO_BG = "/images/nav/antqueee.jpeg";
 
 /** Gallery-only backdrop: celadon–ink (distinct from site void #03030A) */
 const GB = {
@@ -269,19 +273,67 @@ export default function GalleryPage() {
           isolation: "isolate",
         }}
       >
-        {/* Deep void — charcoal + umber (slow parallax) */}
+        {/* Antique interior — slow parallax base + scrims for centered plate typography */}
         <motion.div
           aria-hidden="true"
           style={{
-            position: "absolute", inset: 0, margin: 0,
-            background: `
-              radial-gradient(ellipse 85% 65% at 18% 50%, rgba(52, 82, 76, 0.22) 0%, transparent 52%),
-              radial-gradient(ellipse 50% 45% at 88% 18%, rgba(24, 48, 58, 0.45) 0%, transparent 48%),
-              radial-gradient(ellipse at 32% 58%, #0f1816 0%, #081012 40%, ${GB.void} 76%)
-            `,
+            position: "absolute",
+            inset: 0,
+            margin: 0,
+            overflow: "hidden",
             y: heroLayer1Y,
           }}
-        />
+        >
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: "50%",
+              width: "118%",
+              height: "118%",
+              minHeight: 640,
+              transform: "translate(-50%, -50%)",
+              margin: 0,
+            }}
+          >
+            <Image
+              src={GALLERY_HERO_BG}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              style={{ objectFit: "cover", objectPosition: "50% 42%" }}
+            />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: 0,
+              background: `linear-gradient(165deg, ${GB.deep}77 0%, transparent 38%, ${GB.void}aa 100%)`,
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: 0,
+              background: `radial-gradient(ellipse 72% 62% at 50% 46%, rgba(6, 16, 22, 0.25) 0%, rgba(6, 16, 22, 0.72) 58%, ${GB.deep}f2 100%)`,
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: 0,
+              opacity: 0.85,
+              background: `radial-gradient(circle at 70% 22%, rgba(201,169,110,0.07) 0%, transparent 42%)`,
+              pointerEvents: "none",
+            }}
+          />
+        </motion.div>
 
         {/* Warm gallery pool — track lighting feel */}
         <motion.div
@@ -523,21 +575,39 @@ export default function GalleryPage() {
               style={{
                 fontFamily: "var(--font-garamond)",
                 fontStyle: "italic",
-                fontSize: "clamp(0.95rem, 1.45vw, 1.2rem)",
-                color: "rgba(232,228,218,0.52)",
-                lineHeight: 1.75,
-                maxWidth: "44ch",
+                fontSize: "clamp(1rem, 1.5vw, 1.2rem)",
+                color: "rgba(244,241,232,0.88)",
+                lineHeight: 1.72,
+                maxWidth: "38ch",
                 margin: "2rem auto 0",
                 textAlign: "center",
-                borderTop: "2px solid rgba(201,169,110,0.22)",
+                borderTop: "2px solid rgba(201,169,110,0.28)",
                 paddingTop: "1.35rem",
                 borderLeft: "none",
                 paddingLeft: 0,
               }}
             >
-              Light, glass, and time — a living archaeology of objects displaced by history,
-              preserved by devotion, and reassembled in a sixteenth-century riad in the
-              heart of Casablanca&apos;s medina.
+              <span
+                style={{
+                  display: "block",
+                  fontFamily: "var(--font-playfair)",
+                  fontStyle: "normal",
+                  fontSize: "clamp(1.15rem, 1.85vw, 1.45rem)",
+                  fontWeight: 400,
+                  letterSpacing: "0.04em",
+                  color: "#F8F6F2",
+                  marginBottom: "0.85rem",
+                  textShadow: "0 2px 24px rgba(0,0,0,0.35)",
+                }}
+              >
+                The Art of More
+              </span>
+              <span style={{ display: "block", color: "rgba(248,246,242,0.92)" }}>
+                A maximalist gallery where every detail is part of the whole.
+              </span>
+              <span style={{ display: "block", marginTop: "0.65rem", color: "rgba(244,241,232,0.86)" }}>
+                Inviting you to slow down, look closer, and take it all in.
+              </span>
             </motion.p>
 
             {/* Specimen meta — label card */}

@@ -79,6 +79,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${playfair.variable} ${garamond.variable} ${grotesk.variable} ${cormorant.variable} ${lora.variable} ${dmMono.variable} ${caveat.variable} ${fraunces.variable}`} suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://www.youtube.com" />
+        <link rel="preconnect" href="https://www.google.com" />
+        <link rel="preconnect" href="https://i.ytimg.com" />
+        <link rel="preload" as="image" href="https://i.ytimg.com/vi/rCMgcukgGEs/maxresdefault.jpg" />
+      </head>
       <body className="min-h-screen" style={{ position: "relative" }} suppressHydrationWarning>
         <RootChrome>{children}</RootChrome>
       </body>
