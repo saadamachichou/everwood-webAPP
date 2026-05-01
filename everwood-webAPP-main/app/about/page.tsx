@@ -1,12 +1,15 @@
 "use client";
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef, useState, useEffect, useMemo } from "react";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import TextSplit from "@/components/effects/TextSplit";
 import CountUp from "@/components/effects/CountUp";
 import Marquee from "@/components/effects/Marquee";
 import RevealOnScroll from "@/components/effects/RevealOnScroll";
+
+/** Full-page atmosphere — surreal wood interior (public/images/nav/about bacground.jpeg) */
+const ABOUT_PAGE_BG = "/images/nav/about%20bacground.jpeg";
 
 const storyPanels = [
   { year: "1923 — Origin", num: "01 / 05", title: "A Merchant's Archive", body: "In the medina's quietest alley, a Fassi merchant named Idris al-Wazzani built a riad not for living but for keeping. Every room became a repository — Andalusian tilework on one wall, Saharan lock-boxes stacked to the cedar ceiling on another. He called it his memory palace." },
@@ -33,6 +36,25 @@ const recognition = [
   { pub: "Le Monde", tag: "Arts & Culture" },
   { pub: "Wallpaper*", tag: "Design" },
 ];
+
+function StoryPanelAccent({ index, panelProgress }: { index: number; panelProgress: MotionValue<number> }) {
+  const width = useTransform(panelProgress, [index - 0.5, index + 0.5], ["0px", "60px"]);
+  return (
+    <motion.div
+      className="absolute bottom-16 left-10 h-[1px] bg-[var(--color-gold)]"
+      style={{ width }}
+    />
+  );
+}
+
+function StoryPanelDot({ index, panelProgress }: { index: number; panelProgress: MotionValue<number> }) {
+  const backgroundColor = useTransform(panelProgress, [index - 0.4, index, index + 0.4], [
+    "var(--color-ash)",
+    "var(--color-gold)",
+    "var(--color-ash)",
+  ]);
+  return <motion.div className="w-1.5 h-1.5 rounded-full bg-[var(--color-ash)]" style={{ backgroundColor }} />;
+}
 
 function ManifestoWord({ scrollYProgress, word, index, total }: {
   scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
@@ -62,6 +84,7 @@ function ManifestoSection() {
       paddingTop: "6rem",
       paddingBottom: "6rem",
       textAlign: "center",
+      position: "relative",
     }}>
       <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-10">Philosophy</p>
       <div style={{ width: 28, height: 1, background: "rgba(201,169,110,0.3)", margin: "0 auto 2.5rem" }} />
@@ -76,12 +99,95 @@ function ManifestoSection() {
 
 export default function AboutPage() {
   const storyRef = useRef<HTMLDivElement>(null);
+
+  const [imgNatural, setImgNatural] = useState<{ w: number; h: number } | null>(null);
+  const [viewport, setViewport] = useState({ w: 1200, h: 800 });
+
+  useEffect(() => {
+    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Reliable dimensions (cached images sometimes skip onLoad on <img>)
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      if (img.naturalWidth > 0) {
+        setImgNatural({ w: img.naturalWidth, h: img.naturalHeight });
+      }
+    };
+    img.src = ABOUT_PAGE_BG;
+  }, []);
+
+  const renderedImgHeight = useMemo(() => {
+    if (!imgNatural?.w) return 0;
+    return (imgNatural.h / imgNatural.w) * viewport.w;
+  }, [imgNatural, viewport.w]);
+
+  /** Vertical pan range: full photo when taller than viewport; small drift for wide/short images */
+  const parallaxShift = useMemo(() => {
+    if (renderedImgHeight <= 0) return 0;
+    const travel = renderedImgHeight - viewport.h;
+    if (travel > 0) return travel;
+    return Math.min(160, viewport.h * 0.1);
+  }, [renderedImgHeight, viewport.h]);
+
+  // Same pattern as ScrollProgress — document scroll, not a ref target
+  const { scrollYProgress } = useScroll();
+  const bgTranslateY = useTransform(scrollYProgress, [0, 1], [0, -parallaxShift]);
+
   const { scrollYProgress: storyScroll } = useScroll({ target: storyRef, offset: ["start start", "end end"] });
   const trackX = useTransform(storyScroll, [0, 1], ["0%", `-${(storyPanels.length - 1) * 100}%`]);
   const panelProgress = useTransform(storyScroll, [0, 1], [0, storyPanels.length - 1]);
 
   return (
-    <div className="min-h-screen bg-[var(--color-void)]">
+    <div className="min-h-screen relative">
+      {/* Optional: still fires if preload above succeeded first */}
+      <img
+        src={ABOUT_PAGE_BG}
+        alt=""
+        width={1}
+        height={1}
+        className="pointer-events-none fixed left-0 top-0 h-px w-px opacity-0 overflow-hidden"
+        aria-hidden
+        loading="eager"
+        fetchPriority="low"
+        onLoad={(e) => {
+          const { naturalWidth, naturalHeight } = e.currentTarget;
+          if (naturalWidth > 0) setImgNatural({ w: naturalWidth, h: naturalHeight });
+        }}
+      />
+
+      {/* Clipped viewport: background pans vertically with document scroll */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[#0a0908]" />
+        <motion.div
+          key={`about-bg-${renderedImgHeight}-${viewport.w}`}
+          aria-hidden
+          className="absolute left-0 right-0 top-0 w-full will-change-transform"
+          style={{
+            height: renderedImgHeight > 0 ? renderedImgHeight : "100vh",
+            backgroundImage: `url(${ABOUT_PAGE_BG})`,
+            backgroundSize: "100% auto",
+            backgroundPosition: "center top",
+            backgroundRepeat: "no-repeat",
+            y: bgTranslateY,
+          }}
+        />
+      </div>
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background: [
+            "linear-gradient(180deg, rgba(12, 10, 8, 0.72) 0%, rgba(15, 12, 10, 0.55) 35%, rgba(10, 9, 12, 0.68) 70%, rgba(8, 8, 10, 0.78) 100%)",
+            "radial-gradient(ellipse 85% 60% at 50% 20%, rgba(201, 169, 110, 0.06), transparent 55%)",
+          ].join(", "),
+        }}
+      />
+      <div className="relative z-[1]">
       <Navigation />
 
       {/* ── HERO — centered in viewport, below fixed nav ─────────────────── */}
@@ -95,9 +201,9 @@ export default function AboutPage() {
         }}
       >
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 50%, rgba(201,169,110,0.09), transparent 70%)" }} />
-          <motion.div className="absolute inset-0" animate={{ opacity: [0.9, 1, 0.85, 0.95, 0.9] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            style={{ background: "radial-gradient(ellipse 30% 50% at 50% 55%, rgba(232,93,38,0.05), transparent 60%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 50% 50%, rgba(201,169,110,0.07), transparent 70%)" }} />
+          <motion.div className="absolute inset-0" animate={{ opacity: [0.85, 1, 0.8, 0.95, 0.85] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            style={{ background: "radial-gradient(ellipse 30% 50% at 50% 55%, rgba(232,93,38,0.04), transparent 60%)" }} />
         </div>
         <div className="relative z-[1] flex w-full max-w-5xl flex-col items-center">
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
@@ -128,8 +234,7 @@ export default function AboutPage() {
           paddingRight: "clamp(1.25rem, 5vw, 60px)",
           paddingTop: "clamp(1.5rem, 4vh, 2.5rem)",
           paddingBottom: "clamp(1.5rem, 4vh, 2.5rem)",
-          background:
-            "linear-gradient(180deg, var(--color-void) 0%, #06060f 28%, var(--color-obsidian) 58%, var(--color-obsidian) 100%)",
+          background: "linear-gradient(180deg, transparent 0%, rgba(8, 8, 12, 0.35) 50%, transparent 100%)",
         }}
       >
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-10 md:gap-14 lg:gap-16">
@@ -148,12 +253,12 @@ export default function AboutPage() {
             <p className="mb-8 text-center text-[0.7rem] tracking-[0.2em] text-[var(--color-gold)] md:mb-10">
               By the numbers
             </p>
-            <div className="mx-auto grid max-w-6xl grid-cols-2 gap-[1px] bg-white/5 lg:grid-cols-4">
+            <div className="mx-auto grid max-w-6xl grid-cols-2 gap-[1px] bg-white/10 lg:grid-cols-4 backdrop-blur-[2px]">
               {stats.map(({ target, label, suffix }, i) => (
                 <RevealOnScroll
                   key={i}
                   delay={i * 0.1}
-                  className="flex min-h-[140px] flex-col items-center justify-center gap-3 bg-[var(--color-obsidian)] p-6 text-center sm:min-h-[160px] sm:p-8 md:p-10"
+                  className="flex min-h-[140px] flex-col items-center justify-center gap-3 bg-[rgba(12,10,14,0.62)] p-6 text-center sm:min-h-[160px] sm:p-8 md:p-10"
                 >
                   <div className="font-[family-name:var(--font-playfair)] text-[clamp(2.25rem,3.8vw,3.75rem)] leading-none text-[var(--color-ivory)]">
                     <CountUp target={target} suffix={suffix} className="text-[var(--color-ivory)]" />
@@ -174,7 +279,7 @@ export default function AboutPage() {
           <motion.div className="flex h-full" style={{ x: trackX }}>
             {storyPanels.map((panel, i) => (
               <div key={i} className="w-screen h-full flex-shrink-0 relative flex items-center justify-center"
-                style={{ background: `hsl(${240 + i * 5}, 30%, ${5 + i * 1.5}%)` }}>
+                style={{ background: `linear-gradient(135deg, rgba(10,9,14,0.72) 0%, rgba(18,14,20,0.58) 50%, rgba(12,10,8,0.68) 100%)` }}>
                 <p className="absolute top-8 left-10 text-[0.65rem] tracking-[0.25em] uppercase text-[var(--color-ash)]">{panel.year}</p>
                 <div className="max-w-lg px-10">
                   <p className="text-[0.65rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-6">{panel.num}</p>
@@ -182,19 +287,14 @@ export default function AboutPage() {
                   <p className="font-[family-name:var(--font-garamond)] text-lg text-[var(--color-mist)] leading-relaxed">{panel.body}</p>
                 </div>
                 {/* Gold accent line */}
-                <motion.div
-                  className="absolute bottom-16 left-10 h-[1px] bg-[var(--color-gold)]"
-                  style={{ width: useTransform(panelProgress, [i - 0.5, i + 0.5], ["0px", "60px"]) }}
-                />
+                <StoryPanelAccent index={i} panelProgress={panelProgress} />
               </div>
             ))}
           </motion.div>
           {/* Dots */}
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
             {storyPanels.map((_, i) => (
-              <motion.div key={i} className="w-1.5 h-1.5 rounded-full bg-[var(--color-ash)]"
-                style={{ backgroundColor: useTransform(panelProgress, [i - 0.4, i, i + 0.4], ["var(--color-ash)", "var(--color-gold)", "var(--color-ash)"]) }}
-              />
+              <StoryPanelDot key={i} index={i} panelProgress={panelProgress} />
             ))}
           </div>
         </div>
@@ -204,7 +304,7 @@ export default function AboutPage() {
       <ManifestoSection />
 
       {/* ── RECOGNITION MARQUEE ──────────────────────── */}
-      <section className="py-20 border-t border-white/5">
+      <section className="py-20 border-t border-white/10" style={{ background: "linear-gradient(180deg, transparent, rgba(8,8,10,0.25))" }}>
         <p className="text-[0.7rem] tracking-[0.2em] uppercase text-[var(--color-gold)] mb-10" style={{ paddingLeft: "60px", paddingRight: "60px" }}>As featured in</p>
         <Marquee speed={50}>
           {recognition.map(({ pub, tag }, i) => (
@@ -218,7 +318,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── CLOSING CTA ──────────────────────────────── */}
-      <section className="py-32 text-center" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
+      <section className="py-32 text-center relative" style={{ paddingLeft: "60px", paddingRight: "60px" }}>
         <RevealOnScroll>
           <div className="w-[1px] h-16 bg-gradient-to-b from-[var(--color-gold)] to-transparent mx-auto mb-12" />
           <h2 className="font-[family-name:var(--font-playfair)] text-[clamp(2rem,4vw,3.5rem)] text-[var(--color-ivory)] mb-4">Come and see for yourself.</h2>
@@ -237,6 +337,7 @@ export default function AboutPage() {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 }

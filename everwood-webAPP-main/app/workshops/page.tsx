@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   motion, AnimatePresence,
   useScroll, useTransform, useSpring, useMotionValue, useInView,
@@ -15,6 +15,25 @@ import Footer from "@/components/layout/Footer";
 import { workshops, categoryConfig, type WorkshopCategory } from "@/lib/data/workshops";
 
 gsap.registerPlugin(ScrollTrigger);
+
+/** Artisan studio palette — calm, editorial, natural light */
+const A = {
+  teal: "#2F6F6A",
+  tealSoft: "#6A8F8B",
+  linen: "#CBB89D",
+  wood: "#8C6A4F",
+  ivory: "#F6F2EE",
+  paper: "#EDE8DF",
+  wash: "#E5DFD4",
+  ink: "#2A3D3A",
+  inkMuted: "rgba(42,61,58,0.68)",
+  edge: "rgba(140,106,79,0.2)",
+  deep: "rgba(42,61,58,0.06)",
+} as const;
+
+function isWorkshopCategory(c: string | null): c is WorkshopCategory {
+  return c === "nature-earth" || c === "light-wonder" || c === "imagination" || c === "making-craft";
+}
 
 // ── Module-scope constants (no SSR/client float mismatch) ──────────────────
 
@@ -33,8 +52,8 @@ const HERO_POLAROIDS = HERO_POLAROID_LAYOUT.map((layout) => {
   return { ...layout, workshop };
 });
 
-// Philosophy statement words
-const PHIL_WORDS = "Every material remembers the hands that shaped it.".split(" ");
+// Philosophy — soft drift between linen, teal, and wood (window light)
+const PHIL_WORDS = "Hands learn the material slowly; the room keeps the quiet.".split(" ");
 
 // Surrealism floating SVG objects (pre-computed positions)
 const SURREAL_OBJECTS = [
@@ -60,7 +79,7 @@ const PhilosophyWord = ({
   );
   const color = useTransform(lightPos,
     [Math.max(0, position - 0.2), position, Math.min(1, position + 0.12)],
-    ["#C4B8A4", "#F7F2E5", "#EDE8DA"]
+    ["#6A8F8B", "#2F6F6A", "#8C6A4F"]
   );
   return (
     <motion.span style={{ opacity, color, display: "inline" }}>
@@ -94,8 +113,8 @@ const StatCard = ({
       <motion.div style={{
         fontFamily: "var(--font-playfair)",
         fontSize: "clamp(2.4rem, 4vw, 3.8rem)",
-        fontWeight: 700,
-        color: "#F7F2E5",
+        fontWeight: 500,
+        color: A.ink,
         lineHeight: 1,
       }}>{display}</motion.div>
       <div style={{
@@ -110,7 +129,7 @@ const StatCard = ({
         fontFamily: "var(--font-lora)",
         fontStyle: "italic",
         fontSize: "0.78rem",
-        color: "#5A5040",
+        color: A.inkMuted,
         textAlign: "center",
         maxWidth: "18ch",
         lineHeight: 1.5,
@@ -120,12 +139,12 @@ const StatCard = ({
 };
 
 // Availability bar
-const AvailBar = ({ spots, total, accent }: { spots: number; total: number; accent: string }) => {
+const AvailBar = ({ spots, total }: { spots: number; total: number }) => {
   const pct = ((total - spots) / total) * 100;
-  const fillColor = pct < 50 ? "#4A6741" : pct < 75 ? "#D4820A" : "#C4501A";
+  const fillColor = pct < 50 ? A.tealSoft : pct < 75 ? A.linen : A.wood;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-      <div style={{ height: 3, background: "#322C1E", borderRadius: 2, overflow: "hidden", margin: 0 }}>
+      <div style={{ height: 3, background: `rgba(203,184,157,0.4)`, borderRadius: 2, overflow: "hidden", margin: 0 }}>
         <motion.div
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
@@ -134,7 +153,7 @@ const AvailBar = ({ spots, total, accent }: { spots: number; total: number; acce
           style={{ height: "100%", width: `${pct}%`, background: fillColor, transformOrigin: "left", borderRadius: 2 }}
         />
       </div>
-      <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", color: "#5A5040", letterSpacing: "0.1em" }}>
+      <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", color: A.inkMuted, letterSpacing: "0.1em" }}>
         {spots} / {total} spots
       </div>
     </div>
@@ -159,8 +178,8 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
         style={{
           display: "flex", alignItems: "center", gap: "1.5rem",
           padding: "1rem 1.25rem",
-          background: hovered ? "#252018" : "#1C1810",
-          borderBottom: "1px solid #322C1E",
+          background: hovered ? "rgba(47,111,106,0.06)" : A.ivory,
+          borderBottom: `1px solid ${A.edge}`,
           cursor: "pointer",
           transition: "background 150ms",
           position: "relative",
@@ -178,16 +197,16 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
           <img src={w.image} alt={w.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "1.1rem", color: "#F7F2E5", marginBottom: "0.2rem" }}>{w.title}</div>
-          <div style={{ fontFamily: "var(--font-lora)", fontSize: "0.78rem", color: "#5A5040", fontStyle: "italic" }}>{w.tagline}</div>
+          <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontSize: "1.1rem", color: A.ink, marginBottom: "0.2rem" }}>{w.title}</div>
+          <div style={{ fontFamily: "var(--font-lora)", fontSize: "0.78rem", color: A.inkMuted, fontStyle: "italic" }}>{w.tagline}</div>
         </div>
         <div style={{ display: "flex", gap: "1.5rem", flexShrink: 0, alignItems: "center" }}>
-          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", color: "#5A5040" }}>{w.duration}</span>
-          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", color: "#D4820A" }}>{w.nextDate}</span>
+          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", color: A.inkMuted }}>{w.duration}</span>
+          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", color: A.teal }}>{w.nextDate}</span>
           <div style={{ width: 80 }}>
-            <AvailBar spots={w.spotsLeft} total={w.totalSpots} accent={cfg.accent} />
+            <AvailBar spots={w.spotsLeft} total={w.totalSpots} />
           </div>
-          <span style={{ fontFamily: "var(--font-lora)", fontSize: "0.85rem", color: hovered ? cfg.accent : "#EDE8DA", transition: "color 150ms", whiteSpace: "nowrap" }}>
+          <span style={{ fontFamily: "var(--font-lora)", fontSize: "0.85rem", color: hovered ? cfg.accent : A.ink, transition: "color 150ms", whiteSpace: "nowrap" }}>
             {w.price} {w.currency}
           </span>
           <motion.button
@@ -216,8 +235,8 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
       style={{
-        background: "#1C1810",
-        border: "1px solid #322C1E",
+        background: A.ivory,
+        border: `1px solid ${A.edge}`,
         cursor: "pointer",
         overflow: "hidden",
         position: "relative",
@@ -238,15 +257,15 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
             alt={w.title}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
-          <div style={{ position: "absolute", inset: 0, background: "rgba(10,8,4,0.28)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "rgba(42,61,58,0.14)" }} />
         </motion.div>
         {w.isPopular && (
           <div style={{
             position: "absolute", top: "0.75rem", right: "0.75rem",
             fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem",
             letterSpacing: "0.24em", textTransform: "uppercase",
-            color: "#D4820A", border: "1px solid rgba(212,130,10,0.4)",
-            background: "rgba(212,130,10,0.08)", padding: "0.3rem 0.6rem",
+            color: A.teal, border: "1px solid rgba(47,111,106,0.35)",
+            background: "rgba(47,111,106,0.06)", padding: "0.3rem 0.6rem",
             margin: 0, borderRadius: 2,
           }}>◆ Most Popular</div>
         )}
@@ -278,26 +297,26 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.accent, flexShrink: 0 }} />
             <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.22em", textTransform: "uppercase", color: cfg.accent }}>{cfg.label}</span>
           </div>
-          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", color: "#5A5040" }}>{w.duration}</span>
+          <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", color: A.inkMuted }}>{w.duration}</span>
         </div>
-        <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "1.15rem", color: "#F7F2E5", marginBottom: "0.35rem", lineHeight: 1.2 }}>{w.title}</div>
-        <div style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.78rem", color: "#5A5040", lineHeight: 1.5, marginBottom: "0.9rem" }}>{w.tagline}</div>
+        <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "1.15rem", color: A.ink, marginBottom: "0.35rem", lineHeight: 1.2 }}>{w.title}</div>
+        <div style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.78rem", color: A.inkMuted, lineHeight: 1.5, marginBottom: "0.9rem" }}>{w.tagline}</div>
 
         <div style={{ display: "flex", gap: "1rem", marginBottom: "0.9rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-            <Clock size={10} style={{ color: "#5A5040" }} />
-            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem", color: "#5A5040" }}>{w.duration}</span>
+            <Clock size={10} style={{ color: A.tealSoft }} />
+            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem", color: A.inkMuted }}>{w.duration}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-            <Users size={10} style={{ color: "#5A5040" }} />
-            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem", color: "#5A5040" }}>{w.groupSize}</span>
+            <Users size={10} style={{ color: A.tealSoft }} />
+            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem", color: A.inkMuted }}>{w.groupSize}</span>
           </div>
         </div>
 
-        <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem", letterSpacing: "0.08em", color: "#D4820A", marginBottom: "0.5rem" }}>
+        <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem", letterSpacing: "0.08em", color: A.teal, marginBottom: "0.5rem" }}>
           Next: {w.nextDate}
         </div>
-        <AvailBar spots={w.spotsLeft} total={w.totalSpots} accent={cfg.accent} />
+        <AvailBar spots={w.spotsLeft} total={w.totalSpots} />
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
           <motion.button
@@ -310,8 +329,8 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
             }}
             whileHover={{ borderColor: cfg.accent, backgroundColor: `${cfg.accent}10` }}
           >Book</motion.button>
-          <span style={{ fontFamily: "var(--font-lora)", fontSize: "0.9rem", color: "#EDE8DA" }}>
-            {w.price} <span style={{ fontSize: "0.65rem", color: "#5A5040" }}>{w.currency}</span>
+          <span style={{ fontFamily: "var(--font-lora)", fontSize: "0.9rem", color: A.ink }}>
+            {w.price} <span style={{ fontSize: "0.65rem", color: A.inkMuted }}>{w.currency}</span>
           </span>
         </div>
       </div>
@@ -323,14 +342,14 @@ const WorkshopCard = ({ w, isListView }: { w: typeof workshops[0]; isListView: b
 const SurrealShape = ({ type, size }: { type: string; size: number }) => {
   const s = size;
   if (type === "eye") return (
-    <svg width={s} height={s * 0.55} viewBox="0 0 44 24" fill="none" stroke="#9B7AC4" strokeWidth="1.2" style={{ margin: 0 }}>
+    <svg width={s} height={s * 0.55} viewBox="0 0 44 24" fill="none" stroke="#6A8F8B" strokeWidth="1.2" style={{ margin: 0 }}>
       <path d="M2 12 C8 4 36 4 42 12 C36 20 8 20 2 12Z" />
       <circle cx="22" cy="12" r="5" />
-      <circle cx="22" cy="12" r="2" fill="#9B7AC4" />
+      <circle cx="22" cy="12" r="2" fill="#6A8F8B" />
     </svg>
   );
   if (type === "clock") return (
-    <svg width={s} height={s} viewBox="0 0 52 52" fill="none" stroke="#9B7AC4" strokeWidth="1.2" style={{ margin: 0 }}>
+    <svg width={s} height={s} viewBox="0 0 52 52" fill="none" stroke="#6A8F8B" strokeWidth="1.2" style={{ margin: 0 }}>
       <circle cx="26" cy="26" r="22" />
       <line x1="26" y1="26" x2="26" y2="10" strokeWidth="1.5" />
       <line x1="26" y1="26" x2="36" y2="30" />
@@ -339,7 +358,7 @@ const SurrealShape = ({ type, size }: { type: string; size: number }) => {
     </svg>
   );
   if (type === "feather") return (
-    <svg width={s * 0.5} height={s} viewBox="0 0 16 32" fill="none" stroke="#9B7AC4" strokeWidth="0.8" style={{ margin: 0 }}>
+    <svg width={s * 0.5} height={s} viewBox="0 0 16 32" fill="none" stroke="#6A8F8B" strokeWidth="0.8" style={{ margin: 0 }}>
       <path d="M8 30 Q8 0 8 0" />
       <path d="M8 8 Q2 6 1 12 Q4 10 8 12" />
       <path d="M8 14 Q14 12 15 18 Q12 16 8 18" />
@@ -347,7 +366,7 @@ const SurrealShape = ({ type, size }: { type: string; size: number }) => {
     </svg>
   );
   if (type === "cube") return (
-    <svg width={s} height={s} viewBox="0 0 40 40" fill="none" stroke="#9B7AC4" strokeWidth="0.8" style={{ margin: 0 }}>
+    <svg width={s} height={s} viewBox="0 0 40 40" fill="none" stroke="#6A8F8B" strokeWidth="0.8" style={{ margin: 0 }}>
       <rect x="8" y="8" width="22" height="22" />
       <rect x="12" y="4" width="22" height="22" />
       <line x1="8" y1="8" x2="12" y2="4" />
@@ -356,14 +375,14 @@ const SurrealShape = ({ type, size }: { type: string; size: number }) => {
     </svg>
   );
   if (type === "arch") return (
-    <svg width={s} height={s * 1.2} viewBox="0 0 36 44" fill="none" stroke="#9B7AC4" strokeWidth="0.8" style={{ margin: 0 }}>
+    <svg width={s} height={s * 1.2} viewBox="0 0 36 44" fill="none" stroke="#6A8F8B" strokeWidth="0.8" style={{ margin: 0 }}>
       <path d="M4 42 L4 20 Q4 4 18 4 Q32 4 32 20 L32 42" />
       <line x1="4" y1="42" x2="32" y2="42" />
     </svg>
   );
   // moon
   return (
-    <svg width={s} height={s} viewBox="0 0 60 60" fill="none" stroke="#9B7AC4" strokeWidth="0.8" style={{ margin: 0 }}>
+    <svg width={s} height={s} viewBox="0 0 60 60" fill="none" stroke="#6A8F8B" strokeWidth="0.8" style={{ margin: 0 }}>
       <path d="M30 8 Q50 8 50 30 Q50 52 30 52 Q40 44 40 30 Q40 16 30 8Z" />
     </svg>
   );
@@ -371,23 +390,30 @@ const SurrealShape = ({ type, size }: { type: string; size: number }) => {
 
 // ── Main page component ────────────────────────────────────────────────────
 function WorkshopsPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [filter, setFilter]     = useState<WorkshopCategory | "all">("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  useEffect(() => {
-    const c = searchParams.get("category");
-    if (c === "nature-earth" || c === "light-wonder" || c === "imagination" || c === "making-craft") {
-      setFilter(c);
-    }
-  }, [searchParams]);
+  const categoryFromUrl = searchParams.get("category");
+  const activeFilter: WorkshopCategory | "all" = isWorkshopCategory(categoryFromUrl)
+    ? categoryFromUrl
+    : "all";
+
+  const setCategoryFilter = (key: WorkshopCategory | "all") => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (key === "all") params.delete("category");
+    else params.set("category", key);
+    const q = params.toString();
+    router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+  };
 
   const chamberOuterRef = useRef<HTMLDivElement>(null);
   const chamberTrackRef = useRef<HTMLDivElement>(null);
   const philRef         = useRef<HTMLDivElement>(null);
   const closingRef      = useRef<HTMLDivElement>(null);
 
-  const filtered = filter === "all" ? workshops : workshops.filter(w => w.category === filter);
+  const filtered = activeFilter === "all" ? workshops : workshops.filter(w => w.category === activeFilter);
 
   // ── Philosophy candlelight ────────────────────────────────────────────────
   const { scrollYProgress: philP } = useScroll({ target: philRef, offset: ["start 75%", "end 25%"] });
@@ -423,8 +449,6 @@ function WorkshopsPageContent() {
     return () => { tween.scrollTrigger?.kill(); tween.kill(); };
   }, { scope: chamberOuterRef });
 
-  const otherCategories = (["light-wonder", "imagination", "making-craft"] as WorkshopCategory[]);
-
   return (
     <>
       <Navigation />
@@ -446,31 +470,31 @@ function WorkshopsPageContent() {
             height: "100dvh",
             minHeight: "100svh",
             overflow: "hidden",
-            background: "#131008", margin: 0, padding: 0,
+            background: "#1c2826", margin: 0, padding: 0,
           }}
         >
-          {/* Layer A — warm ground gradient */}
+          {/* Layer A — natural light well (muted teal depth) */}
           <div className="atelier-weave" style={{
             position: "absolute", inset: 0, margin: 0,
-            background: "radial-gradient(ellipse 140% 80% at 50% 20%, #1E1608 0%, #131008 45%, #0A0804 100%)",
+            background: "radial-gradient(ellipse 130% 85% at 50% 12%, rgba(246,242,238,0.14) 0%, #2a4542 32%, #1c2826 58%, #141d1c 100%)",
           }} />
 
-          {/* Layer C — warm grain texture */}
+          {/* Layer C — soft grain */}
           <div style={{
             position: "absolute", inset: 0, margin: 0,
             backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E\")",
-            opacity: 0.045,
+            opacity: 0.055,
           }} />
 
-          {/* Layer E — Skylight beam (parallax + rotation drift) */}
+          {/* Layer E — Skylight beam (ivory + teal, diffuse) */}
           <motion.div
             aria-hidden="true"
             style={{
               position: "absolute", inset: 0, margin: 0,
-              background: "radial-gradient(ellipse 50% 30% at 75% -5%, rgba(212,130,10,0.13) 0%, transparent 70%)",
+              background: "radial-gradient(ellipse 55% 38% at 72% -8%, rgba(246,242,238,0.2) 0%, rgba(106,143,139,0.12) 38%, transparent 72%)",
               y: skybeamY,
               rotate: smoothSkyRot,
-              transformOrigin: "75% 0%",
+              transformOrigin: "72% 0%",
             }}
           />
 
@@ -493,11 +517,11 @@ function WorkshopsPageContent() {
                 transition={{ delay: 0.4, duration: 0.5 }}
                 style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "clamp(0.65rem, 2vh, 1.25rem)" }}
               >
-                <div style={{ width: 28, height: 1, background: "#D4820A" }} />
+                <div style={{ width: 28, height: 1, background: A.tealSoft }} />
                 <span style={{
                   fontFamily: "var(--font-dm-mono)", fontSize: "0.58rem",
                   letterSpacing: "0.4em", textTransform: "uppercase",
-                  color: "#D4820A",
+                  color: A.linen,
                 }}>The Atelier · 20 Workshops</span>
               </motion.div>
 
@@ -527,7 +551,7 @@ function WorkshopsPageContent() {
                       fontSize: "clamp(1.85rem, min(4vw, 6.5dvh), 3.35rem)",
                       fontWeight: 400,
                       lineHeight: 1.05,
-                      color: "#F7F2E5",
+                      color: A.ivory,
                       display: "block",
                       margin: 0,
                       WebkitFontSmoothing: "antialiased",
@@ -543,7 +567,7 @@ function WorkshopsPageContent() {
                 transition={{ delay: 1.1, duration: 0.6 }}
                 style={{
                   fontFamily: "var(--font-lora)", fontSize: "clamp(0.85rem, min(1.35vw, 2.4dvh), 1.05rem)",
-                  color: "rgba(237,232,218,0.65)", lineHeight: 1.65,
+                  color: "rgba(246,242,238,0.78)", lineHeight: 1.65,
                   maxWidth: "44ch", marginTop: "clamp(0.85rem, 2.5vh, 1.5rem)", marginBottom: "clamp(1rem, 3vh, 1.75rem)",
                 }}
               >
@@ -564,12 +588,12 @@ function WorkshopsPageContent() {
                     fontFamily: "var(--font-dm-mono)", fontSize: "0.7rem",
                     letterSpacing: "0.18em", textTransform: "uppercase",
                     padding: "1rem 2.2rem",
-                    background: "#E8960A", color: "#0A0700",
+                    background: A.teal, color: A.ivory,
                     textDecoration: "none", display: "inline-flex",
                     alignItems: "center", gap: "0.55rem",
                     fontWeight: 500,
                   }}
-                  whileHover={{ background: "#F5A820" }}
+                  whileHover={{ background: A.tealSoft }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Browse Workshops <ArrowRight size={14} />
@@ -580,12 +604,12 @@ function WorkshopsPageContent() {
                     fontFamily: "var(--font-dm-mono)", fontSize: "0.7rem",
                     letterSpacing: "0.18em", textTransform: "uppercase",
                     padding: "1rem 2.2rem",
-                    border: "1px solid rgba(212,130,10,0.75)",
-                    color: "#E8A840", textDecoration: "none",
+                    border: `1px solid rgba(47,111,106,0.45)`,
+                    color: A.linen, textDecoration: "none",
                     display: "inline-flex", alignItems: "center", gap: "0.55rem",
                     fontWeight: 500,
                   }}
-                  whileHover={{ borderColor: "#E8960A", color: "#F5C060", background: "rgba(212,130,10,0.08)" }}
+                  whileHover={{ borderColor: A.tealSoft, color: A.ivory, background: "rgba(47,111,106,0.12)" }}
                 >
                   Book a Private Event <ArrowRight size={14} />
                 </motion.a>
@@ -608,13 +632,13 @@ function WorkshopsPageContent() {
                   position: "absolute",
                   top: p.top, right: p.right,
                   width: 200, height: 260,
-                  border: "8px solid #F7F2E5",
+                  border: `8px solid ${A.ivory}`,
                   borderRadius: 2,
-                  boxShadow: "8px 16px 40px rgba(10,8,4,0.65)",
+                  boxShadow: "8px 18px 36px rgba(26,36,35,0.35)",
                   display: "flex",
                   flexDirection: "column",
                   overflow: "hidden",
-                  background: "#1a1510",
+                  background: A.paper,
                 }}
               >
                 <div style={{ position: "relative", flex: 1, minHeight: 0, width: "100%" }}>
@@ -636,7 +660,7 @@ function WorkshopsPageContent() {
                       position: "absolute",
                       inset: 0,
                       margin: 0,
-                      background: "linear-gradient(to top, rgba(10,8,4,0.35) 0%, transparent 45%)",
+                      background: "linear-gradient(to top, rgba(42,61,58,0.22) 0%, transparent 45%)",
                       pointerEvents: "none",
                     }}
                   />
@@ -645,13 +669,13 @@ function WorkshopsPageContent() {
                   style={{
                     flexShrink: 0,
                     padding: "0.35rem 0.45rem 0.5rem",
-                    background: "#F7F2E5",
+                    background: A.ivory,
                   }}
                 >
                   <span
                     style={{
                       fontFamily: "var(--font-caveat)", fontWeight: 700,
-                      fontSize: "0.88rem", color: "rgba(10,8,4,0.55)",
+                      fontSize: "0.88rem", color: A.inkMuted,
                       lineHeight: 1.15,
                       display: "block",
                     }}
@@ -672,17 +696,17 @@ function WorkshopsPageContent() {
               position: "absolute", bottom: 0, left: 0, right: 0,
               display: "flex", justifyContent: "space-between", alignItems: "center",
               padding: "1rem clamp(2rem,7vw,7rem)",
-              borderTop: "1px solid rgba(50,44,30,0.6)",
-              background: "rgba(19,16,8,0.7)", backdropFilter: "blur(12px)",
+              borderTop: `1px solid ${A.edge}`,
+              background: "rgba(28,40,38,0.72)", backdropFilter: "blur(14px)",
               margin: 0,
             }}
           >
             <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-              <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.28em", textTransform: "uppercase", color: "#D4820A" }}>
+              <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.28em", textTransform: "uppercase", color: A.linen }}>
                 Next Workshop
               </span>
-              <div style={{ width: 1, height: 12, background: "rgba(212,130,10,0.3)" }} />
-              <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", letterSpacing: "0.1em", color: "#EDE8DA" }}>
+              <div style={{ width: 1, height: 12, background: "rgba(106,143,139,0.35)" }} />
+              <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", letterSpacing: "0.1em", color: A.ivory }}>
                 Pottery · This Saturday · 4 spots left
               </span>
             </div>
@@ -691,10 +715,10 @@ function WorkshopsPageContent() {
               style={{
                 fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem",
                 letterSpacing: "0.18em", textTransform: "uppercase",
-                color: "#D4820A", textDecoration: "none",
+                color: A.linen, textDecoration: "none",
                 display: "flex", alignItems: "center", gap: "0.4rem",
               }}
-              whileHover={{ color: "#E8A030" }}
+              whileHover={{ color: A.ivory }}
             >Book Now <ArrowRight size={11} /></motion.a>
           </motion.div>
         </section>
@@ -710,12 +734,12 @@ function WorkshopsPageContent() {
           minHeight: "clamp(360px, 58vh, 640px)",
           display: "flex", flexDirection: "column",
           justifyContent: "flex-start", alignItems: "flex-start",
-          background: "#131008",
+          background: `linear-gradient(165deg, ${A.ivory} 0%, ${A.wash} 42%, ${A.paper} 100%)`,
           padding: "clamp(5rem, 16vh, 9rem) clamp(2rem, 7vw, 7rem) clamp(2.5rem, 8vh, 5rem)",
           position: "relative", margin: 0,
         }}
       >
-        <div className="atelier-weave" style={{ position: "absolute", inset: 0, margin: 0 }} />
+        <div className="atelier-weave" style={{ position: "absolute", inset: 0, margin: 0, opacity: 0.85, pointerEvents: "none" }} />
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -766,7 +790,7 @@ function WorkshopsPageContent() {
             style={{
               fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem",
               letterSpacing: "0.28em", textTransform: "uppercase",
-              color: "#D4820A", marginTop: "clamp(1.25rem, 4vh, 2rem)",
+              color: A.tealSoft, marginTop: "clamp(1.25rem, 4vh, 2rem)",
               textAlign: "left",
             }}
           >— The Atelier</motion.p>
@@ -779,18 +803,18 @@ function WorkshopsPageContent() {
       <section
         aria-label="Atelier by the numbers"
         style={{
-          background: "#252018", borderTop: "1px solid #322C1E", borderBottom: "1px solid #322C1E",
+          background: A.paper, borderTop: `1px solid ${A.edge}`, borderBottom: `1px solid ${A.edge}`,
           margin: 0,
         }}
       >
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", margin: 0 }}>
           {[
-            { value: 20,   label: "Workshops",      sub: "Something for every pair of hands.", accent: "#D4820A" },
-            { value: 4,    label: "Categories",     sub: "Nature · Light · Imagination · Craft", accent: "#4A6741" },
-            { value: 2,    label: "Average Session", sub: "Long enough to make something real.", accent: "#C4501A", isTime: true },
-            { value: 1200, label: "Makers Hosted",  sub: "And counting, always counting.", accent: "#6B4C8A" },
+            { value: 20,   label: "Workshops",      sub: "Something for every pair of hands.", accent: A.teal },
+            { value: 4,    label: "Categories",     sub: "Nature · Light · Imagination · Craft", accent: A.tealSoft },
+            { value: 2,    label: "Average Session", sub: "Long enough to make something real.", accent: A.wood, isTime: true },
+            { value: 1200, label: "Makers Hosted",  sub: "And counting, always counting.", accent: A.linen },
           ].map((s, i) => (
-            <div key={i} style={{ borderRight: i < 3 ? "1px solid #322C1E" : "none", margin: 0 }}>
+            <div key={i} style={{ borderRight: i < 3 ? `1px solid ${A.edge}` : "none", margin: 0 }}>
               <StatCard {...s} />
             </div>
           ))}
@@ -815,7 +839,7 @@ function WorkshopsPageContent() {
             <span style={{
               fontFamily: "var(--font-playfair)", fontWeight: 900,
               fontSize: "clamp(6rem,16vw,18rem)",
-              color: "rgba(74,103,65,0.05)",
+              color: "rgba(47,111,106,0.06)",
               userSelect: "none", letterSpacing: "-0.03em",
               whiteSpace: "nowrap",
             }}>NATURE &amp; EARTH</span>
@@ -823,8 +847,8 @@ function WorkshopsPageContent() {
 
           {/* category header */}
           <div style={{ position: "absolute", top: "3rem", left: "clamp(2rem,6vw,6rem)", zIndex: 10, display: "flex", alignItems: "center", gap: "1rem" }}>
-            <div style={{ width: 20, height: 1, background: "#4A6741" }} />
-            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(74,103,65,0.7)" }}>
+            <div style={{ width: 20, height: 1, background: A.tealSoft }} />
+            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(47,111,106,0.68)" }}>
               01 · Nature &amp; Earth · 6 Workshops
             </span>
           </div>
@@ -853,7 +877,7 @@ function WorkshopsPageContent() {
                 {/* gradient colour tint */}
                 <div style={{ position: "absolute", inset: 0, margin: 0, background: w.gradient, opacity: 0.45, mixBlendMode: "multiply" }} />
                 {/* bottom fade */}
-                <div style={{ position: "absolute", inset: 0, margin: 0, background: "linear-gradient(to top, rgba(10,8,4,0.82) 0%, transparent 55%)" }} />
+                <div style={{ position: "absolute", inset: 0, margin: 0, background: "linear-gradient(to top, rgba(30,42,40,0.78) 0%, transparent 55%)" }} />
 
                 {/* ghost number */}
                 <div style={{
@@ -882,8 +906,8 @@ function WorkshopsPageContent() {
                       display: "inline-flex", alignItems: "center", gap: "0.4rem",
                       fontFamily: "var(--font-dm-mono)", fontSize: "0.48rem",
                       letterSpacing: "0.22em", textTransform: "uppercase",
-                      color: "#D4820A", border: "1px solid rgba(212,130,10,0.4)",
-                      background: "rgba(212,130,10,0.08)", padding: "0.3rem 0.6rem",
+                      color: A.teal, border: "1px solid rgba(47,111,106,0.35)",
+                      background: "rgba(47,111,106,0.07)", padding: "0.3rem 0.6rem",
                       marginBottom: "0.75rem",
                     }}>◆ Most Popular</div>
                   )}
@@ -891,21 +915,21 @@ function WorkshopsPageContent() {
                   <h3 style={{
                     fontFamily: "var(--font-playfair)", fontStyle: "italic",
                     fontSize: "clamp(2.2rem,4.5vw,4.5rem)",
-                    fontWeight: 900, color: "#F7F2E5", lineHeight: 1.05, margin: 0, marginBottom: "0.6rem",
+                    fontWeight: 900, color: A.ivory, lineHeight: 1.05, margin: 0, marginBottom: "0.6rem",
                   }}>{w.title}</h3>
 
                   <p style={{
                     fontFamily: "var(--font-lora)", fontStyle: "italic",
                     fontSize: "clamp(0.82rem,1.2vw,1rem)",
-                    color: "rgba(237,232,218,0.55)", lineHeight: 1.7, margin: 0, marginBottom: "1.25rem",
+                    color: "rgba(246,242,238,0.62)", lineHeight: 1.7, margin: 0, marginBottom: "1.25rem",
                   }}>{w.description}</p>
 
                   <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem", alignItems: "center" }}>
                     <div style={{ width: 20, height: 1, background: "rgba(255,255,255,0.2)" }} />
-                    <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#D4820A" }}>
+                    <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.18em", textTransform: "uppercase", color: A.linen }}>
                       Next: {w.nextDate} · {w.spotsLeft} spots
                     </span>
-                    <span style={{ fontFamily: "var(--font-lora)", fontSize: "0.95rem", color: "#EDE8DA" }}>{w.price} MAD</span>
+                    <span style={{ fontFamily: "var(--font-lora)", fontSize: "0.95rem", color: A.ivory }}>{w.price} MAD</span>
                   </div>
 
                   <div style={{ display: "flex", gap: "0.75rem" }}>
@@ -914,7 +938,7 @@ function WorkshopsPageContent() {
                         fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem",
                         letterSpacing: "0.2em", textTransform: "uppercase",
                         padding: "0.75rem 1.5rem",
-                        background: w.accentColor, color: "#131008", cursor: "pointer",
+                        background: w.accentColor, color: A.ivory, cursor: "pointer",
                         border: "none",
                       }}
                       whileHover={{ opacity: 0.88 }} whileTap={{ scale: 0.97 }}
@@ -947,7 +971,7 @@ function WorkshopsPageContent() {
       {/* ════════════════════════════════════════════════════════════════════
           § 4 — LIGHT & WONDER
       ════════════════════════════════════════════════════════════════════ */}
-      <section aria-label="Light & Wonder workshops" style={{ background: "#0E0C08", margin: 0 }}>
+      <section aria-label="Light & Wonder workshops" style={{ background: "#1a2322", margin: 0 }}>
         {/* category header sweep */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -963,15 +987,15 @@ function WorkshopsPageContent() {
             style={{
               position: "absolute", top: "3.5rem", left: 0, right: 0,
               height: 2, margin: 0,
-              background: "linear-gradient(90deg, transparent 0%, #D4820A 30%, #F7F2E5 50%, #D4820A 70%, transparent 100%)",
+              background: `linear-gradient(90deg, transparent 0%, ${A.tealSoft}55 28%, ${A.ivory} 50%, ${A.tealSoft}55 72%, transparent 100%)`,
               transformOrigin: "left",
             }}
           />
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
-            <div style={{ width: 20, height: 1, background: "#D4820A" }} />
-            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(212,130,10,0.65)" }}>02 · Light &amp; Wonder · 5 Workshops</span>
+            <div style={{ width: 20, height: 1, background: A.tealSoft }} />
+            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(200,184,162,0.75)" }}>02 · Light &amp; Wonder · 5 Workshops</span>
           </div>
-          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(2rem,4vw,4rem)", color: "#D4820A", margin: 0 }}>Light &amp; Wonder</h2>
+          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(2rem,4vw,4rem)", color: A.linen, margin: 0 }}>Light &amp; Wonder</h2>
         </motion.div>
 
         {workshops.filter(w => w.category === "light-wonder").map((w, i) => (
@@ -996,16 +1020,16 @@ function WorkshopsPageContent() {
                 <div style={{ position: "absolute", top: "35%", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <div style={{
                     width: 14, height: 22,
-                    background: "linear-gradient(to top, #D4820A 0%, #F5C842 60%, rgba(255,252,240,0.9) 100%)",
+                    background: "linear-gradient(to top, #8C6A4F 0%, #CBB89D 55%, rgba(246,242,238,0.92) 100%)",
                     borderRadius: "50% 50% 20% 20% / 40% 40% 25% 25%",
                     animation: "atelier-flicker 2.5s ease-in-out infinite alternate",
-                    filter: "drop-shadow(0 0 8px rgba(212,130,10,0.9)) drop-shadow(0 0 16px rgba(212,130,10,0.5))",
+                    filter: "drop-shadow(0 0 10px rgba(203,184,157,0.55)) drop-shadow(0 0 20px rgba(106,143,139,0.35))",
                     transformOrigin: "50% 100%",
                   }} />
-                  <div style={{ width: 2, height: 60, background: "#2A1E10" }} />
+                  <div style={{ width: 2, height: 60, background: "rgba(42,35,32,0.85)" }} />
                   <div style={{
                     width: 50, height: 16,
-                    background: "radial-gradient(ellipse at 50% 20%, rgba(212,130,10,0.4) 0%, transparent 70%)",
+                    background: "radial-gradient(ellipse at 50% 20%, rgba(203,184,157,0.35) 0%, transparent 70%)",
                     marginTop: -4,
                   }} />
                 </div>
@@ -1017,7 +1041,7 @@ function WorkshopsPageContent() {
                   <motion.div
                     initial={{ textShadow: "none", opacity: 0 }}
                     whileInView={{
-                      textShadow: "0 0 8px rgba(184,240,102,0.7), 0 0 20px rgba(184,240,102,0.45), 0 0 45px rgba(184,240,102,0.22), 0 0 90px rgba(184,240,102,0.1)",
+                      textShadow: "0 0 12px rgba(186,218,208,0.55), 0 0 28px rgba(106,143,139,0.35), 0 0 52px rgba(47,111,106,0.18)",
                       opacity: 1,
                     }}
                     viewport={{ once: true }}
@@ -1025,7 +1049,7 @@ function WorkshopsPageContent() {
                     style={{
                       fontFamily: "var(--font-playfair)", fontStyle: "italic",
                       fontWeight: 900, fontSize: "clamp(2rem, 4vw, 4.5rem)",
-                      color: "#B8F066", lineHeight: 1.1, textAlign: "center",
+                      color: "#c5ddd4", lineHeight: 1.1, textAlign: "center",
                       padding: "0 2rem",
                     }}
                   >Glow<br />in the<br />Dark</motion.div>
@@ -1036,9 +1060,9 @@ function WorkshopsPageContent() {
               {w.id === "glass-painting" && (
                 <>
                   {[
-                    { x: "15%", y: "20%", color: "rgba(60,80,200,0.18)", size: 300, delay: 0 },
-                    { x: "70%", y: "65%", color: "rgba(212,130,10,0.16)", size: 240, delay: 0.2 },
-                    { x: "45%", y: "45%", color: "rgba(60,140,60,0.14)", size: 200, delay: 0.4 },
+                    { x: "15%", y: "20%", color: "rgba(47,111,106,0.16)", size: 300, delay: 0 },
+                    { x: "70%", y: "65%", color: "rgba(203,184,157,0.18)", size: 240, delay: 0.2 },
+                    { x: "45%", y: "45%", color: "rgba(106,143,139,0.14)", size: 200, delay: 0.4 },
                   ].map((bloom, bi) => (
                     <motion.div
                       key={bi}
@@ -1063,7 +1087,7 @@ function WorkshopsPageContent() {
               {/* Soap felting — material swatches */}
               {w.id === "soap-felting" && (
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, display: "flex", flexDirection: "column", gap: 0, margin: 0 }}>
-                  {[["#4A6741", 4], ["#D4820A", 6], ["#C4501A", 4], ["#6B4C8A", 3]].map(([color, h], si) => (
+                  {[["#2F6F6A", 4], ["#6A8F8B", 6], ["#8C6A4F", 4], ["#CBB89D", 3]].map(([color, h], si) => (
                     <motion.div
                       key={si}
                       initial={{ scaleX: 0 }}
@@ -1105,37 +1129,37 @@ function WorkshopsPageContent() {
                 fontFamily: "var(--font-playfair)", fontStyle: "italic",
                 fontWeight: 900,
                 fontSize: "clamp(2rem,4vw,4rem)",
-                color: w.id === "glow-dark" ? "#B8F066" : "#F7F2E5",
+                color: w.id === "glow-dark" ? "#c5ddd4" : A.ivory,
                 lineHeight: 1.05, margin: 0, marginBottom: "0.65rem",
               }}>{w.title}</h3>
 
               <p style={{
                 fontFamily: "var(--font-lora)", fontStyle: "italic",
-                fontSize: "1rem", color: "rgba(212,130,10,0.75)",
+                fontSize: "1rem", color: "rgba(200,184,162,0.88)",
                 lineHeight: 1.5, marginBottom: "1.5rem",
               }}>{w.tagline}</p>
 
               <p style={{
                 fontFamily: "var(--font-lora)",
-                fontSize: "0.88rem", color: "rgba(237,232,218,0.58)",
+                fontSize: "0.88rem", color: "rgba(246,242,238,0.58)",
                 lineHeight: 1.8, marginBottom: "1.75rem", maxWidth: "42ch",
               }}>{w.description}</p>
 
               {/* what you'll make */}
               <div style={{
-                borderLeft: "2px solid rgba(212,130,10,0.3)",
+                borderLeft: `2px solid ${A.edge}`,
                 paddingLeft: "1rem", marginBottom: "2rem",
               }}>
-                <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.48rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#D4820A", marginBottom: "0.4rem" }}>You&apos;ll Take Home</div>
-                <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.82rem", color: "rgba(237,232,218,0.6)", lineHeight: 1.6, margin: 0 }}>{w.whatYoullMake}</p>
+                <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.48rem", letterSpacing: "0.22em", textTransform: "uppercase", color: A.linen, marginBottom: "0.4rem" }}>You&apos;ll Take Home</div>
+                <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.82rem", color: "rgba(246,242,238,0.62)", lineHeight: 1.6, margin: 0 }}>{w.whatYoullMake}</p>
               </div>
 
               <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "1.5rem" }}>
-                <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.14em", color: "#5A5040" }}>{w.duration}</span>
-                <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#5A5040", display: "inline-block" }} />
-                <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.14em", color: "#5A5040" }}>{w.groupSize} people</span>
-                <span style={{ width: 3, height: 3, borderRadius: "50%", background: "#5A5040", display: "inline-block" }} />
-                <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.14em", color: "#D4820A" }}>Next: {w.nextDate}</span>
+                <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.14em", color: A.tealSoft }}>{w.duration}</span>
+                <span style={{ width: 3, height: 3, borderRadius: "50%", background: A.tealSoft, display: "inline-block" }} />
+                <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.14em", color: A.tealSoft }}>{w.groupSize} people</span>
+                <span style={{ width: 3, height: 3, borderRadius: "50%", background: A.tealSoft, display: "inline-block" }} />
+                <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem", letterSpacing: "0.14em", color: A.linen }}>Next: {w.nextDate}</span>
               </div>
 
               <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
@@ -1144,8 +1168,8 @@ function WorkshopsPageContent() {
                     fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem",
                     letterSpacing: "0.2em", textTransform: "uppercase",
                     padding: "0.75rem 1.5rem",
-                    background: w.id === "glow-dark" ? "#B8F066" : w.accentColor,
-                    color: "#131008", cursor: "pointer", border: "none",
+                    background: w.id === "glow-dark" ? A.tealSoft : w.accentColor,
+                    color: A.ivory, cursor: "pointer", border: "none",
                   }}
                   whileHover={{ opacity: 0.88 }} whileTap={{ scale: 0.97 }}
                 >Book · {w.price} MAD</motion.button>
@@ -1158,7 +1182,7 @@ function WorkshopsPageContent() {
       {/* ════════════════════════════════════════════════════════════════════
           § 5 — IMAGINATION & EXPRESSION
       ════════════════════════════════════════════════════════════════════ */}
-      <section aria-label="Imagination & Expression workshops" style={{ background: "#0E080C", margin: 0 }}>
+      <section aria-label="Imagination & Expression workshops" style={{ background: "#1e2524", margin: 0 }}>
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -1166,10 +1190,10 @@ function WorkshopsPageContent() {
           style={{ padding: "5rem clamp(2rem,6vw,7rem) 3rem" }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
-            <div style={{ width: 20, height: 1, background: "#6B4C8A" }} />
-            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(107,76,138,0.65)" }}>03 · Imagination &amp; Expression · 5 Workshops</span>
+            <div style={{ width: 20, height: 1, background: A.tealSoft }} />
+            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(106,143,139,0.75)" }}>03 · Imagination &amp; Expression · 5 Workshops</span>
           </div>
-          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(2rem,4vw,4rem)", color: "#6B4C8A", margin: 0 }}>Imagination &amp; Expression</h2>
+          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(2rem,4vw,4rem)", color: A.linen, margin: 0 }}>Imagination &amp; Expression</h2>
         </motion.div>
 
         {workshops.filter(w => w.category === "imagination").map((w, i) => {
@@ -1194,7 +1218,7 @@ function WorkshopsPageContent() {
               {/* real photo background */}
               <img src={w.image} alt={w.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", pointerEvents: "none" }} />
               <div style={{ position: "absolute", inset: 0, background: w.gradient, opacity: 0.72, mixBlendMode: "multiply", pointerEvents: "none" }} />
-              <div style={{ position: "absolute", inset: 0, background: "rgba(10,8,4,0.45)", pointerEvents: "none" }} />
+              <div style={{ position: "absolute", inset: 0, background: "rgba(30,38,36,0.42)", pointerEvents: "none" }} />
               {/* Surrealism: floating SVG objects */}
               {isSurrealism && SURREAL_OBJECTS.map((obj, oi) => (
                 <motion.div
@@ -1221,7 +1245,7 @@ function WorkshopsPageContent() {
               ))}
 
               <div style={{ maxWidth: "min(620px, 55vw)", position: "relative", zIndex: 2 }}>
-                <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.28em", textTransform: "uppercase", color: "rgba(107,76,138,0.65)", marginBottom: "1.25rem" }}>
+                <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.28em", textTransform: "uppercase", color: "rgba(106,143,139,0.75)", marginBottom: "1.25rem" }}>
                   {String(i + 1).padStart(2, "0")} / 05
                 </div>
 
@@ -1235,7 +1259,7 @@ function WorkshopsPageContent() {
                           key={ci}
                           style={{
                             display: "inline-block",
-                            color: "#F7F2E5",
+                            color: A.ivory,
                             rotate: `${rots[ci % rots.length]}deg`,
                           }}
                           whileHover={{ rotate: "0deg" }}
@@ -1248,20 +1272,20 @@ function WorkshopsPageContent() {
                   <h3 style={{
                     fontFamily: "var(--font-playfair)", fontStyle: "italic",
                     fontWeight: 900, fontSize: "clamp(2.2rem,4.5vw,4.5rem)",
-                    color: "#F7F2E5", lineHeight: 1.05, margin: 0, marginBottom: "0.75rem",
+                            color: A.ivory, lineHeight: 1.05, margin: 0, marginBottom: "0.75rem",
                   }}>{w.title}</h3>
                 )}
 
-                <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "1rem", color: "rgba(107,76,138,0.8)", lineHeight: 1.5, marginBottom: "1.5rem" }}>{w.tagline}</p>
-                <p style={{ fontFamily: "var(--font-lora)", fontSize: "0.88rem", color: "rgba(237,232,218,0.55)", lineHeight: 1.82, marginBottom: "1.75rem", maxWidth: "48ch" }}>{w.description}</p>
+                <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "1rem", color: "rgba(203,184,157,0.9)", lineHeight: 1.5, marginBottom: "1.5rem" }}>{w.tagline}</p>
+                <p style={{ fontFamily: "var(--font-lora)", fontSize: "0.88rem", color: "rgba(246,242,238,0.55)", lineHeight: 1.82, marginBottom: "1.75rem", maxWidth: "48ch" }}>{w.description}</p>
 
                 {/* Emotional expression: reassurance card */}
                 {isEmotional && (
                   <div style={{
-                    borderLeft: "2px solid #D4820A",
+                    borderLeft: `2px solid ${A.tealSoft}`,
                     paddingLeft: "1.25rem", marginBottom: "1.75rem",
                   }}>
-                    <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.9rem", color: "#EDE8DA", lineHeight: 1.7, margin: 0 }}>
+                    <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.9rem", color: A.ivory, lineHeight: 1.7, margin: 0 }}>
                       ◆ No experience needed. No judgment. No wrong answer.<br />
                       Just you, paint, and permission to feel.
                     </p>
@@ -1274,7 +1298,7 @@ function WorkshopsPageContent() {
                       fontFamily: "var(--font-dm-mono)", fontSize: "0.55rem",
                       letterSpacing: "0.2em", textTransform: "uppercase",
                       padding: "0.75rem 1.5rem",
-                      background: "#6B4C8A", color: "#F7F2E5",
+                      background: A.teal, color: A.ivory,
                       cursor: "pointer", border: "none",
                     }}
                     whileHover={{ opacity: 0.88 }} whileTap={{ scale: 0.97 }}
@@ -1289,7 +1313,7 @@ function WorkshopsPageContent() {
       {/* ════════════════════════════════════════════════════════════════════
           § 6 — MAKING & CRAFT (bento grid)
       ════════════════════════════════════════════════════════════════════ */}
-      <section aria-label="Making & Craft workshops" style={{ background: "#0A0806", margin: 0 }}>
+      <section aria-label="Making & Craft workshops" style={{ background: "#1c2221", margin: 0 }}>
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -1297,10 +1321,10 @@ function WorkshopsPageContent() {
           style={{ padding: "5rem clamp(2rem,6vw,7rem) 3rem" }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.75rem" }}>
-            <div style={{ width: 20, height: 1, background: "#C4501A" }} />
-            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(196,80,26,0.65)" }}>04 · Making &amp; Craft · 5 Workshops</span>
+            <div style={{ width: 20, height: 1, background: A.wood }} />
+            <span style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "rgba(140,106,79,0.72)" }}>04 · Making &amp; Craft · 5 Workshops</span>
           </div>
-          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(2rem,4vw,4rem)", color: "#C4501A", margin: 0 }}>Making &amp; Craft</h2>
+          <h2 style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(2rem,4vw,4rem)", color: A.linen, margin: 0 }}>Making &amp; Craft</h2>
         </motion.div>
 
         <div style={{
@@ -1360,7 +1384,7 @@ function WorkshopsPageContent() {
                   initial={{ opacity: 0 }}
                   style={{
                     position: "absolute", inset: 0, margin: 0,
-                    background: "linear-gradient(to top, rgba(10,8,4,0.88) 0%, rgba(10,8,4,0.4) 55%, rgba(10,8,4,0.15) 100%)",
+                    background: "linear-gradient(to top, rgba(32,42,40,0.82) 0%, rgba(32,42,40,0.38) 55%, rgba(32,42,40,0.12) 100%)",
                   }}
                 />
 
@@ -1374,19 +1398,19 @@ function WorkshopsPageContent() {
                     padding: "1.5rem", margin: 0,
                   }}
                 >
-                  <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.48rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#C4501A", marginBottom: "0.4rem" }}>
+                  <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.48rem", letterSpacing: "0.22em", textTransform: "uppercase", color: A.linen, marginBottom: "0.4rem" }}>
                     {w.duration} · {w.groupSize} people
                   </div>
                   {isMiniWorld ? (
-                    <div style={{ fontFamily: "var(--font-caveat)", fontWeight: 700, fontSize: "1.6rem", color: "#F7F2E5", lineHeight: 1.1, marginBottom: "0.35rem" }}>
+                    <div style={{ fontFamily: "var(--font-caveat)", fontWeight: 700, fontSize: "1.6rem", color: A.ivory, lineHeight: 1.1, marginBottom: "0.35rem" }}>
                       {w.title}
                     </div>
                   ) : (
-                    <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(1.1rem,2vw,1.6rem)", color: "#F7F2E5", lineHeight: 1.1, marginBottom: "0.35rem" }}>
+                    <div style={{ fontFamily: "var(--font-playfair)", fontStyle: "italic", fontWeight: 700, fontSize: "clamp(1.1rem,2vw,1.6rem)", color: A.ivory, lineHeight: 1.1, marginBottom: "0.35rem" }}>
                       {w.title}
                     </div>
                   )}
-                  <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.78rem", color: "rgba(237,232,218,0.55)", lineHeight: 1.5, marginBottom: "1rem", maxWidth: "28ch" }}>{w.tagline}</p>
+                  <p style={{ fontFamily: "var(--font-lora)", fontStyle: "italic", fontSize: "0.78rem", color: "rgba(246,242,238,0.55)", lineHeight: 1.5, marginBottom: "1rem", maxWidth: "28ch" }}>{w.tagline}</p>
                   <motion.button
                     variants={{ hovered: { scale: 1, opacity: 1 } }}
                     initial={{ scale: 0.85, opacity: 0 }}
@@ -1395,7 +1419,7 @@ function WorkshopsPageContent() {
                       fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem",
                       letterSpacing: "0.18em", textTransform: "uppercase",
                       padding: "0.55rem 1.1rem",
-                      background: "#C4501A", color: "#F7F2E5",
+                      background: A.wood, color: A.ivory,
                       cursor: "pointer", border: "none",
                     }}
                   >Book · {w.price} MAD</motion.button>
@@ -1408,12 +1432,12 @@ function WorkshopsPageContent() {
                     position: "absolute", bottom: "1.25rem", left: "1.25rem",
                     fontFamily: "var(--font-dm-mono)", fontSize: "0.5rem",
                     letterSpacing: "0.2em", textTransform: "uppercase",
-                    color: "rgba(196,80,26,0.6)",
+                    color: "rgba(140,106,79,0.65)",
                   }}
                 >{isMiniWorld ? "Most Intimate" : ""}</motion.div>
 
                 {/* accent line top */}
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(to right, #C4501A55, transparent)`, margin: 0 }} />
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(to right, ${A.wood}55, transparent)`, margin: 0 }} />
               </motion.div>
             );
           })}
@@ -1426,13 +1450,16 @@ function WorkshopsPageContent() {
       <section
         id="workshops"
         aria-label="All 20 workshops"
-        style={{ background: "#131008", margin: 0, paddingBottom: "6rem" }}
+        style={{
+          background: `linear-gradient(180deg, ${A.wash} 0%, ${A.paper} 40%, ${A.ivory} 100%)`,
+          margin: 0, paddingBottom: "6rem",
+        }}
       >
         {/* Sticky filter bar */}
         <div style={{
           position: "sticky", top: 0, zIndex: 100, margin: 0,
-          background: "rgba(19,16,8,0.88)", backdropFilter: "blur(20px) saturate(1.3)",
-          borderBottom: "1px solid #322C1E",
+          background: "rgba(246,242,238,0.94)", backdropFilter: "blur(18px) saturate(1.2)",
+          borderBottom: `1px solid ${A.edge}`,
         }}>
           <div style={{
             display: "flex", alignItems: "center", gap: "0.25rem",
@@ -1446,23 +1473,24 @@ function WorkshopsPageContent() {
                 label: `${v.label} (${workshops.filter(w => w.category === k).length})`,
               })),
             ].map(({ key, label }) => {
-              const active = filter === key;
-              const accent = key === "all" ? "#D4820A" : categoryConfig[key as WorkshopCategory]?.accent ?? "#D4820A";
+              const active = activeFilter === key;
+              const accent = key === "all" ? A.teal : categoryConfig[key as WorkshopCategory]?.accent ?? A.teal;
               return (
                 <motion.button
                   key={key}
-                  onClick={() => setFilter(key as WorkshopCategory | "all")}
+                  onClick={() => setCategoryFilter(key as WorkshopCategory | "all")}
                   style={{
                     fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem",
                     letterSpacing: "0.16em", textTransform: "uppercase",
                     padding: "0.45rem 0.85rem",
                     background: active ? `${accent}18` : "transparent",
                     border: active ? `1px solid ${accent}66` : "1px solid transparent",
-                    color: active ? accent : "#5A5040",
+                    color: active ? accent : A.ink,
+                    opacity: active ? 1 : 0.72,
                     cursor: "pointer",
                     transition: "all 180ms",
                   }}
-                  whileHover={{ color: "#EDE8DA", borderColor: "#5A5040" }}
+                  whileHover={{ color: A.teal, borderColor: A.edge, opacity: 1 }}
                 >{label}</motion.button>
               );
             })}
@@ -1474,9 +1502,10 @@ function WorkshopsPageContent() {
                   onClick={() => setViewMode(m)}
                   style={{
                     padding: "0.45rem",
-                    background: viewMode === m ? "rgba(212,130,10,0.12)" : "transparent",
+                    background: viewMode === m ? "rgba(47,111,106,0.1)" : "transparent",
                     border: "1px solid transparent",
-                    color: viewMode === m ? "#D4820A" : "#5A5040",
+                    color: viewMode === m ? A.teal : A.ink,
+                    opacity: viewMode === m ? 1 : 0.65,
                     cursor: "pointer",
                   }}
                 >{m === "grid" ? <LayoutGrid size={14} /> : <AlignJustify size={14} />}</motion.button>
@@ -1488,8 +1517,8 @@ function WorkshopsPageContent() {
         <div style={{ padding: "3rem clamp(1.5rem,5vw,5rem) 0" }}>
           {/* section header */}
           <div style={{ marginBottom: "2.5rem" }}>
-            <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(1.8rem,3.5vw,3rem)", fontWeight: 400, color: "#F7F2E5", margin: 0 }}>
-              {filter === "all" ? "All Workshops" : categoryConfig[filter as WorkshopCategory]?.label}
+            <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(1.8rem,3.5vw,3rem)", fontWeight: 400, color: A.ink, margin: 0 }}>
+              {activeFilter === "all" ? "All Workshops" : categoryConfig[activeFilter]?.label}
             </h2>
           </div>
 
@@ -1499,10 +1528,10 @@ function WorkshopsPageContent() {
                 key="grid"
                 layout
                 style={{
-                  border: "1px solid #322C1E",
+                  border: `1px solid ${A.edge}`,
                   borderRadius: 6,
                   overflow: "hidden",
-                  background: "#131008",
+                  background: A.paper,
                   margin: 0,
                 }}
               >
@@ -1511,19 +1540,19 @@ function WorkshopsPageContent() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
                     gap: 1,
-                    background: "#252018",
+                    background: `linear-gradient(180deg, ${A.deep}, ${A.deep})`,
                     margin: 0,
                   }}
                 >
                   {filtered.map(w => (
-                    <div key={w.id} style={{ background: "#131008", minWidth: 0 }}>
+                    <div key={w.id} style={{ background: A.ivory, minWidth: 0 }}>
                       <WorkshopCard w={w} isListView={false} />
                     </div>
                   ))}
                 </div>
               </motion.div>
             ) : (
-              <motion.div key="list" style={{ borderTop: "1px solid #322C1E", margin: 0 }}>
+              <motion.div key="list" style={{ borderTop: `1px solid ${A.edge}`, margin: 0 }}>
                 {filtered.map(w => (
                   <WorkshopCard key={w.id} w={w} isListView={true} />
                 ))}
@@ -1541,13 +1570,13 @@ function WorkshopsPageContent() {
         aria-label="Private events"
         style={{
           minHeight: "85vh", position: "relative", overflow: "hidden",
-          background: "radial-gradient(ellipse at 50% 80%, #2A1E08 0%, #131008 55%, #0A0804 100%)",
+          background: "radial-gradient(ellipse at 50% 85%, #2a3d38 0%, #1c2826 55%, #141c1b 100%)",
           display: "flex", alignItems: "flex-end",
           padding: "0 0 5rem", margin: 0,
         }}
       >
-        <div className="atelier-weave" style={{ position: "absolute", inset: 0, margin: 0 }} />
-        <div style={{ position: "absolute", inset: 0, margin: 0, background: "radial-gradient(ellipse at 50% 100%, rgba(212,130,10,0.08) 0%, transparent 60%)" }} />
+        <div className="atelier-weave" style={{ position: "absolute", inset: 0, margin: 0, opacity: 0.5 }} />
+        <div style={{ position: "absolute", inset: 0, margin: 0, background: "radial-gradient(ellipse at 50% 100%, rgba(246,242,238,0.1) 0%, transparent 55%)" }} />
 
         {/* floating capacity pills */}
         {[["Min 8 people", "22%", "40%"], ["Full day options", "50%", "30%"], ["Custom workshop mix", "72%", "45%"]].map(([label, l, t]) => (
@@ -1561,9 +1590,9 @@ function WorkshopsPageContent() {
               position: "absolute", left: l, top: t,
               fontFamily: "var(--font-dm-mono)", fontSize: "0.52rem",
               letterSpacing: "0.14em", textTransform: "uppercase",
-              color: "#D4820A",
-              border: "1px solid rgba(212,130,10,0.3)",
-              background: "#252018",
+              color: A.linen,
+              border: `1px solid ${A.edge}`,
+              background: "rgba(28,40,38,0.55)",
               padding: "0.4rem 0.8rem",
               margin: 0,
             }}
@@ -1577,13 +1606,13 @@ function WorkshopsPageContent() {
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", letterSpacing: "0.4em", textTransform: "uppercase", color: "#D4820A", marginBottom: "1.25rem" }}>
+            <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem", letterSpacing: "0.4em", textTransform: "uppercase", color: A.tealSoft, marginBottom: "1.25rem" }}>
               Private Workshops &amp; Events
             </div>
-            <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 400, fontSize: "clamp(2.4rem,5vw,5rem)", color: "#F7F2E5", lineHeight: 1.1, marginBottom: "1.25rem" }}>
+            <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 400, fontSize: "clamp(2.4rem,5vw,5rem)", color: A.ivory, lineHeight: 1.1, marginBottom: "1.25rem" }}>
               The entire atelier,<br />yours for a day.
             </h2>
-            <p style={{ fontFamily: "var(--font-lora)", fontSize: "1.05rem", color: "rgba(237,232,218,0.65)", lineHeight: 1.75, marginBottom: "2.5rem", maxWidth: "52ch" }}>
+            <p style={{ fontFamily: "var(--font-lora)", fontSize: "1.05rem", color: "rgba(246,242,238,0.72)", lineHeight: 1.75, marginBottom: "2.5rem", maxWidth: "52ch" }}>
               Corporate team-building. Birthday celebrations. Bachelorette parties. Family days. School groups. We set it up. You make memories.
             </p>
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
@@ -1592,11 +1621,11 @@ function WorkshopsPageContent() {
                   fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem",
                   letterSpacing: "0.18em", textTransform: "uppercase",
                   padding: "0.9rem 1.75rem",
-                  border: "1px solid rgba(212,130,10,0.45)",
-                  background: "transparent", color: "#D4820A", cursor: "pointer",
+                  border: `1px solid rgba(106,143,139,0.45)`,
+                  background: "transparent", color: A.linen, cursor: "pointer",
                   display: "flex", alignItems: "center", gap: "0.5rem",
                 }}
-                whileHover={{ borderColor: "#D4820A", background: "rgba(212,130,10,0.06)" }}
+                whileHover={{ borderColor: A.tealSoft, background: "rgba(47,111,106,0.08)" }}
               >Enquire About Private Booking <ArrowRight size={13} /></motion.button>
             </div>
           </motion.div>
@@ -1610,7 +1639,7 @@ function WorkshopsPageContent() {
         ref={closingRef}
         aria-label="Closing"
         style={{
-          minHeight: "70vh", background: "#131008",
+          minHeight: "70vh", background: "#1c2826",
           display: "flex", alignItems: "center",
           padding: "5rem clamp(2rem,7vw,8rem)",
           margin: 0, gap: "5vw",
@@ -1624,13 +1653,13 @@ function WorkshopsPageContent() {
           transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           style={{
             flex: "0 0 min(50%, 480px)", aspectRatio: "3/4",
-            background: "radial-gradient(ellipse at 50% 40%, #3a1a0a 0%, #1e0e05 55%, #0a0604 100%)",
+            background: "radial-gradient(ellipse at 50% 40%, #3d5c56 0%, #243330 55%, #161d1c 100%)",
             overflow: "hidden",
           }}
         >
           <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontFamily: "var(--font-caveat)", fontWeight: 700, fontSize: "1.2rem", color: "rgba(212,130,10,0.35)", textAlign: "center" }}>
-              a finished piece<br />in someone's hands
+            <span style={{ fontFamily: "var(--font-caveat)", fontWeight: 700, fontSize: "1.2rem", color: "rgba(203,184,157,0.45)", textAlign: "center" }}>
+              a finished piece<br />in someone&apos;s hands
             </span>
           </div>
         </motion.div>
@@ -1643,13 +1672,13 @@ function WorkshopsPageContent() {
           transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           style={{ flex: 1 }}
         >
-          <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.65rem", letterSpacing: "0.4em", textTransform: "uppercase", color: "#D4820A", marginBottom: "1.75rem" }}>
+          <div style={{ fontFamily: "var(--font-dm-mono)", fontSize: "0.65rem", letterSpacing: "0.4em", textTransform: "uppercase", color: A.tealSoft, marginBottom: "1.75rem" }}>
             BEGIN
           </div>
-          <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 400, fontSize: "clamp(2.2rem,4.5vw,4.2rem)", color: "#F7F2E5", lineHeight: 1.15, marginBottom: "1.25rem" }}>
+          <h2 style={{ fontFamily: "var(--font-playfair)", fontWeight: 400, fontSize: "clamp(2.2rem,4.5vw,4.2rem)", color: A.ivory, lineHeight: 1.15, marginBottom: "1.25rem" }}>
             Your hands have<br />been waiting.
           </h2>
-          <p style={{ fontFamily: "var(--font-lora)", fontSize: "1rem", color: "rgba(237,232,218,0.6)", lineHeight: 1.75, marginBottom: "2.5rem", maxWidth: "38ch" }}>
+          <p style={{ fontFamily: "var(--font-lora)", fontSize: "1rem", color: "rgba(246,242,238,0.62)", lineHeight: 1.75, marginBottom: "2.5rem", maxWidth: "38ch" }}>
             Pick a workshop. Book a session.<br />Come make something real.
           </p>
           <motion.a
@@ -1658,12 +1687,12 @@ function WorkshopsPageContent() {
               fontFamily: "var(--font-dm-mono)", fontSize: "0.6rem",
               letterSpacing: "0.2em", textTransform: "uppercase",
               padding: "0.9rem 1.75rem",
-              border: "1px solid rgba(212,130,10,0.35)",
-              background: "transparent", color: "#D4820A",
+              border: `1px solid rgba(106,143,139,0.4)`,
+              background: "transparent", color: A.linen,
               textDecoration: "none",
               display: "inline-flex", alignItems: "center", gap: "0.5rem",
             }}
-            whileHover={{ borderColor: "#D4820A", background: "rgba(212,130,10,0.06)" }}
+            whileHover={{ borderColor: A.tealSoft, background: "rgba(47,111,106,0.08)" }}
           >
             <svg width="12" height="12" viewBox="0 0 12 12" style={{ margin: 0 }}>
               <path d="M6 1L6 11M2 7L6 11L10 7" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" />
@@ -1680,7 +1709,7 @@ function WorkshopsPageContent() {
 
 export default function WorkshopsPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0a0a0f" }} aria-hidden />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: A.wash }} aria-hidden />}>
       <WorkshopsPageContent />
     </Suspense>
   );
