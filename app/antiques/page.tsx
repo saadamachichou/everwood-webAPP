@@ -208,38 +208,6 @@ export default function AntiquesPage() {
                 </svg>
               </motion.div>
 
-              {/* Eyebrow */}
-              <motion.p
-                initial={{ opacity: 0, letterSpacing: "0.55em" }}
-                animate={{ opacity: 1, letterSpacing: "0.28em" }}
-                transition={{ duration: 1.1, delay: 0.9 }}
-                style={{
-                  fontFamily: "var(--font-grotesk)",
-                  fontSize: "0.56rem",
-                  textTransform: "uppercase",
-                  color: "rgba(201,169,110,0.45)",
-                }}
-              >
-                The Curiosity Cabinet
-              </motion.p>
-
-              {/* Title */}
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.15, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  fontFamily: "var(--font-cormorant)",
-                  fontStyle: "italic",
-                  fontSize: "clamp(1.8rem, 2.8vw, 2.4rem)",
-                  color: "#F4F1E8",
-                  lineHeight: 1.28,
-                  maxWidth: "26ch",
-                }}
-              >
-                Objects that outlived empires
-              </motion.p>
-
               {/* Thin divider */}
               <motion.div
                 initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
@@ -285,7 +253,7 @@ export default function AntiquesPage() {
           HERO  —  full-viewport, gallery-style centered text block
       ══════════════════════════════════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden bg-[#050302]"
+        className="relative overflow-x-hidden overflow-y-visible bg-[#050302]"
         style={{
           position: "relative",
           minHeight: "100svh",
@@ -328,17 +296,28 @@ export default function AntiquesPage() {
           <GoldenCompass />
         </div>
 
-        {/* ── Text block — absolute centered, gallery pattern ── */}
+        {/* ── Text block — in document flow; page scrolls (nested overflow was unreliable) ── */}
         <motion.div
           style={{
-            position: "absolute", inset: 0, margin: 0,
-            display: "flex", flexDirection: "column",
-            justifyContent: "center",
-            paddingTop: "172px",
-            paddingLeft: "clamp(2rem, 7vw, 7rem)",
-            paddingRight: "clamp(2rem, 7vw, 7rem)",
-            y: heroY, opacity: heroOpacity,
+            position: "relative",
             zIndex: 20,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "stretch",
+            width: "100%",
+            boxSizing: "border-box",
+            minHeight: "100svh",
+            paddingTop:
+              "calc(env(safe-area-inset-top, 0px) + clamp(10.75rem, 9rem + 6vmin, 14rem))",
+            paddingBottom:
+              "clamp(3.75rem, 4vmin + 2.75rem, 7.25rem)",
+            paddingLeft:
+              "max(1.25rem, min(7vw + 0.75rem, 7rem))",
+            paddingRight:
+              "max(1.25rem, min(7vw + 0.75rem, 7rem))",
+            y: heroY,
+            opacity: heroOpacity,
           }}
         >
           {/* Eyebrow */}
@@ -346,59 +325,183 @@ export default function AntiquesPage() {
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "clamp(0.65rem, 2vw, 1rem)",
+              marginBottom: "clamp(0.85rem, 2.2vmin, 1.35rem)",
+              flexShrink: 0,
+            }}
           >
-            <div style={{ width: 32, height: 1, background: "rgba(201,169,110,0.5)" }} />
+            <div style={{ width: 36, height: 1, background: "rgba(201,169,110,0.45)" }} />
             <span style={{
-              fontFamily: "var(--font-grotesk)", fontSize: "0.55rem",
-              letterSpacing: "0.32em", textTransform: "uppercase",
-              color: "rgba(213,190,145,0.82)",
-            }}>The Curiosity Cabinet · Casablanca · Est. 1923</span>
+              fontFamily: "var(--font-grotesk)", fontSize: "0.52rem",
+              letterSpacing: "0.36em", textTransform: "uppercase",
+              color: "rgba(201,169,110,0.78)",
+              fontWeight: 500,
+            }}>Antiques</span>
           </motion.div>
 
           {/* Main title */}
           <HeroTitle
-            text="Objects That Outlived Empires."
+            text="Held over Time."
             delay={0.2}
             style={{
               fontFamily: "var(--font-playfair)",
-              fontSize: "clamp(3rem, 6.5vw, 8rem)",
-              fontWeight: 400, lineHeight: 0.92,
+              fontSize: "clamp(2.05rem, 2.65vw + 1.95vmin, 6.05rem)",
+              fontWeight: 400, lineHeight: 1.05,
               color: "#F4F1E8", margin: 0,
+              letterSpacing: "-0.02em",
+              flexShrink: 0,
             }}
           />
 
-          <div style={{ height: "0.65rem" }} />
-
-          {/* Secondary italic subtitle — Lora italic, warm amber */}
-          <HeroTitle
-            as="h2"
-            text="Twelve Centuries of Craft"
-            delay={0.5}
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             style={{
               fontFamily: "var(--font-lora)",
-              fontSize: "clamp(1.2rem, 2.5vw, 2.8rem)",
-              fontWeight: 400, fontStyle: "italic",
-              color: "#C9A96E", margin: 0,
-            }}
-          />
-
-          {/* Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              fontFamily: "var(--font-garamond)", fontStyle: "italic",
-              fontSize: "clamp(0.9rem, 1.5vw, 1.15rem)",
-              color: "rgba(244,241,232,0.58)", lineHeight: 1.75,
-              maxWidth: "46ch", marginTop: "1.8rem",
+              fontSize: "clamp(1.02rem, 1.75vw, 1.28rem)",
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: "rgba(227,207,167,0.92)",
+              lineHeight: 1.5,
+              margin: "clamp(0.55rem, 1.25vmin, 0.85rem) 0 0",
+              maxWidth: "min(38ch, 92vw)",
+              textShadow: "0 2px 24px rgba(5,3,2,0.55)",
             }}
           >
-            From Andalusian tilework to Saharan lock-boxes — each piece
-            a custodianship waiting to be accepted, a memory kept alive
-            across generations.
+            Old pieces, steady hands — still in everyday use.
           </motion.p>
+
+          {/* Lead + Philosophy */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.05, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              marginTop: "clamp(1.35rem, 3vmin + 1rem, 2.45rem)",
+              maxWidth: "min(39rem, 100%)",
+              width: "100%",
+              display: "flex", flexDirection: "column",
+              gap: "clamp(1.2rem, 2.75vmin + 0.85rem, 1.95rem)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex", flexDirection: "column",
+                gap: "1.05rem",
+                textShadow: "0 2px 20px rgba(5,3,2,0.45)",
+              }}
+            >
+              <p style={{
+                fontFamily: "var(--font-garamond)",
+                fontSize: "clamp(1.02rem, 1.42vw, 1.125rem)",
+                fontWeight: 400,
+                color: "rgba(248,246,239,0.9)",
+                lineHeight: 1.72,
+                margin: 0,
+              }}>
+                Many of these pieces arrived with histories already written — chipped glaze, fingerprints of other routines.
+                They continue quietly at Everwood, doing what they were assembled to do.
+              </p>
+              <p style={{
+                fontFamily: "var(--font-garamond)",
+                fontSize: "clamp(0.98rem, 1.35vw, 1.065rem)",
+                fontWeight: 400,
+                color: "rgba(244,241,232,0.68)",
+                lineHeight: 1.78,
+                margin: 0,
+              }}>
+                Teacups, trays, the small utensils of habit: made to endure, still asked to prove it every afternoon.
+                Time leaves a cast; it doesn&apos;t revoke the job.
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: "clamp(1.35rem, 3.2vw, 1.75rem) clamp(1rem, 3vw, 1.5rem)",
+                paddingLeft: "clamp(1.35rem, 4vw, 2rem)",
+                marginLeft: 2,
+                borderLeft: "1px solid rgba(201,169,110,0.35)",
+                borderRadius: "0 2px 2px 0",
+                boxShadow:
+                  "inset 12px 0 32px -20px rgba(201,169,110,0.08), inset 0 1px 0 rgba(255,255,255,0.04)",
+                background: "rgba(8, 6, 4, 0.35)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex", alignItems: "center",
+                  gap: "0.75rem", marginBottom: "1rem",
+                }}
+              >
+                <span aria-hidden={true} style={{
+                    flex: "0 0 12px",
+                    height: 1,
+                    background: "rgba(201,169,110,0.45)",
+                  }}
+                />
+                <p style={{
+                  fontFamily: "var(--font-grotesk)",
+                  fontSize: "0.52rem",
+                  letterSpacing: "0.36em",
+                  textTransform: "uppercase",
+                  color: "rgba(201,169,110,0.78)",
+                  margin: 0,
+                  fontWeight: 600,
+                }}>Philosophy</p>
+              </div>
+              <blockquote
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  border: "none",
+                  fontFamily: "var(--font-garamond)",
+                  fontSize: "clamp(0.98rem, 1.35vw, 1.065rem)",
+                  color: "rgba(244,241,232,0.82)",
+                  lineHeight: 1.76,
+                  display: "flex", flexDirection: "column",
+                  gap: "0.92rem",
+                }}
+              >
+                <p style={{ margin: 0 }}>
+                  There&apos;s a difference between something that <em style={{ fontStyle: "italic", color: "rgba(227,207,167,0.94)" }}>works </em>
+                  and something that was <em style={{ fontStyle: "italic", color: "rgba(227,207,167,0.94)" }}>made well</em>.
+                </p>
+                <p style={{
+                  margin: 0,
+                  fontStyle: "italic",
+                  color: "rgba(232,226,212,0.74)",
+                  fontSize: "clamp(0.97rem, 1.32vw, 1.035rem)",
+                }}>
+                  You feel it in small ways — how it sits, how it&apos;s shaped, how time has eased its edges.
+                </p>
+                <p style={{ margin: 0 }}>
+                  The pieces we keep were part of daily life.&nbsp;&nbsp;They came from deliberate hands — even when no one was cheering the craftsperson&apos;s name.
+                </p>
+                <footer style={{
+                  marginTop: "0.15rem",
+                  paddingTop: "0.75rem",
+                  borderTop: "1px solid rgba(201,169,110,0.12)",
+                }}>
+                  <p style={{
+                    margin: 0,
+                    fontFamily: "var(--font-lora)",
+                    fontStyle: "italic",
+                    fontSize: "clamp(1.03rem, 1.42vw, 1.115rem)",
+                    color: "rgba(201,169,110,0.85)",
+                    lineHeight: 1.62,
+                  }}>
+                    That care is still there.&nbsp;&nbsp;We simply keep each one in daily use.
+                  </p>
+                </footer>
+              </blockquote>
+            </div>
+          </motion.div>
 
           {/* Meta strip */}
           <motion.div
@@ -406,9 +509,13 @@ export default function AntiquesPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4, duration: 0.8 }}
             style={{
-              display: "flex", gap: "3rem", marginTop: "3.5rem",
-              borderLeft: "1px solid rgba(201,169,110,0.2)",
-              paddingLeft: "2rem",
+              display: "flex", flexWrap: "wrap",
+              gap: "clamp(1.75rem, 5vw, 3rem)",
+              marginTop: "clamp(1.85rem, 4vmin + 1.25rem, 3.25rem)",
+              borderLeft: "1px solid rgba(201,169,110,0.22)",
+              paddingLeft: "1.75rem",
+              flexShrink: 0,
+              paddingBottom: "max(2rem, env(safe-area-inset-bottom))",
             }}
           >
             {[
@@ -429,20 +536,18 @@ export default function AntiquesPage() {
               </div>
             ))}
           </motion.div>
-        </motion.div>
 
-        {/* Scroll cue — pinned to bottom-left */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.8, duration: 0.8 }}
-          style={{
-            position: "absolute", bottom: "3rem",
-            left: "clamp(2rem, 7vw, 7rem)",
-            zIndex: 20,
-            display: "flex", alignItems: "center", gap: "0.75rem",
-          }}
-        >
+          {/* Scroll cue — in flow under copy so it stays reachable while scrolling */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.8, duration: 0.8 }}
+            style={{
+              marginTop: "clamp(2rem, 5vmin, 3.5rem)",
+              display: "flex", alignItems: "center", gap: "0.75rem",
+              flexShrink: 0,
+            }}
+          >
           <div style={{ width: 22, height: 1, background: "rgba(201,169,110,0.28)" }} />
           <motion.div
             animate={{ y: [0, 5, 0] }}
@@ -455,6 +560,8 @@ export default function AntiquesPage() {
             letterSpacing: "0.22em", textTransform: "uppercase",
             color: "rgba(201,169,110,0.32)",
           }}>Explore the Collection</p>
+        </motion.div>
+
         </motion.div>
 
         {/* Bottom edge rule */}

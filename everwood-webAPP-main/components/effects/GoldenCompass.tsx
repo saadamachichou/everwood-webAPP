@@ -64,9 +64,17 @@ const GC_RAYS = Array.from({ length: 8 }).map((_, i) => {
 interface Props {
   className?: string;
   style?: React.CSSProperties;
+  /** Default museum gold is #C9A96E; pass e.g. #A47F4A for antique gilt */
+  accent?: string;
+  /** Speed multiplier for continuous rotation (>1 = faster, easier to read as motion) */
+  motionBoost?: number;
 }
 
-export default function GoldenCompass({ className, style }: Props) {
+export default function GoldenCompass({ className, style, accent, motionBoost = 1 }: Props) {
+  const mid   = accent ?? "#C9A96E";
+  const light = accent ? "#D4B896" : "#E8C87A";
+  const dark  = accent ? "#6B4A28" : "#A07840";
+  const b     = motionBoost;
   const svgRef    = useRef<SVGSVGElement>(null);
   const ringA     = useRef<SVGGElement>(null);   // r=235  very slow CW   (120s)
   const ringB     = useRef<SVGGElement>(null);   // r=195  slow CCW        (78s)
@@ -138,19 +146,19 @@ export default function GoldenCompass({ className, style }: Props) {
 
     // ─── Continuous rotations (start immediately, run forever) ───────────────
     const origin = "300px 300px";
-    gsap.to(ringA.current,   { rotation:  360, transformOrigin: origin, duration: 120, repeat: -1, ease: "none" });
-    gsap.to(ringB.current,   { rotation: -360, transformOrigin: origin, duration: 78,  repeat: -1, ease: "none" });
-    gsap.to(ringC.current,   { rotation:  360, transformOrigin: origin, duration: 48,  repeat: -1, ease: "none" });
-    gsap.to(ringD.current,   { rotation: -360, transformOrigin: origin, duration: 26,  repeat: -1, ease: "none" });
-    gsap.to(ringE.current,   { rotation:  360, transformOrigin: origin, duration: 14,  repeat: -1, ease: "none" });
-    gsap.to(alidade.current, { rotation:  360, transformOrigin: origin, duration: 42,  repeat: -1, ease: "none" });
+    gsap.to(ringA.current,   { rotation:  360, transformOrigin: origin, duration: 120 / b, repeat: -1, ease: "none" });
+    gsap.to(ringB.current,   { rotation: -360, transformOrigin: origin, duration: 78 / b,  repeat: -1, ease: "none" });
+    gsap.to(ringC.current,   { rotation:  360, transformOrigin: origin, duration: 48 / b,  repeat: -1, ease: "none" });
+    gsap.to(ringD.current,   { rotation: -360, transformOrigin: origin, duration: 26 / b,  repeat: -1, ease: "none" });
+    gsap.to(ringE.current,   { rotation:  360, transformOrigin: origin, duration: 14 / b,  repeat: -1, ease: "none" });
+    gsap.to(alidade.current, { rotation:  360, transformOrigin: origin, duration: 42 / b,  repeat: -1, ease: "none" });
 
     // ─── Center glow pulse ────────────────────────────────────────────────────
     gsap.to(glowRef.current, {
       attr: { r: 32 }, opacity: 0.5,
       duration: 3.0, repeat: -1, yoyo: true, ease: "sine.inOut",
     });
-  }, { scope: svgRef });
+  }, { scope: svgRef, dependencies: [motionBoost] });
 
   return (
     <svg
@@ -166,9 +174,9 @@ export default function GoldenCompass({ className, style }: Props) {
       <defs>
         {/* Warm gold gradient for key strokes */}
         <linearGradient id="gc-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stopColor="#E8C87A" />
-          <stop offset="50%"  stopColor="#C9A96E" />
-          <stop offset="100%" stopColor="#A07840" />
+          <stop offset="0%"   stopColor={light} />
+          <stop offset="50%"  stopColor={mid} />
+          <stop offset="100%" stopColor={dark} />
         </linearGradient>
         {/* Outer glow filter */}
         <filter id="gc-glow-lg" x="-60%" y="-60%" width="220%" height="220%">
@@ -182,9 +190,9 @@ export default function GoldenCompass({ className, style }: Props) {
         </filter>
         {/* Radial ambient fill */}
         <radialGradient id="gc-ambient" cx="50%" cy="50%" r="50%">
-          <stop offset="0%"   stopColor="#C9A96E" stopOpacity="0.08" />
-          <stop offset="70%"  stopColor="#C9A96E" stopOpacity="0.02" />
-          <stop offset="100%" stopColor="#C9A96E" stopOpacity="0"    />
+          <stop offset="0%"   stopColor={mid} stopOpacity="0.08" />
+          <stop offset="70%"  stopColor={mid} stopOpacity="0.02" />
+          <stop offset="100%" stopColor={mid} stopOpacity="0"    />
         </radialGradient>
       </defs>
 
@@ -199,7 +207,7 @@ export default function GoldenCompass({ className, style }: Props) {
       {GC_TICKS.map((t, i) => (
         <line key={i} className="gc-tick"
           x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
-          stroke="#C9A96E"
+          stroke={mid}
           strokeWidth={t.major ? "1.1" : t.semi ? "0.7" : "0.4"}
           opacity={t.major ? "0.7" : t.semi ? "0.45" : "0.22"}
         />
@@ -214,7 +222,7 @@ export default function GoldenCompass({ className, style }: Props) {
       ].map(([x1, y1, x2, y2], i) => (
         <line key={i} className="gc-axis"
           x1={x1} y1={y1} x2={x2} y2={y2}
-          stroke="#C9A96E" strokeWidth="0.35" opacity="0.18"
+          stroke={mid} strokeWidth="0.35" opacity="0.18"
         />
       ))}
 
@@ -222,7 +230,7 @@ export default function GoldenCompass({ className, style }: Props) {
       {GC_RAYS.map((r, i) => (
         <line key={i} className="gc-ray"
           x1="300" y1="300" x2={r.x} y2={r.y}
-          stroke="#C9A96E" strokeWidth="0.5" opacity="0.14"
+          stroke={mid} strokeWidth="0.5" opacity="0.14"
         />
       ))}
 
@@ -231,9 +239,9 @@ export default function GoldenCompass({ className, style }: Props) {
         <circle className="gc-ring-draw" cx="300" cy="300" r="235"
           stroke="url(#gc-gold)" strokeWidth="0.7" opacity="0.5" />
         <circle cx="300" cy="300" r="228"
-          stroke="#C9A96E" strokeWidth="0.25" opacity="0.15" strokeDasharray="5 12" />
+          stroke={mid} strokeWidth="0.25" opacity="0.15" strokeDasharray="5 12" />
         {GC_DIAMONDS.map((d, i) => (
-          <path key={i} className="gc-deco" d={d} fill="#C9A96E"
+          <path key={i} className="gc-deco" d={d} fill={mid}
             opacity={i % 3 === 0 ? "0.55" : "0.35"}
             filter={i % 3 === 0 ? "url(#gc-glow-sm)" : undefined}
           />
@@ -243,13 +251,13 @@ export default function GoldenCompass({ className, style }: Props) {
       {/* ── RING B — r=195, slow CCW (78s) ── */}
       <g ref={ringB}>
         <circle className="gc-ring-draw" cx="300" cy="300" r="195"
-          stroke="#C9A96E" strokeWidth="0.6" opacity="0.45" />
+          stroke={mid} strokeWidth="0.6" opacity="0.45" />
         <circle cx="300" cy="300" r="186"
-          stroke="#C9A96E" strokeWidth="0.22" opacity="0.14" strokeDasharray="8 16" />
+          stroke={mid} strokeWidth="0.22" opacity="0.14" strokeDasharray="8 16" />
         {GC_NODES_B.map((n, i) => (
           <circle key={i} className="gc-deco"
             cx={n.cx} cy={n.cy} r="4.5"
-            stroke="#C9A96E" strokeWidth="0.7" fill="none" opacity="0.6"
+            stroke={mid} strokeWidth="0.7" fill="none" opacity="0.6"
             filter="url(#gc-glow-sm)"
           />
         ))}
@@ -257,7 +265,7 @@ export default function GoldenCompass({ className, style }: Props) {
         {GC_NODES_B.map((n, i) => (
           <line key={i}
             x1="300" y1="300" x2={n.cx} y2={n.cy}
-            stroke="#C9A96E" strokeWidth="0.3" opacity="0.12"
+            stroke={mid} strokeWidth="0.3" opacity="0.12"
           />
         ))}
       </g>
@@ -265,19 +273,19 @@ export default function GoldenCompass({ className, style }: Props) {
       {/* ── RING C — r=150, medium CW (48s) ── */}
       <g ref={ringC}>
         <circle className="gc-ring-draw" cx="300" cy="300" r="150"
-          stroke="#C9A96E" strokeWidth="0.6" opacity="0.5" />
+          stroke={mid} strokeWidth="0.6" opacity="0.5" />
         <circle cx="300" cy="300" r="143"
-          stroke="#C9A96E" strokeWidth="0.2" opacity="0.14" strokeDasharray="4 8" />
+          stroke={mid} strokeWidth="0.2" opacity="0.14" strokeDasharray="4 8" />
         {GC_NODES_C.map((n, i) => (
           <circle key={i} className="gc-deco"
             cx={n.cx} cy={n.cy} r="3.5"
-            stroke="#C9A96E" strokeWidth="0.65" fill="none" opacity="0.55"
+            stroke={mid} strokeWidth="0.65" fill="none" opacity="0.55"
           />
         ))}
         {GC_NODES_C.map((n, i) => (
           <line key={i}
             x1="300" y1="300" x2={n.cx} y2={n.cy}
-            stroke="#C9A96E" strokeWidth="0.25" opacity="0.15"
+            stroke={mid} strokeWidth="0.25" opacity="0.15"
           />
         ))}
       </g>
@@ -285,9 +293,9 @@ export default function GoldenCompass({ className, style }: Props) {
       {/* ── RING D — r=100, fast CCW (26s) ── */}
       <g ref={ringD}>
         <circle className="gc-ring-draw" cx="300" cy="300" r="100"
-          stroke="#C9A96E" strokeWidth="0.55" opacity="0.45" />
+          stroke={mid} strokeWidth="0.55" opacity="0.45" />
         <circle cx="300" cy="300" r="93"
-          stroke="#C9A96E" strokeWidth="0.2" opacity="0.12" strokeDasharray="3 7" />
+          stroke={mid} strokeWidth="0.2" opacity="0.12" strokeDasharray="3 7" />
         {/* 4 cross-marks at cardinal positions inside ring D */}
         {[0, 90, 180, 270].map((deg, i) => {
           const a  = (deg - 90) * (Math.PI / 180);
@@ -295,7 +303,7 @@ export default function GoldenCompass({ className, style }: Props) {
           const cy = (300 + 100 * Math.sin(a)).toFixed(3);
           return (
             <circle key={i} cx={cx} cy={cy} r="2.5"
-              fill="#C9A96E" opacity="0.55" filter="url(#gc-glow-sm)" />
+              fill={mid} opacity="0.55" filter="url(#gc-glow-sm)" />
           );
         })}
       </g>
@@ -306,44 +314,44 @@ export default function GoldenCompass({ className, style }: Props) {
           stroke="url(#gc-gold)" strokeWidth="0.65" opacity="0.6" />
         {/* North arm */}
         <line x1="300" y1="250" x2="300" y2="300"
-          stroke="#C9A96E" strokeWidth="0.9" opacity="0.7" />
+          stroke={mid} strokeWidth="0.9" opacity="0.7" />
         {/* North arrowhead */}
         <path d="M300,248 L296,262 L300,257 L304,262 Z"
-          fill="#C9A96E" opacity="0.85" filter="url(#gc-glow-sm)" />
+          fill={mid} opacity="0.85" filter="url(#gc-glow-sm)" />
         {/* South short arm */}
         <line x1="300" y1="300" x2="300" y2="338"
-          stroke="#C9A96E" strokeWidth="0.55" opacity="0.4" />
+          stroke={mid} strokeWidth="0.55" opacity="0.4" />
         {/* East/West arms */}
         <line x1="255" y1="300" x2="345" y2="300"
-          stroke="#C9A96E" strokeWidth="0.5" opacity="0.35" />
+          stroke={mid} strokeWidth="0.5" opacity="0.35" />
         {/* Inner dot ring */}
         <circle cx="300" cy="300" r="28"
-          stroke="#C9A96E" strokeWidth="0.4" opacity="0.25" strokeDasharray="2 4" />
+          stroke={mid} strokeWidth="0.4" opacity="0.25" strokeDasharray="2 4" />
       </g>
 
       {/* ── ALIDADE — thin rotating arm through center (42s CW) ── */}
       <g ref={alidade}>
         <line x1="300" y1="16" x2="300" y2="360"
-          stroke="#C9A96E" strokeWidth="0.7" opacity="0.35" />
+          stroke={mid} strokeWidth="0.7" opacity="0.35" />
         {/* Tip diamond */}
         <path d="M300,16 L296.5,30 L300,25 L303.5,30 Z"
-          fill="#C9A96E" opacity="0.55" />
+          fill={mid} opacity="0.55" />
         {/* Pivot circle */}
         <circle cx="300" cy="300" r="5"
-          stroke="#C9A96E" strokeWidth="0.6" fill="none" opacity="0.45" />
+          stroke={mid} strokeWidth="0.6" fill="none" opacity="0.45" />
       </g>
 
       {/* ── CENTER ORNAMENT (static) ── */}
       <circle className="gc-center" cx="300" cy="300" r="24"
-        stroke="#C9A96E" strokeWidth="0.6" opacity="0.4" />
+        stroke={mid} strokeWidth="0.6" opacity="0.4" />
       <circle className="gc-center" cx="300" cy="300" r="14"
         stroke="url(#gc-gold)" strokeWidth="0.8" fill="none" opacity="0.7" />
       <circle className="gc-center" cx="300" cy="300" r="6"
-        fill="#C9A96E" opacity="0.9" filter="url(#gc-glow-sm)" />
+        fill={mid} opacity="0.9" filter="url(#gc-glow-sm)" />
 
       {/* Pulsing center glow */}
       <circle ref={glowRef} cx="300" cy="300" r="18"
-        fill="#C9A96E" opacity="0.22" filter="url(#gc-glow-lg)" />
+        fill={mid} opacity="0.22" filter="url(#gc-glow-lg)" />
     </svg>
   );
 }

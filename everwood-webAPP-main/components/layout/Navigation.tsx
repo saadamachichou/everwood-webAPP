@@ -39,7 +39,7 @@ export default function Navigation() {
         {/* Logo */}
         <Link href="/" aria-label="Everwood — home" className="no-underline block">
           <img
-            src="/images/nav/logo.png"
+            src="/images/nav/tree_no_bg.png"
             alt="Everwood"
             style={{ height: 140, width: "auto", display: "block" }}
             className="transition-opacity duration-300 opacity-90 hover:opacity-100"

@@ -428,7 +428,7 @@ export default function MenuPage() {
       }}>
         <Link href="/" aria-label="Everwood — home" style={{ textDecoration: "none", display: "block" }}>
           <img
-            src="/images/nav/logo.png"
+            src="/images/nav/tree_no_bg.png"
             alt="Everwood"
             style={{ height: 140, width: "auto", display: "block", opacity: 0.92 }}
           />

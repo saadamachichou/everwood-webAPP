@@ -356,7 +356,7 @@ function HomepageNav({ activeRoom, tod }: { activeRoom: number; tod: typeof TOD[
               onMouseLeave={e => (e.currentTarget.style.opacity = "0.95")}
             >
               <Image
-                src="/images/nav/logo.png"
+                src="/images/nav/tree_no_bg.png"
                 alt="Everwood"
                 fill
                 priority

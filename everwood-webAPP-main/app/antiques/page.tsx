@@ -7,10 +7,25 @@ import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import HeroTitle from "@/components/effects/HeroTitle";
 import GoldenCompass from "@/components/effects/GoldenCompass";
-import RevealOnScroll from "@/components/effects/RevealOnScroll";
 import { antiques, categories, type Antique, type Category } from "@/lib/data/antiques";
 import { formatPrice, cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+/** Cabinet salon — burgundy, umber, celadon, antique gold, porcelain */
+const C = {
+  burgundy: "#4A1F1F",
+  brown: "#5A3F2B",
+  green: "#2B3A2F",
+  gold: "#A47F4A",
+  porcelain: "#EDE6DC",
+  cream: "#F5EFE6",
+  void: "#100D0C",
+} as const;
+const goldA = (a: number) => `rgba(164,127,74,${a})`;
+const brownA = (a: number) => `rgba(90,63,43,${a})`;
+const burgA = (a: number) => `rgba(74,31,31,${a})`;
+const greenA = (a: number) => `rgba(43,58,47,${a})`;
+const creamA = (a: number) => `rgba(245,239,230,${a})`;
 
 /** Hero photography — curiosity cabinet interior */
 const ANTIQUES_HERO_BG = "/images/nav/antque.jpeg";
@@ -49,9 +64,9 @@ const ENT_NODES = Array.from({ length: 8 }).map((_, i) => {
   };
 });
 
-// ── Thin rule used between modal sections ───────────────────────────────────
+// ── Thin rule used between modal sections (porcelain panel) ─────────────────
 const Rule = () => (
-  <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "2.5rem 0" }} />
+  <div style={{ height: 1, background: brownA(0.12), margin: "2.5rem 0" }} />
 );
 
 export default function AntiquesPage() {
@@ -94,7 +109,12 @@ export default function AntiquesPage() {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: "#050302" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: `linear-gradient(165deg, ${C.void} 0%, ${C.burgundy} 38%, #1a1412 72%, ${C.green} 140%)`,
+      }}
+    >
       <Navigation />
 
       {/* ══════════════════════════════════════════════════════════════════════
@@ -110,7 +130,11 @@ export default function AntiquesPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "#050302",
+              background: `
+                radial-gradient(ellipse 85% 55% at 50% -10%, ${burgA(0.55)} 0%, transparent 55%),
+                radial-gradient(ellipse 70% 45% at 110% 85%, ${greenA(0.5)} 0%, transparent 50%),
+                radial-gradient(circle at 0% 40%, ${goldA(0.06)} 0%, transparent 42%),
+                ${C.void}`,
               margin: 0,
               padding: 0,
               overflow: "hidden",
@@ -131,7 +155,7 @@ export default function AntiquesPage() {
                 style={{
                   width: 88,
                   height: 1,
-                  background: "linear-gradient(to right, transparent, rgba(201,169,110,0.4), transparent)",
+                  background: `linear-gradient(to right, transparent, ${goldA(0.45)}, transparent)`,
                   transformOrigin: "center",
                 }}
               />
@@ -152,14 +176,14 @@ export default function AntiquesPage() {
                 >
                   {/* Outer ring — draws in */}
                   <motion.circle cx="70" cy="70" r="65"
-                    stroke="#C9A96E" strokeWidth="0.9" opacity="0.55"
+                    stroke={C.gold} strokeWidth="0.9" opacity="0.55"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     transition={{ duration: 2.0, delay: 0.15, ease: "easeInOut" }} />
                   {/* 24 tick marks */}
                   {ENT_TICKS.map((t, i) => (
                     <motion.line key={i}
                       x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
-                      stroke="#C9A96E"
+                      stroke={C.gold}
                       strokeWidth={t.major ? "1.0" : "0.5"}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: t.major ? 0.65 : 0.3 }}
@@ -167,40 +191,40 @@ export default function AntiquesPage() {
                   ))}
                   {/* Second ring */}
                   <motion.circle cx="70" cy="70" r="52"
-                    stroke="#C9A96E" strokeWidth="0.55" opacity="0.35"
+                    stroke={C.gold} strokeWidth="0.55" opacity="0.35"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     transition={{ duration: 1.5, delay: 0.7, ease: "easeInOut" }} />
-                  {/* Rotating inner ring + 8 nodes */}
+                  {/* Rotating inner ring + 8 nodes — motion read clearly on the seal */}
                   <motion.g
                     style={{ transformOrigin: "50% 50%" }}
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
                   >
                     <circle cx="70" cy="70" r="38"
-                      stroke="#C9A96E" strokeWidth="0.45"
-                      opacity="0.28" strokeDasharray="5 10" />
+                      stroke={C.gold} strokeWidth="0.65"
+                      opacity="0.52" strokeDasharray="7 12" />
                     {ENT_NODES.map((n, i) => (
                       <circle key={i} cx={n.cx} cy={n.cy} r="2.2"
-                        stroke="#C9A96E" strokeWidth="0.7"
-                        fill="none" opacity="0.6" />
+                        stroke={C.gold} strokeWidth="0.85"
+                        fill="none" opacity="0.88" />
                     ))}
                   </motion.g>
                   {/* 8-pointed star — draws in with subtle fill */}
                   <motion.path
                     d={ENT_STAR_PATH}
-                    stroke="#C9A96E" strokeWidth="0.7"
-                    fill="#C9A96E" fillOpacity="0.05"
+                    stroke={C.gold} strokeWidth="0.7"
+                    fill={C.gold} fillOpacity="0.05"
                     initial={{ pathLength: 0, opacity: 0 }}
                     animate={{ pathLength: 1, opacity: 1 }}
                     transition={{ duration: 1.8, delay: 0.85, ease: "easeInOut" }} />
                   {/* Inner ring */}
                   <motion.circle cx="70" cy="70" r="20"
-                    stroke="#C9A96E" strokeWidth="0.75" opacity="0.55"
+                    stroke={C.gold} strokeWidth="0.75" opacity="0.55"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     transition={{ duration: 0.9, delay: 1.55, ease: "easeInOut" }} />
                   {/* Center glow dot */}
                   <motion.circle cx="70" cy="70" r="4"
-                    fill="#C9A96E"
+                    fill={C.gold}
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 0.9 }}
                     style={{ transformOrigin: "70px 70px" }}
@@ -208,43 +232,11 @@ export default function AntiquesPage() {
                 </svg>
               </motion.div>
 
-              {/* Eyebrow */}
-              <motion.p
-                initial={{ opacity: 0, letterSpacing: "0.55em" }}
-                animate={{ opacity: 1, letterSpacing: "0.28em" }}
-                transition={{ duration: 1.1, delay: 0.9 }}
-                style={{
-                  fontFamily: "var(--font-grotesk)",
-                  fontSize: "0.56rem",
-                  textTransform: "uppercase",
-                  color: "rgba(201,169,110,0.45)",
-                }}
-              >
-                The Curiosity Cabinet
-              </motion.p>
-
-              {/* Title */}
-              <motion.p
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.15, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  fontFamily: "var(--font-cormorant)",
-                  fontStyle: "italic",
-                  fontSize: "clamp(1.8rem, 2.8vw, 2.4rem)",
-                  color: "#F4F1E8",
-                  lineHeight: 1.28,
-                  maxWidth: "26ch",
-                }}
-              >
-                Objects that outlived empires
-              </motion.p>
-
               {/* Thin divider */}
               <motion.div
                 initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
                 transition={{ duration: 0.65, delay: 1.65 }}
-                style={{ width: 32, height: 1, background: "rgba(201,169,110,0.28)", transformOrigin: "center" }}
+                style={{ width: 32, height: 1, background: goldA(0.28), transformOrigin: "center" }}
               />
 
               {/* Enter CTA */}
@@ -254,8 +246,8 @@ export default function AntiquesPage() {
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 onClick={() => setShowEntrance(false)}
                 style={{
-                  border: "1px solid rgba(201,169,110,0.3)",
-                  color: "#C9A96E",
+                  border: `1px solid ${goldA(0.3)}`,
+                  color: C.gold,
                   fontFamily: "var(--font-grotesk)",
                   fontSize: "0.62rem",
                   letterSpacing: "0.28em",
@@ -266,12 +258,12 @@ export default function AntiquesPage() {
                   transition: "all 0.3s",
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = "rgba(201,169,110,0.07)";
-                  e.currentTarget.style.borderColor = "rgba(201,169,110,0.58)";
+                  e.currentTarget.style.background = goldA(0.07);
+                  e.currentTarget.style.borderColor = goldA(0.58);
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.background = "transparent";
-                  e.currentTarget.style.borderColor = "rgba(201,169,110,0.3)";
+                  e.currentTarget.style.borderColor = goldA(0.3);
                 }}
               >
                 Enter the Cabinet
@@ -285,10 +277,11 @@ export default function AntiquesPage() {
           HERO  —  full-viewport, gallery-style centered text block
       ══════════════════════════════════════════════════════════════════════ */}
       <section
-        className="relative overflow-hidden bg-[#050302]"
+        className="relative overflow-x-hidden overflow-y-visible"
         style={{
           position: "relative",
           minHeight: "100svh",
+          backgroundColor: C.void,
         }}
       >
         {/* ── Hero photography + scrims (readable left-aligned type) ── */}
@@ -307,38 +300,66 @@ export default function AntiquesPage() {
               sizes="100vw"
             />
           </div>
-          <div className="absolute inset-0 bg-[#050302]/45" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050302]/88 via-[#050302]/52 to-[#050302]/28" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050302]/82 via-transparent to-[#050302]/55" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_55%_45%_at_85%_25%,transparent_30%,rgba(5,3,2,0.5)_85%)]" />
+          <div
+            className="absolute inset-0"
+            style={{ background: burgA(0.48) }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to right, ${burgA(0.9)} 0%, ${greenA(0.42)} 42%, transparent 100%)`,
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to top, rgba(16,13,12,0.88) 0%, transparent 42%, ${greenA(0.36)} 100%)`,
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "radial-gradient(ellipse 55% 45% at 85% 25%, transparent 30%, rgba(16,13,12,0.55) 85%)",
+            }}
+          />
           <div
             className="absolute inset-0 opacity-[0.35]"
             style={{
-              background:
-                "radial-gradient(circle at 78% 18%, rgba(201,169,110,0.07) 0%, transparent 55%)",
+              background: `radial-gradient(circle at 78% 18%, ${goldA(0.09)} 0%, transparent 55%)`,
             }}
           />
         </motion.div>
 
-        {/* ── Animated golden compass ── */}
+        {/* ── Animated compass — brighter + larger so rotation reads in the hero ── */}
         <div
-          className="pointer-events-none absolute z-[5] hidden lg:block"
-          style={{ top: "4%", right: "2%", width: "min(44vw, 580px)", height: "min(44vw, 580px)", opacity: 0.42 }}
+          className="pointer-events-none absolute z-[5] hidden md:block"
+          style={{ top: "2%", right: "0%", width: "min(52vw, 640px)", height: "min(52vw, 640px)", opacity: 0.62 }}
         >
-          <GoldenCompass />
+          <GoldenCompass accent={C.gold} motionBoost={1.42} />
         </div>
 
-        {/* ── Text block — absolute centered, gallery pattern ── */}
+        {/* ── Text block — in document flow; page scrolls (nested overflow was unreliable) ── */}
         <motion.div
           style={{
-            position: "absolute", inset: 0, margin: 0,
-            display: "flex", flexDirection: "column",
-            justifyContent: "center",
-            paddingTop: "172px",
-            paddingLeft: "clamp(2rem, 7vw, 7rem)",
-            paddingRight: "clamp(2rem, 7vw, 7rem)",
-            y: heroY, opacity: heroOpacity,
+            position: "relative",
             zIndex: 20,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "stretch",
+            width: "100%",
+            boxSizing: "border-box",
+            minHeight: "100svh",
+            paddingTop:
+              "calc(env(safe-area-inset-top, 0px) + clamp(10.75rem, 9rem + 6vmin, 14rem))",
+            paddingBottom:
+              "clamp(3.75rem, 4vmin + 2.75rem, 7.25rem)",
+            paddingLeft:
+              "max(1.25rem, min(7vw + 0.75rem, 7rem))",
+            paddingRight:
+              "max(1.25rem, min(7vw + 0.75rem, 7rem))",
+            y: heroY,
+            opacity: heroOpacity,
           }}
         >
           {/* Eyebrow */}
@@ -346,59 +367,183 @@ export default function AntiquesPage() {
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2rem" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "clamp(0.65rem, 2vw, 1rem)",
+              marginBottom: "clamp(0.85rem, 2.2vmin, 1.35rem)",
+              flexShrink: 0,
+            }}
           >
-            <div style={{ width: 32, height: 1, background: "rgba(201,169,110,0.5)" }} />
+            <div style={{ width: 36, height: 1, background: goldA(0.45) }} />
             <span style={{
-              fontFamily: "var(--font-grotesk)", fontSize: "0.55rem",
-              letterSpacing: "0.32em", textTransform: "uppercase",
-              color: "rgba(213,190,145,0.82)",
-            }}>The Curiosity Cabinet · Casablanca · Est. 1923</span>
+              fontFamily: "var(--font-grotesk)", fontSize: "0.52rem",
+              letterSpacing: "0.36em", textTransform: "uppercase",
+              color: goldA(0.82),
+              fontWeight: 500,
+            }}>Antiques</span>
           </motion.div>
 
           {/* Main title */}
           <HeroTitle
-            text="Objects That Outlived Empires."
+            text="Held over Time."
             delay={0.2}
             style={{
               fontFamily: "var(--font-playfair)",
-              fontSize: "clamp(3rem, 6.5vw, 8rem)",
-              fontWeight: 400, lineHeight: 0.92,
-              color: "#F4F1E8", margin: 0,
+              fontSize: "clamp(2.05rem, 2.65vw + 1.95vmin, 6.05rem)",
+              fontWeight: 400, lineHeight: 1.05,
+              color: C.cream, margin: 0,
+              letterSpacing: "-0.02em",
+              flexShrink: 0,
             }}
           />
 
-          <div style={{ height: "0.65rem" }} />
-
-          {/* Secondary italic subtitle — Lora italic, warm amber */}
-          <HeroTitle
-            as="h2"
-            text="Twelve Centuries of Craft"
-            delay={0.5}
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             style={{
               fontFamily: "var(--font-lora)",
-              fontSize: "clamp(1.2rem, 2.5vw, 2.8rem)",
-              fontWeight: 400, fontStyle: "italic",
-              color: "#C9A96E", margin: 0,
-            }}
-          />
-
-          {/* Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              fontFamily: "var(--font-garamond)", fontStyle: "italic",
-              fontSize: "clamp(0.9rem, 1.5vw, 1.15rem)",
-              color: "rgba(244,241,232,0.58)", lineHeight: 1.75,
-              maxWidth: "46ch", marginTop: "1.8rem",
+              fontSize: "clamp(1.02rem, 1.75vw, 1.28rem)",
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: goldA(0.9),
+              lineHeight: 1.5,
+              margin: "clamp(0.55rem, 1.25vmin, 0.85rem) 0 0",
+              maxWidth: "min(38ch, 92vw)",
+              textShadow: "0 2px 24px rgba(16,13,12,0.55)",
             }}
           >
-            From Andalusian tilework to Saharan lock-boxes — each piece
-            a custodianship waiting to be accepted, a memory kept alive
-            across generations.
+            Old pieces, steady hands — still in everyday use.
           </motion.p>
+
+          {/* Lead + Philosophy — hierarchy: roman deck, bordered reflection */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.05, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              marginTop: "clamp(1.35rem, 3vmin + 1rem, 2.45rem)",
+              maxWidth: "min(39rem, 100%)",
+              width: "100%",
+              display: "flex", flexDirection: "column",
+              gap: "clamp(1.2rem, 2.75vmin + 0.85rem, 1.95rem)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex", flexDirection: "column",
+                gap: "1.05rem",
+                textShadow: "0 2px 20px rgba(16,13,12,0.45)",
+              }}
+            >
+              <p style={{
+                fontFamily: "var(--font-garamond)",
+                fontSize: "clamp(1.02rem, 1.42vw, 1.125rem)",
+                fontWeight: 400,
+                color: creamA(0.94),
+                lineHeight: 1.72,
+                margin: 0,
+              }}>
+                Many of these pieces arrived with histories already written — chipped glaze, fingerprints of other routines.
+                They continue quietly at Everwood, doing what they were assembled to do.
+              </p>
+              <p style={{
+                fontFamily: "var(--font-garamond)",
+                fontSize: "clamp(0.98rem, 1.35vw, 1.065rem)",
+                fontWeight: 400,
+                color: creamA(0.72),
+                lineHeight: 1.78,
+                margin: 0,
+              }}>
+                Teacups, trays, the small utensils of habit: made to endure, still asked to prove it every afternoon.
+                Time leaves a cast; it doesn&apos;t revoke the job.
+              </p>
+            </div>
+
+            <div
+              style={{
+                padding: "clamp(1.35rem, 3.2vw, 1.75rem) clamp(1rem, 3vw, 1.5rem)",
+                paddingLeft: "clamp(1.35rem, 4vw, 2rem)",
+                marginLeft: 2,
+                borderLeft: `1px solid ${goldA(0.38)}`,
+                borderRadius: "0 2px 2px 0",
+                boxShadow:
+                  `inset 14px 0 36px -22px ${goldA(0.06)}, inset 0 1px 0 ${creamA(0.06)}`,
+                background: `linear-gradient(100deg, ${greenA(0.22)} 0%, ${burgA(0.18)} 100%)`,
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex", alignItems: "center",
+                  gap: "0.75rem", marginBottom: "1rem",
+                }}
+              >
+                <span aria-hidden={true} style={{
+                    flex: "0 0 12px",
+                    height: 1,
+                    background: goldA(0.45),
+                  }}
+                />
+                <p style={{
+                  fontFamily: "var(--font-grotesk)",
+                  fontSize: "0.52rem",
+                  letterSpacing: "0.36em",
+                  textTransform: "uppercase",
+                  color: goldA(0.78),
+                  margin: 0,
+                  fontWeight: 600,
+                }}>Philosophy</p>
+              </div>
+              <blockquote
+                style={{
+                  margin: 0,
+                  padding: 0,
+                  border: "none",
+                  fontFamily: "var(--font-garamond)",
+                  fontSize: "clamp(0.98rem, 1.35vw, 1.065rem)",
+                  color: creamA(0.84),
+                  lineHeight: 1.76,
+                  display: "flex", flexDirection: "column",
+                  gap: "0.92rem",
+                }}
+              >
+                <p style={{ margin: 0 }}>
+                  There&apos;s a difference between something that <em style={{ fontStyle: "italic", color: goldA(0.94) }}>works </em>
+                  and something that was <em style={{ fontStyle: "italic", color: goldA(0.94) }}>made well</em>.
+                </p>
+                <p style={{
+                  margin: 0,
+                  fontStyle: "italic",
+                  color: creamA(0.76),
+                  fontSize: "clamp(0.97rem, 1.32vw, 1.035rem)",
+                }}>
+                  You feel it in small ways — how it sits, how it&apos;s shaped, how time has eased its edges.
+                </p>
+                <p style={{ margin: 0 }}>
+                  The pieces we keep were part of daily life.&nbsp;&nbsp;They came from deliberate hands — even when no one was cheering the craftsperson&apos;s name.
+                </p>
+                <footer style={{
+                  marginTop: "0.15rem",
+                  paddingTop: "0.75rem",
+                  borderTop: `1px solid ${goldA(0.14)}`,
+                }}>
+                  <p style={{
+                    margin: 0,
+                    fontFamily: "var(--font-lora)",
+                    fontStyle: "italic",
+                    fontSize: "clamp(1.03rem, 1.42vw, 1.115rem)",
+                    color: goldA(0.88),
+                    lineHeight: 1.62,
+                  }}>
+                    That care is still there.&nbsp;&nbsp;We simply keep each one in daily use.
+                  </p>
+                </footer>
+              </blockquote>
+            </div>
+          </motion.div>
 
           {/* Meta strip */}
           <motion.div
@@ -406,9 +551,13 @@ export default function AntiquesPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4, duration: 0.8 }}
             style={{
-              display: "flex", gap: "3rem", marginTop: "3.5rem",
-              borderLeft: "1px solid rgba(201,169,110,0.2)",
-              paddingLeft: "2rem",
+              display: "flex", flexWrap: "wrap",
+              gap: "clamp(1.75rem, 5vw, 3rem)",
+              marginTop: "clamp(1.85rem, 4vmin + 1.25rem, 3.25rem)",
+              borderLeft: `1px solid ${goldA(0.22)}`,
+              paddingLeft: "1.75rem",
+              flexShrink: 0,
+              paddingBottom: "max(2rem, env(safe-area-inset-bottom))",
             }}
           >
             {[
@@ -420,67 +569,80 @@ export default function AntiquesPage() {
                 <span style={{
                   fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
                   letterSpacing: "0.28em", textTransform: "uppercase",
-                  color: "rgba(201,169,110,0.45)",
+                  color: goldA(0.48),
                 }}>{label}</span>
                 <span style={{
                   fontFamily: "var(--font-grotesk)", fontSize: "0.72rem",
-                  letterSpacing: "0.1em", color: "rgba(244,241,232,0.7)",
+                  letterSpacing: "0.1em", color: creamA(0.74),
                 }}>{value}</span>
               </div>
             ))}
           </motion.div>
-        </motion.div>
 
-        {/* Scroll cue — pinned to bottom-left */}
+        {/* Scroll cue — in flow under copy so it stays reachable while scrolling */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.8, duration: 0.8 }}
           style={{
-            position: "absolute", bottom: "3rem",
-            left: "clamp(2rem, 7vw, 7rem)",
-            zIndex: 20,
+            marginTop: "clamp(2rem, 5vmin, 3.5rem)",
             display: "flex", alignItems: "center", gap: "0.75rem",
+            flexShrink: 0,
           }}
         >
-          <div style={{ width: 22, height: 1, background: "rgba(201,169,110,0.28)" }} />
+          <div style={{ width: 22, height: 1, background: goldA(0.28) }} />
           <motion.div
             animate={{ y: [0, 5, 0] }}
             transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
           >
-            <ChevronDown size={14} style={{ color: "rgba(201,169,110,0.38)" }} />
+            <ChevronDown size={14} style={{ color: goldA(0.4) }} />
           </motion.div>
           <p style={{
             fontFamily: "var(--font-grotesk)", fontSize: "0.54rem",
             letterSpacing: "0.22em", textTransform: "uppercase",
-            color: "rgba(201,169,110,0.32)",
+            color: goldA(0.35),
           }}>Explore the Collection</p>
+        </motion.div>
+
         </motion.div>
 
         {/* Bottom edge rule */}
         <div
           className="pointer-events-none absolute bottom-0 left-0 right-0 z-[21]"
-          style={{ height: 1, background: "linear-gradient(to right, transparent, rgba(201,169,110,0.1) 25%, rgba(201,169,110,0.1) 75%, transparent)" }}
+          style={{ height: 1, background: `linear-gradient(to right, transparent, ${goldA(0.12)} 25%, ${goldA(0.12)} 75%, transparent)` }}
         />
       </section>
 
-      {/* ── Space between hero bottom and the filter bar ──────────────────── */}
-      <div style={{ height: "5rem", background: "#050302" }} />
+      {/* ── Porcelain salon: filter + collection (warm catalog paper) ── */}
+      <div
+        style={{
+          background: `linear-gradient(168deg, ${C.porcelain} 0%, #E3D9CE 38%, #EDE6DC 100%)`,
+          color: C.brown,
+          position: "relative",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            height: 2,
+            background: `linear-gradient(90deg, transparent, ${goldA(0.45)} 20%, ${goldA(0.55)} 50%, ${goldA(0.45)} 80%, transparent)`,
+            opacity: 0.85,
+          }}
+        />
 
       {/* ══════════════════════════════════════════════════════════════════════
           CONTROLS  —  sticky filter bar
-          In natural scroll flow there is 5rem of space above it. Once the user
-          scrolls past that gap the bar sticks to top-0, always accessible.
       ══════════════════════════════════════════════════════════════════════ */}
       <div
         className="sticky top-0 z-40 py-7"
         style={{
           paddingLeft: "60px",
           paddingRight: "60px",
-          background: "rgba(4,4,12,0.97)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
-          borderBottom: "1px solid rgba(201,169,110,0.07)",
+          background: "rgba(237, 230, 220, 0.93)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderBottom: `1px solid ${brownA(0.12)}`,
+          boxShadow: `0 12px 40px -28px ${burgA(0.25)}`,
         }}
       >
         <div className="flex flex-wrap items-center gap-4">
@@ -499,23 +661,23 @@ export default function AntiquesPage() {
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   border: cat === c
-                    ? "1px solid rgba(201,169,110,0.65)"
-                    : "1px solid rgba(255,255,255,0.07)",
-                  color:      cat === c ? "#C9A96E" : "#3A3A52",
-                  background: cat === c ? "rgba(201,169,110,0.06)" : "transparent",
+                    ? `1px solid ${goldA(0.7)}`
+                    : `1px solid ${brownA(0.22)}`,
+                  color:      cat === c ? C.gold : brownA(0.78),
+                  background: cat === c ? goldA(0.1) : "transparent",
                   cursor: "pointer",
                   transition: "all 0.2s",
                 }}
                 onMouseEnter={e => {
                   if (cat !== c) {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.18)";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#8884A8";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = brownA(0.4);
+                    (e.currentTarget as HTMLButtonElement).style.color = C.burgundy;
                   }
                 }}
                 onMouseLeave={e => {
                   if (cat !== c) {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.07)";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#3A3A52";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = brownA(0.22);
+                    (e.currentTarget as HTMLButtonElement).style.color = brownA(0.78);
                   }
                 }}
               >{c}</button>
@@ -531,7 +693,7 @@ export default function AntiquesPage() {
                 fontSize: "0.58rem",
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "#3A3A52",
+                color: brownA(0.72),
                 marginRight: "0.5rem",
               }}
             >
@@ -539,28 +701,28 @@ export default function AntiquesPage() {
             </span>
 
             <div className="relative">
-              <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#3A3A52" }} />
+              <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: brownA(0.55) }} />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search objects…"
                 aria-label="Search antiques by name or origin"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.07)",
+                  background: "rgba(255,255,255,0.45)",
+                  border: `1px solid ${brownA(0.2)}`,
                   paddingLeft: "2.25rem",
                   paddingRight: "1rem",
                   paddingTop: "0.475rem",
                   paddingBottom: "0.475rem",
                   fontSize: "0.75rem",
                   fontFamily: "var(--font-grotesk)",
-                  color: "#F4F1E8",
+                  color: C.burgundy,
                   outline: "none",
                   width: "12rem",
                   transition: "border-color 0.2s",
                 }}
-                onFocus={e  => (e.currentTarget.style.borderColor = "rgba(201,169,110,0.5)")}
-                onBlur={e   => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")}
+                onFocus={e  => (e.currentTarget.style.borderColor = goldA(0.55))}
+                onBlur={e   => (e.currentTarget.style.borderColor = brownA(0.2))}
               />
             </div>
 
@@ -576,9 +738,9 @@ export default function AntiquesPage() {
                 style={{
                   padding: "0.475rem",
                   border: view === mode
-                    ? "1px solid rgba(201,169,110,0.6)"
-                    : "1px solid rgba(255,255,255,0.07)",
-                  color: view === mode ? "#C9A96E" : "#3A3A52",
+                    ? `1px solid ${goldA(0.65)}`
+                    : `1px solid ${brownA(0.22)}`,
+                  color: view === mode ? C.gold : brownA(0.65),
                   background: "transparent",
                   cursor: "pointer",
                   display: "flex",
@@ -599,12 +761,12 @@ export default function AntiquesPage() {
             fontSize: "0.54rem",
             letterSpacing: "0.3em",
             textTransform: "uppercase",
-            color: "#3A3A52",
+            color: C.burgundy,
             whiteSpace: "nowrap",
           }}>
             The Collection
           </p>
-          <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.04)" }} />
+          <div style={{ flex: 1, height: 1, background: brownA(0.14) }} />
         </div>
       </div>
 
@@ -657,7 +819,7 @@ export default function AntiquesPage() {
                       <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
                         {item.isNew
                           ? <span style={{
-                              background: "#2AFFA8", color: "#03030A",
+                              background: C.gold, color: C.void,
                               fontSize: "0.5rem", letterSpacing: "0.15em",
                               textTransform: "uppercase",
                               padding: "0.22rem 0.5rem",
@@ -676,8 +838,8 @@ export default function AntiquesPage() {
                           }}
                         >
                           <Heart size={11} style={{
-                            fill: favorites.includes(item.id) ? "#C9A96E" : "none",
-                            color: favorites.includes(item.id) ? "#C9A96E" : "white",
+                            fill: favorites.includes(item.id) ? C.gold : "none",
+                            color: favorites.includes(item.id) ? C.gold : C.cream,
                           }} />
                         </button>
                       </div>
@@ -688,8 +850,8 @@ export default function AntiquesPage() {
                           style={{ background: "rgba(0,0,0,0.55)" }}>
                           <span style={{
                             fontSize: "0.55rem", letterSpacing: "0.22em",
-                            textTransform: "uppercase", color: "#8884A8",
-                            border: "1px solid rgba(136,132,168,0.28)",
+                            textTransform: "uppercase", color: goldA(0.85),
+                            border: `1px solid ${goldA(0.35)}`,
                             padding: "0.35rem 0.85rem",
                             fontFamily: "var(--font-grotesk)",
                           }}>Reserved</span>
@@ -702,14 +864,14 @@ export default function AntiquesPage() {
                     <div style={{
                       paddingTop: "0.25rem",
                       paddingBottom: "1.75rem",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: `1px solid ${brownA(0.16)}`,
                     }}>
                       <p style={{
                         fontFamily: "var(--font-grotesk)",
                         fontSize: "0.54rem",
                         letterSpacing: "0.16em",
                         textTransform: "uppercase",
-                        color: "#C9A96E",
+                        color: C.gold,
                         marginBottom: "0.55rem",
                       }}>
                         {item.category} · {item.period}
@@ -717,23 +879,23 @@ export default function AntiquesPage() {
                       <p style={{
                         fontFamily: "var(--font-playfair)",
                         fontSize: "1rem",
-                        color: "#F4F1E8",
+                        color: C.burgundy,
                         lineHeight: 1.4,
                         marginBottom: "0.65rem",
                         transition: "color 0.2s",
                       }}
-                        className="group-hover:text-[var(--color-gold)]"
+                        className="group-hover:text-[#A47F4A]"
                       >
                         {item.name}
                       </p>
                       <div className="flex items-center justify-between" style={{ marginTop: "0.25rem" }}>
-                        <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.7rem", color: "#3A3A52", lineHeight: 1.6 }}>
+                        <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.7rem", color: brownA(0.88), lineHeight: 1.6 }}>
                           {item.origin}
                         </p>
                         <p style={{
                           fontFamily: "var(--font-grotesk)",
                           fontSize: "0.78rem",
-                          color: item.price ? "#C9A96E" : "#3A3A52",
+                          color: item.price ? C.gold : brownA(0.55),
                           fontFeatureSettings: '"tnum"',
                         }}>
                           {item.price ? formatPrice(item.price) : "POA"}
@@ -750,11 +912,11 @@ export default function AntiquesPage() {
                     className="flex items-center gap-8 cursor-pointer"
                     style={{
                       padding: "2rem 1.5rem",
-                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      borderBottom: `1px solid ${brownA(0.14)}`,
                       margin: "0 -1.5rem",      /* bleed the hover bg edge-to-edge */
                     }}
                     onClick={() => setActiveItem(item)}
-                    whileHover={{ backgroundColor: "rgba(255,255,255,0.012)" }}
+                    whileHover={{ backgroundColor: burgA(0.04) }}
                   >
                     <div className="flex-shrink-0" style={{
                       width: 84, height: 84,
@@ -764,31 +926,31 @@ export default function AntiquesPage() {
                       <p style={{
                         fontFamily: "var(--font-grotesk)", fontSize: "0.54rem",
                         letterSpacing: "0.16em", textTransform: "uppercase",
-                        color: "#C9A96E", marginBottom: "0.4rem",
+                        color: C.gold, marginBottom: "0.4rem",
                       }}>
                         {item.category}
                         {item.isNew && <span style={{
-                          marginLeft: "0.5rem", background: "#2AFFA8", color: "#03030A",
+                          marginLeft: "0.5rem", background: C.gold, color: C.void,
                           padding: "0.1rem 0.35rem", fontSize: "0.48rem", letterSpacing: "0.12em",
                         }}>New</span>}
                       </p>
                       <h3 style={{
                         fontFamily: "var(--font-playfair)",
-                        fontSize: "1.05rem", color: "#F4F1E8",
+                        fontSize: "1.05rem", color: C.burgundy,
                         marginBottom: "0.35rem", lineHeight: 1.3,
                       }}>{item.name}</h3>
-                      <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.7rem", color: "#3A3A52" }}>
+                      <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.7rem", color: brownA(0.85) }}>
                         {item.origin} · {item.period}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
                       <p style={{
                         fontFamily: "var(--font-grotesk)", fontSize: "0.88rem",
-                        color: item.price ? "#C9A96E" : "#3A3A52",
+                        color: item.price ? C.gold : brownA(0.55),
                         fontFeatureSettings: '"tnum"', marginBottom: "0.2rem",
                       }}>{item.price ? formatPrice(item.price) : "POA"}</p>
                       {!item.available && (
-                        <p style={{ fontSize: "0.57rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#3A3A52", fontFamily: "var(--font-grotesk)" }}>
+                        <p style={{ fontSize: "0.57rem", letterSpacing: "0.12em", textTransform: "uppercase", color: brownA(0.65), fontFamily: "var(--font-grotesk)" }}>
                           Reserved
                         </p>
                       )}
@@ -803,10 +965,10 @@ export default function AntiquesPage() {
         {/* Empty state */}
         {filtered.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-44">
-            <p style={{ fontFamily: "var(--font-cormorant)", fontStyle: "italic", fontSize: "1.9rem", color: "#3A3A52", marginBottom: "0.75rem", lineHeight: 1.4 }}>
+            <p style={{ fontFamily: "var(--font-cormorant)", fontStyle: "italic", fontSize: "1.9rem", color: C.burgundy, marginBottom: "0.75rem", lineHeight: 1.4 }}>
               No objects found
             </p>
-            <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.62rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#3A3A52" }}>
+            <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.62rem", letterSpacing: "0.18em", textTransform: "uppercase", color: brownA(0.7) }}>
               Try a different category or search term
             </p>
           </motion.div>
@@ -815,20 +977,22 @@ export default function AntiquesPage() {
 
       {/* ── Pre-footer spacer ── */}
       <div style={{ paddingLeft: "60px", paddingRight: "60px", paddingTop: "5rem", paddingBottom: 0 }}>
-        <div className="flex items-center gap-8 py-16" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-          <div style={{ flex: 1, height: 1, background: "linear-gradient(to right, rgba(201,169,110,0.08), transparent)" }} />
+        <div className="flex items-center gap-8 py-16" style={{ borderTop: `1px solid ${brownA(0.14)}` }}>
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, ${goldA(0.12)}, transparent)` }} />
           <p style={{
             fontFamily: "var(--font-grotesk)",
             fontSize: "0.5rem",
             letterSpacing: "0.38em",
             textTransform: "uppercase",
-            color: "rgba(201,169,110,0.22)",
+            color: goldA(0.35),
             whiteSpace: "nowrap",
           }}>
             Season 2026 · Casablanca
           </p>
-          <div style={{ flex: 1, height: 1, background: "linear-gradient(to left, rgba(201,169,110,0.08), transparent)" }} />
+          <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, ${goldA(0.12)}, transparent)` }} />
         </div>
+      </div>
+
       </div>
 
       <Footer />
@@ -850,8 +1014,12 @@ export default function AntiquesPage() {
 
             {/* Modal shell */}
             <motion.div
-              className="fixed inset-2 md:inset-8 lg:inset-12 z-[700] flex flex-col md:flex-row overflow-hidden"
-              style={{ background: "#080816", border: "1px solid rgba(201,169,110,0.1)" }}
+              className="fixed inset-2 md:inset-8 lg:inset-12 z-[700] flex flex-col md:flex-row overflow-hidden rounded-sm"
+              style={{
+                background: `linear-gradient(145deg, ${C.green} 0%, ${C.burgundy} 42%, ${C.void} 100%)`,
+                border: `1px solid ${goldA(0.22)}`,
+                boxShadow: `0 40px 120px -40px ${burgA(0.65)}, inset 0 1px 0 ${goldA(0.12)}`,
+              }}
               initial={{ opacity: 0, y: 36, scale: 0.96 }}
               animate={{ opacity: 1, y: 0,  scale: 1    }}
               exit={{   opacity: 0, y: 16, scale: 0.97  }}
@@ -867,10 +1035,10 @@ export default function AntiquesPage() {
                   background: "transparent", border: "none", cursor: "pointer",
                   fontFamily: "var(--font-grotesk)", fontSize: "0.57rem",
                   letterSpacing: "0.22em", textTransform: "uppercase",
-                  color: "#3A3A52",
+                  color: brownA(0.55),
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = "#F4F1E8")}
-                onMouseLeave={e => (e.currentTarget.style.color = "#3A3A52")}
+                onMouseEnter={e => (e.currentTarget.style.color = C.burgundy)}
+                onMouseLeave={e => (e.currentTarget.style.color = brownA(0.55))}
               >
                 <X size={12} />
                 <span>Close</span>
@@ -910,7 +1078,7 @@ export default function AntiquesPage() {
                 {/* New arrival */}
                 {activeItem.isNew && (
                   <div className="absolute top-6 left-6"
-                    style={{ background: "#2AFFA8", color: "#03030A", fontFamily: "var(--font-grotesk)", fontSize: "0.54rem", letterSpacing: "0.2em", textTransform: "uppercase", padding: "0.3rem 0.7rem" }}>
+                    style={{ background: C.gold, color: C.void, fontFamily: "var(--font-grotesk)", fontSize: "0.54rem", letterSpacing: "0.2em", textTransform: "uppercase", padding: "0.3rem 0.7rem" }}>
                     New Arrival
                   </div>
                 )}
@@ -929,7 +1097,7 @@ export default function AntiquesPage() {
               </div>
 
               {/* ══ Editorial content panel ═══════════════════════════════ */}
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto" style={{ background: `linear-gradient(180deg, #F7F2EC 0%, ${C.porcelain} 100%)` }}>
                 {/* Inner content — generous padding */}
                 <div style={{
                   padding: "clamp(2.5rem, 5vw, 4.5rem) clamp(2rem, 5vw, 4rem) 3.5rem",
@@ -940,14 +1108,14 @@ export default function AntiquesPage() {
                   <div className="flex items-center gap-4 mb-5">
                     <p style={{
                       fontFamily: "var(--font-grotesk)", fontSize: "0.57rem",
-                      letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E",
+                      letterSpacing: "0.3em", textTransform: "uppercase", color: C.gold,
                     }}>{activeItem.category}</p>
-                    <div style={{ flex: 1, height: 1, background: "rgba(201,169,110,0.1)", maxWidth: 64 }} />
+                    <div style={{ flex: 1, height: 1, background: goldA(0.15), maxWidth: 64 }} />
                     {!activeItem.available && (
                       <span style={{
                         fontFamily: "var(--font-grotesk)", fontSize: "0.5rem",
                         letterSpacing: "0.18em", textTransform: "uppercase",
-                        color: "#3A3A52", border: "1px solid rgba(58,58,82,0.45)",
+                        color: brownA(0.7), border: `1px solid ${brownA(0.35)}`,
                         padding: "0.15rem 0.5rem",
                       }}>Reserved</span>
                     )}
@@ -957,7 +1125,7 @@ export default function AntiquesPage() {
                   <h2 style={{
                     fontFamily: "var(--font-playfair)",
                     fontSize: "clamp(1.7rem, 3.5vw, 2.8rem)",
-                    color: "#F4F1E8",
+                    color: C.burgundy,
                     lineHeight: 1.13,
                     letterSpacing: "-0.01em",
                     marginBottom: "0.85rem",
@@ -966,7 +1134,7 @@ export default function AntiquesPage() {
                   {/* Subtitle */}
                   <p style={{
                     fontFamily: "var(--font-garamond)", fontStyle: "italic",
-                    fontSize: "1.05rem", color: "#8884A8", lineHeight: 1.75,
+                    fontSize: "1.05rem", color: brownA(0.72), lineHeight: 1.75,
                   }}>{activeItem.origin} · {activeItem.period}</p>
 
                   <Rule />
@@ -974,7 +1142,7 @@ export default function AntiquesPage() {
                   {/* Description */}
                   <p style={{
                     fontFamily: "var(--font-garamond)",
-                    fontSize: "1.06rem", color: "#8884A8",
+                    fontSize: "1.06rem", color: brownA(0.78),
                     lineHeight: 1.95,
                   }}>{activeItem.description}</p>
 
@@ -992,9 +1160,9 @@ export default function AntiquesPage() {
                         <p style={{
                           fontFamily: "var(--font-grotesk)", fontSize: "0.54rem",
                           letterSpacing: "0.2em", textTransform: "uppercase",
-                          color: "#3A3A52", marginBottom: "0.6rem",
+                          color: brownA(0.55), marginBottom: "0.6rem",
                         }}>{label}</p>
-                        <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.88rem", color: "#F4F1E8", lineHeight: 1.55 }}>
+                        <p style={{ fontFamily: "var(--font-grotesk)", fontSize: "0.88rem", color: C.burgundy, lineHeight: 1.55 }}>
                           {value}
                         </p>
                       </div>
@@ -1008,11 +1176,11 @@ export default function AntiquesPage() {
                     <p style={{
                       fontFamily: "var(--font-grotesk)", fontSize: "0.54rem",
                       letterSpacing: "0.2em", textTransform: "uppercase",
-                      color: "#3A3A52", marginBottom: "0.9rem",
+                      color: brownA(0.55), marginBottom: "0.9rem",
                     }}>Provenance</p>
                     <p style={{
                       fontFamily: "var(--font-garamond)", fontStyle: "italic",
-                      fontSize: "0.97rem", color: "#8884A8", lineHeight: 1.92,
+                      fontSize: "0.97rem", color: brownA(0.75), lineHeight: 1.92,
                     }}>{activeItem.provenance}</p>
                   </div>
 
@@ -1027,7 +1195,7 @@ export default function AntiquesPage() {
                     <p style={{
                       fontFamily: "var(--font-grotesk)", fontSize: "0.52rem",
                       letterSpacing: "0.26em", textTransform: "uppercase",
-                      color: "#3A3A52", marginBottom: "1rem",
+                      color: brownA(0.5), marginBottom: "1rem",
                     }}>
                       {activeItem.price ? "Estimate" : "Pricing"}
                     </p>
@@ -1040,7 +1208,7 @@ export default function AntiquesPage() {
                         <p style={{
                           fontFamily: "var(--font-playfair)",
                           fontSize: "clamp(2rem, 4vw, 3rem)",
-                          color: "#C9A96E",
+                          color: C.gold,
                           lineHeight: 1,
                           fontFeatureSettings: '"tnum"',
                           letterSpacing: "-0.01em",
@@ -1050,7 +1218,7 @@ export default function AntiquesPage() {
                       ) : (
                         <p style={{
                           fontFamily: "var(--font-garamond)", fontStyle: "italic",
-                          fontSize: "1.1rem", color: "#8884A8",
+                          fontSize: "1.1rem", color: brownA(0.72),
                         }}>
                           Price on application
                         </p>
@@ -1064,9 +1232,9 @@ export default function AntiquesPage() {
                           flexShrink: 0,
                           padding: "0.7rem 1.5rem",
                           border: favorites.includes(activeItem.id)
-                            ? "1px solid rgba(201,169,110,0.6)"
-                            : "1px solid rgba(255,255,255,0.1)",
-                          color: favorites.includes(activeItem.id) ? "#C9A96E" : "#8884A8",
+                            ? `1px solid ${goldA(0.55)}`
+                            : `1px solid ${brownA(0.22)}`,
+                          color: favorites.includes(activeItem.id) ? C.gold : brownA(0.65),
                           fontFamily: "var(--font-grotesk)", fontSize: "0.62rem",
                           letterSpacing: "0.14em", textTransform: "uppercase",
                           background: "transparent", cursor: "pointer",
@@ -1074,20 +1242,20 @@ export default function AntiquesPage() {
                         }}
                         onMouseEnter={e => {
                           if (!favorites.includes(activeItem.id)) {
-                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.25)";
-                            (e.currentTarget as HTMLButtonElement).style.color = "#F4F1E8";
+                            (e.currentTarget as HTMLButtonElement).style.borderColor = goldA(0.45);
+                            (e.currentTarget as HTMLButtonElement).style.color = C.burgundy;
                           }
                         }}
                         onMouseLeave={e => {
                           if (!favorites.includes(activeItem.id)) {
-                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
-                            (e.currentTarget as HTMLButtonElement).style.color = "#8884A8";
+                            (e.currentTarget as HTMLButtonElement).style.borderColor = brownA(0.22);
+                            (e.currentTarget as HTMLButtonElement).style.color = brownA(0.65);
                           }
                         }}
                       >
                         <Heart size={12} style={{
-                          fill: favorites.includes(activeItem.id) ? "#C9A96E" : "none",
-                          color: favorites.includes(activeItem.id) ? "#C9A96E" : "currentColor",
+                          fill: favorites.includes(activeItem.id) ? C.gold : "none",
+                          color: favorites.includes(activeItem.id) ? C.gold : "currentColor",
                         }} />
                         {favorites.includes(activeItem.id) ? "Saved" : "Save"}
                       </button>
@@ -1100,15 +1268,15 @@ export default function AntiquesPage() {
                       style={{
                         width: "100%",
                         padding: "1.25rem",
-                        border: "1px solid rgba(201,169,110,0.5)",
-                        color: "#C9A96E", background: "transparent",
+                        border: `1px solid ${goldA(0.5)}`,
+                        color: C.gold, background: "transparent",
                         fontFamily: "var(--font-grotesk)", fontSize: "0.72rem",
                         letterSpacing: "0.26em", textTransform: "uppercase",
                         cursor: "pointer",
                         marginBottom: "1rem",
                         transition: "all 0.25s",
                       }}
-                      whileHover={{ backgroundColor: "rgba(201,169,110,0.08)", borderColor: "rgba(201,169,110,0.9)" }}
+                      whileHover={{ backgroundColor: goldA(0.1), borderColor: goldA(0.95) }}
                       whileTap={{ scale: 0.998 }}
                       onClick={() => {
                         toast.success("Enquiry sent for " + activeItem.name);
@@ -1120,8 +1288,8 @@ export default function AntiquesPage() {
                   ) : (
                     <div style={{
                       width: "100%", padding: "1.25rem",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      color: "#3A3A52", textAlign: "center",
+                      border: `1px solid ${brownA(0.18)}`,
+                      color: brownA(0.55), textAlign: "center",
                       fontFamily: "var(--font-grotesk)", fontSize: "0.72rem",
                       letterSpacing: "0.26em", textTransform: "uppercase",
                       marginBottom: "1rem",
@@ -1134,13 +1302,13 @@ export default function AntiquesPage() {
                   <motion.button
                     style={{
                       width: "100%", padding: "1rem",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      color: "#8884A8", background: "transparent",
+                      border: `1px solid ${brownA(0.2)}`,
+                      color: brownA(0.65), background: "transparent",
                       fontFamily: "var(--font-grotesk)", fontSize: "0.67rem",
                       letterSpacing: "0.2em", textTransform: "uppercase",
                       cursor: "pointer", transition: "all 0.25s",
                     }}
-                    whileHover={{ borderColor: "rgba(255,255,255,0.16)", color: "#F4F1E8" }}
+                    whileHover={{ borderColor: goldA(0.4), color: C.burgundy }}
                     whileTap={{ scale: 0.998 }}
                     onClick={() => toast("Condition report requested")}
                   >

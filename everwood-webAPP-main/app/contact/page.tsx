@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ChevronDown, X, MapPin, Phone, Mail } from "lucide-react";
+import Image from "next/image";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import TextSplit from "@/components/effects/TextSplit";
@@ -107,18 +108,32 @@ export default function ContactPage() {
       <section style={{
         ...H_PAD,
         position: "relative",
-        minHeight: "100svh",
+        minHeight: "auto",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         paddingTop: "172px",
-        overflow: "hidden",
+        paddingBottom: "3.5rem",
+        overflowX: "hidden",
+        overflowY: "visible",
         textAlign: "center",
       }}>
 
-        {/* Sonar rings */}
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }} aria-hidden="true">
+        {/* Sonar rings — upper band */}
+        <div style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: "172px",
+          height: "min(520px, 46svh)",
+          zIndex: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          pointerEvents: "none",
+        }} aria-hidden="true">
           {[260, 520, 780, 1040].map((size, i) => (
             <motion.div key={i}
               style={{
@@ -129,7 +144,6 @@ export default function ContactPage() {
               transition={{ duration: 4.5, delay: i * 1.1, repeat: Infinity, ease: "easeOut" }}
             />
           ))}
-          {/* Centre dot */}
           <div style={{
             position: "absolute", width: 8, height: 8, borderRadius: "50%",
             background: "#C9A96E",
@@ -137,14 +151,28 @@ export default function ContactPage() {
           }} />
         </div>
 
-        {/* Ambient radial glow */}
         <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: "172px",
+          height: "min(520px, 46svh)",
+          zIndex: 3,
+          overflow: "hidden",
+          pointerEvents: "none",
           background: "radial-gradient(ellipse 70% 55% at 50% 50%, rgba(201,169,110,0.045) 0%, transparent 68%)",
         }} aria-hidden="true" />
 
-        {/* ── Hero content ── */}
-        <div style={{ position: "relative", zIndex: 10, maxWidth: "54rem", width: "100%" }}>
+        {/* ── Hero content (above illustration) ── */}
+        <div
+          style={{
+            position: "relative",
+            zIndex: 10,
+            maxWidth: "54rem",
+            width: "100%",
+            marginBottom: "2.25rem",
+          }}
+        >
 
           {/* Open / closed badge */}
           <motion.div
@@ -198,6 +226,7 @@ export default function ContactPage() {
                 lineHeight: 0.94,
                 letterSpacing: "-0.02em",
                 color: "#F4F1E8",
+                textShadow: "0 2px 28px rgba(3,3,10,0.95), 0 1px 4px rgba(3,3,10,1)",
               } as React.CSSProperties}
             />
           </div>
@@ -214,8 +243,9 @@ export default function ContactPage() {
             <p style={{
               fontFamily: "var(--font-garamond)", fontStyle: "italic",
               fontSize: "clamp(1.05rem, 1.7vw, 1.28rem)",
-              color: "#8884A8", lineHeight: 1.9,
+              color: "#A8A4C4", lineHeight: 1.9,
               maxWidth: "44ch", margin: "0 auto",
+              textShadow: "0 2px 18px rgba(3,3,10,0.92)",
             }}>
               We read every message. Whether you&apos;re planning a visit,
               inquiring about an object, or proposing something extraordinary —
@@ -224,8 +254,32 @@ export default function ContactPage() {
           </RevealOnScroll>
         </div>
 
+        {/* Smoke signal illustration — full art, intrinsic 1024×1536 */}
+        <div
+          style={{
+            position: "relative",
+            width: "100vw",
+            marginLeft: "calc(50% - 50vw)",
+            aspectRatio: "1024 / 1536",
+            background: "#03030A",
+            zIndex: 1,
+          }}
+        >
+          <Image
+            src="/images/nav/send%20a%20signal.png"
+            alt=""
+            fill
+            sizes="100vw"
+            priority
+            style={{
+              objectFit: "contain",
+              objectPosition: "center center",
+            }}
+          />
+        </div>
+
         {/* Scroll cue */}
-        <div style={{ position: "absolute", bottom: "2.5rem", left: "50%", transform: "translateX(-50%)" }}>
+        <div style={{ position: "relative", marginTop: "1.75rem", zIndex: 12, display: "flex", justifyContent: "center" }}>
           <motion.div
             animate={{ y: [0, 7, 0] }}
             transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
@@ -238,7 +292,9 @@ export default function ContactPage() {
 
         {/* Bottom edge rule */}
         <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: 1,
+          marginTop: "2rem",
+          width: "100%",
+          height: 1,
           background: "linear-gradient(to right, transparent, rgba(201,169,110,0.1) 25%, rgba(201,169,110,0.1) 75%, transparent)",
         }} />
       </section>

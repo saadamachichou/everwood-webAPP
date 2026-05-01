@@ -58,15 +58,21 @@ export default function Footer() {
           <RevealOnScroll y={18}>
             <div>
               {/* wordmark */}
-              <p style={{
-                fontFamily: "var(--font-playfair)",
-                fontSize: "clamp(2.35rem, 3.6vw, 3.65rem)",
-                fontWeight: 400,
-                color: "#F4F1E8", lineHeight: 1.02,
-                marginBottom: ".85rem", letterSpacing: "-0.02em",
-              }}>
-                Ever<span style={{ color: "var(--ev-footer-hover, #C9A96E)", fontWeight: 400 }}>wood</span>
-              </p>
+              <div style={{ marginBottom: ".85rem" }}>
+                <img
+                  src="/images/nav/logo.png"
+                  alt="Everwood"
+                  style={{
+                    maxHeight: "clamp(2.65rem, 5.2vw, 4.1rem)",
+                    width: "auto",
+                    maxWidth: "min(380px, 92vw)",
+                    height: "auto",
+                    display: "block",
+                    objectFit: "contain",
+                    objectPosition: "left center",
+                  }}
+                />
+              </div>
 
               <p style={{
                 fontSize: ".5rem", letterSpacing: ".34em", textTransform: "uppercase",
